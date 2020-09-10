@@ -23,13 +23,13 @@
 
 	{fbvFormArea id="oauthAppFormArea"}
 		{fbvFormSection}
-			{fbvElement type="text" required=true label="plugins.generic.oauth.oauthApp.settings.oauthAppName" id="oauthAppName" value=$oauthAppName maxlength="40" inline=true size=$fbvStyles.size.MEDIUM}
+			{fbvElement type="text" required=true label="plugins.generic.oauth.oauthApp.settings.oauthAppName" id="oauthAppName" value=$oauthAppName maxlength="250" inline=true size=$fbvStyles.size.MEDIUM}
 		{/fbvFormSection}
 		{fbvFormSection}
-			{fbvElement type="text" required="true" label="plugins.generic.oauth.oauthApp.settings.oauthAPIAuth" id="oauthAPIAuth" value=$oauthAPIAuth maxlength="40" inline=true size=$fbvStyles.size.MEDIUM}
+			{fbvElement type="text" required="true" label="plugins.generic.oauth.oauthApp.settings.oauthAPIAuth" id="oauthAPIAuth" value=$oauthAPIAuth maxlength="250" inline=true size=$fbvStyles.size.MEDIUM}
 		{/fbvFormSection}
 		{fbvFormSection}
-			{fbvElement type="text" required="true" label="plugins.generic.oauth.oauthApp.settings.oauthAPIVerify" id="oauthAPIVerify" value=$oauthAPIVerify maxlength="40" inline=true size=$fbvStyles.size.MEDIUM}
+			{fbvElement type="text" required="true" label="plugins.generic.oauth.oauthApp.settings.oauthAPIVerify" id="oauthAPIVerify" value=$oauthAPIVerify maxlength="250" inline=true size=$fbvStyles.size.MEDIUM}
 		{/fbvFormSection}
 		{fbvFormSection}
 			{fbvElement type="text" required="true" label="plugins.generic.oauth.oauthApp.settings.oauthClientId" id="oauthClientId" value=$oauthClientId maxlength="40" inline=true size=$fbvStyles.size.MEDIUM}

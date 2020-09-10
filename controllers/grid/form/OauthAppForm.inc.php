@@ -16,25 +16,19 @@
 
 import('lib.pkp.classes.form.Form');
 
-class OauthAppForm extends Form {
-	/** @var int Context ID */
-	var $contextId;
+class OauthAppForm extends Form
+{
 
-	/** @var string OAuth application name */
-	var $oauthAppName;
+	private $plugin;
 
 	/**
 	 * Constructor
-	 * @param $template string the path to the form template file
-	 * @param $contextId int
-	 * @param $oauthAppName string
+	 * @param $plugin
 	 */
-	function OauthAppForm($template, $contextId, $oauthAppName = null) {
-		parent::Form($template);
-
-		$this->contextId = $contextId;
-		$this->oauthAppName = $oauthAppName;
-
+	public function __construct($plugin)
+	{
+		parent::__construct($plugin->getTemplateResource('editOauthAppForm.tpl'));
+		$this->plugin = $plugin;
 		// Add form checks
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
@@ -43,13 +37,14 @@ class OauthAppForm extends Form {
 	/**
 	 * @copydoc Form::initData()
 	 */
-	function initData() {
-		$contextId = $this->contextId;
-		$oauthAppName = $this->oauthAppName;
+	function initData()
+	{
+		$contextId = Application::get()->getRequest()->getContext()->getId();
+		$oauthAppName = $this->plugin->getName();
 		$plugin = PluginRegistry::getPlugin('generic', OAUTH_PLUGIN_NAME);
-		$templateMgr = TemplateManager::getManager();
 		if ($oauthAppName) {
 			$oauthAppSettingsJson = $plugin->getSetting($contextId, 'oauthAppSettings');
+			error_log($oauthAppSettingsJson);
 			$oauthAppSettingsArray = json_decode($oauthAppSettingsJson, true);
 			$this->_data = array(
 				'oauthAppName' => $oauthAppName,
@@ -66,27 +61,34 @@ class OauthAppForm extends Form {
 	/**
 	 * @copydoc Form::readInputData()
 	 */
-	function readInputData() {
-		$this->readUserVars(array(
-			'oauthAppName',
-			'oauthAPIAuth',
-			'oauthAPIVerify',
-			'oauthClientId',
-			'oauthClientSecret',
-			'oauthUniqueId',
-			'oauthScope',
-		));
+	function readInputData()
+	{
+		$this->readUserVars(
+			array(
+				'oauthAppName',
+				'oauthAPIAuth',
+				'oauthAPIVerify',
+				'oauthClientId',
+				'oauthClientSecret',
+				'oauthUniqueId',
+				'oauthScope',
+			)
+		);
 	}
 
 	/**
 	 * @copydoc Form::execute()
+	 * @param mixed ...$functionArgs
 	 */
-	function execute() {
-		$oauthAppName = $this->oauthAppName;
-		$contextId = $this->contextId;
+	function execute(...$functionArgs)
+	{
+		$oauthAppName = $this->plugin->getName();
+		$contextId = Application::get()->getRequest()->getContext()->getId();
 		$plugin = PluginRegistry::getPlugin('generic', OAUTH_PLUGIN_NAME);
 		$oauthAppNames = $plugin->getSetting($contextId, 'oauthAppNames');
-		if (empty($oauthAppNames)) $oauthAppNames = array();
+		if (empty($oauthAppNames)) {
+			$oauthAppNames = array();
+		}
 		$oauthAppSettingsJson = $plugin->getSetting($contextId, 'oauthAppSettings');
 		$oauthAppSettingsArray = array();
 		if (!empty($oauthAppSettingsJson)) {

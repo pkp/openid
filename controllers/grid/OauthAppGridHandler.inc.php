@@ -23,12 +23,12 @@ class OauthAppGridHandler extends GridHandler {
 	/**
 	 * Constructor
 	 */
-	function OauthAppGridHandler() {
-		parent::GridHandler();
-		$this->addRoleAssignment(
+	function __construct() {
+		parent::__construct();
+		/*$this->addRoleAssignment(
 			array(ROLE_ID_MANAGER),
 			array('fetchGrid', 'fetchRow', 'addOauthApp', 'editOauthApp', 'updateOauthApp', 'deleteOauthApp')
-		);
+		);*/
 		$this->plugin = PluginRegistry::getPlugin('generic', OAUTH_PLUGIN_NAME);
 	}
 
@@ -117,14 +117,9 @@ class OauthAppGridHandler extends GridHandler {
 	 * @return string Serialized JSON object
 	 */
 	function editOauthApp($args, $request) {
-		$oauthAppName = $request->getUserVar('oauthAppName');
-		$context = $request->getContext();
 		$this->setupTemplate($request);
-		// Create and present the edit form
 		import('plugins.generic.oauth.controllers.grid.form.OauthAppForm');
-		$oauthPlugin = $this->plugin;
-		$template = $oauthPlugin->getTemplatePath() . 'editOauthAppForm.tpl';
-		$oauthAppForm = new OauthAppForm($template, $context->getId(), $oauthAppName);
+		$oauthAppForm = new OauthAppForm($this->plugin);
 		$oauthAppForm->initData();
 		$json = new JSONMessage(true, $oauthAppForm->fetch($request));
 		return $json->getString();
@@ -137,22 +132,14 @@ class OauthAppGridHandler extends GridHandler {
 	 * @return string Serialized JSON object
 	 */
 	function updateOauthApp($args, $request) {
-		$oauthAppName = $request->getUserVar('existingOauthAppName');
-		$context = $request->getContext();
 		$this->setupTemplate($request);
-		// Create and populate the form
 		import('plugins.generic.oauth.controllers.grid.form.OauthAppForm');
-		$oauthPlugin = $this->plugin;
-		$template = $oauthPlugin->getTemplatePath() . 'editOauthAppForm.tpl';
-		$oauthAppForm = new OauthAppForm($template, $context->getId(), $oauthAppName);
+		$oauthAppForm = new OauthAppForm($this->plugin);
 		$oauthAppForm->readInputData();
-		// Check the results
 		if ($oauthAppForm->validate()) {
-			// Save the results
 			$oauthAppForm->execute();
 			return DAO::getDataChangedEvent();
 		} else {
-			// Present any errors
 			$json = new JSONMessage(true, $oauthAppForm->fetch($request));
 			return $json->getString();
 		}

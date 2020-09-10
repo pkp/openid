@@ -10,10 +10,10 @@
  *
  *}
 <script type="text/javascript">
-{literal}
+{*{literal}
 $(document).ready( function () {
 	//TODO: add links to various OAuth sources via jQuery
 	// Also, make sure jQuery is available
 });
-{/literal}
+{/literal}*}
 </script>

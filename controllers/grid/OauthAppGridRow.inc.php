@@ -15,12 +15,14 @@
 
 import('lib.pkp.classes.controllers.grid.GridRow');
 
-class OauthAppGridRow extends GridRow {
+class OauthAppGridRow extends GridRow
+{
 	/**
 	 * Constructor
 	 */
-	function OauthAppGridRow() {
-		parent::GridRow();
+	function __construct()
+	{
+		parent::__construct();
 	}
 
 	//
@@ -28,9 +30,12 @@ class OauthAppGridRow extends GridRow {
 	//
 	/**
 	 * @copydoc GridRow::initialize()
+	 * @param $request
+	 * @param null $args
 	 */
-	function initialize($request) {
-		parent::initialize($request);
+	function initialize($request, $args = null)
+	{
+		parent::__construct();
 
 		$oauthAppName = $this->getId();
 		if (!empty($oauthAppName)) {
@@ -45,7 +50,8 @@ class OauthAppGridRow extends GridRow {
 						$router->url($request, null, null, 'editOauthApp', null, array('oauthAppName' => $oauthAppName)),
 						__('grid.action.edit'),
 						'modal_edit',
-						true),
+						true
+					),
 					__('grid.action.edit'),
 					'edit'
 				)
