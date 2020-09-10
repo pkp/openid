@@ -16,21 +16,20 @@
 
 import('classes.handler.Handler');
 
-class OauthHandler extends Handler
+class KeycloakHandler extends Handler
 {
-	function oauthAuthorize($args, $request)
+	function doAuthentication($args, $request)
 	{
+		error_log("$$$$$$");
 		$context = $request->getContext();
-		$plugin = PluginRegistry::getPlugin('generic', 'oauthplugin');
+		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		$contextId = ($context == null) ? 0 : $context->getId();
-		$oauthAppName = $request->getUserVar('oauthAppName');
-
-		$oauthSettings = json_decode($plugin->getSetting($contextId, 'oauthAppSettings'), true);
+		$settings = json_decode($plugin->getSetting($contextId, 'keycloakSettings'), true);
 		$curl = curl_init();
 		curl_setopt_array(
 			$curl,
 			array(
-				CURLOPT_URL => $oauthSettings[$oauthAppName]['oauthAPIVerify'],
+				CURLOPT_URL => $settings['url'].'auth/realms/'.$settings['realm'].'/protocol/openid-connect/token',
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_HTTPHEADER => array('Accept: application/json'),
 				CURLOPT_POST => true,
@@ -38,32 +37,23 @@ class OauthHandler extends Handler
 					array(
 						'code' => $request->getUserVar('code'),
 						'grant_type' => 'authorization_code',
-						'client_id' => $oauthSettings[$oauthAppName]['oauthClientId'],
-						'client_secret' => $oauthSettings[$oauthAppName]['oauthClientSecret'],
-						'redirect_uri' => Application::get()->getRequest()->url(null, 'oauth', 'oauthAuthorize')."?oauthAppName=".$oauthAppName,
+						'client_id' => $settings['clientId'],
+						'client_secret' => $settings['clientSecret'],
+						'redirect_uri' => Application::get()->getRequest()->url(null, 'keycloak', 'doAuthentication'),
 					)
 				),
 			)
 		);
 		$result = curl_exec($curl);
-		if (strpos($oauthSettings[$oauthAppName]['oauthAPIVerify'], 'openid-connect') == true) {
-			$tokenParts = explode(".", $result);
-			$tokenPayload = base64_decode($tokenParts[1]);
-			$jwtPayload = json_decode($tokenPayload);
-			$uniqueId = $jwtPayload->sub;
-			$email = $jwtPayload->email;
-			error_log("#### ".$email);
-		} else {
-			$response = json_decode($result, true);
-			$subkey = explode('/', $oauthSettings[$oauthAppName]['oauthUniqueId'], 2);
-			if (count($subkey) == 2) {
-				// TODO: decode the JWT object and extract the $subkey[1]
-				$uniqueId = $response[$subkey[0]];
-			} else {
-				$uniqueId = $response[$oauthSettings[$oauthAppName]['oauthUniqueId']];
-			}
-		}
-		if ($uniqueId) {
+
+		$tokenParts = explode(".", $result);
+		$tokenPayload = base64_decode($tokenParts[1]);
+		$jwtPayload = json_decode($tokenPayload);
+		$uniqueId = $jwtPayload->sub;
+		$email = $jwtPayload->email;
+		error_log("######################### ".$uniqueId);
+		error_log("######################### ".$email);
+		/*if ($uniqueId) {
 			error_log($uniqueId);
 			$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
 			$users = $userSettingsDao->getUsersBySetting('oauth::'.$oauthAppName, $uniqueId);
@@ -100,7 +90,8 @@ class OauthHandler extends Handler
 			// OAuth login was tried, but failed
 			// Show a message?
 			Validation::redirectLogin('plugins.generic.oauth.message.oauthLoginError');
-		}
+		}*/
+		Validation::redirectLogin();
 	}
 
 }
