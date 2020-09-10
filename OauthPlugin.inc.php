@@ -157,6 +157,7 @@ class OauthPlugin extends GenericPlugin
 			$output = $newOutput;
 			$templateMgr->unregisterFilter('output', array($this, 'loginFilter'));
 		}
+
 		return $output;
 	}
 

@@ -13,7 +13,6 @@
  * @brief Handle return call from OAuth
  */
 
-use Firebase\JWT\JWT;
 
 import('classes.handler.Handler');
 
@@ -46,10 +45,8 @@ class OauthHandler extends Handler
 				),
 			)
 		);
-
 		$result = curl_exec($curl);
 		if (strpos($oauthSettings[$oauthAppName]['oauthAPIVerify'], 'openid-connect') == true) {
-			$result = curl_exec($curl);
 			$tokenParts = explode(".", $result);
 			$tokenPayload = base64_decode($tokenParts[1]);
 			$jwtPayload = json_decode($tokenPayload);
