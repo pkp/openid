@@ -14,6 +14,8 @@
  */
 
 
+use Firebase\JWT\JWT;
+
 import('classes.handler.Handler');
 
 class KeycloakHandler extends Handler
@@ -44,15 +46,20 @@ class KeycloakHandler extends Handler
 				),
 			)
 		);
-		$result = curl_exec($curl);
 
-		$tokenParts = explode(".", $result);
+
+		$result = curl_exec($curl);
+		curl_close($curl);
+		$result = json_decode($result, true);
+		$tokenParts = explode(".", $result['access_token']);
 		$tokenPayload = base64_decode($tokenParts[1]);
 		$jwtPayload = json_decode($tokenPayload);
+		var_dump($jwtPayload);
 		$uniqueId = $jwtPayload->sub;
 		$email = $jwtPayload->email;
-		error_log("######################### ".$uniqueId);
-		error_log("######################### ".$email);
+		var_dump($uniqueId);
+		var_dump($email);
+		$this->getAccountDetails($request, $result['access_token']);
 		/*if ($uniqueId) {
 			error_log($uniqueId);
 			$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
@@ -91,7 +98,29 @@ class KeycloakHandler extends Handler
 			// Show a message?
 			Validation::redirectLogin('plugins.generic.oauth.message.oauthLoginError');
 		}*/
-		Validation::redirectLogin();
+		//Validation::redirectLogin();
+	}
+
+
+	function getAccountDetails($request, $token){
+		var_dump($token);
+		var_dump('getAccountDetails');
+		$context = $request->getContext();
+		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
+		$contextId = ($context == null) ? 0 : $context->getId();
+		$settings = json_decode($plugin->getSetting($contextId, 'keycloakSettings'), true);
+		$curl = curl_init();
+		curl_setopt_array(
+			$curl,
+			array(
+				CURLOPT_URL => $settings['url'].'auth/realms/'.$settings['realm'].'/account',
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_HTTPHEADER => array('Accept: application/json', 'Authorization: Bearer ' . $token),
+				CURLOPT_POST => true
+			)
+		);
+		$result = curl_exec($curl);
+		var_dump($result);
 	}
 
 }
