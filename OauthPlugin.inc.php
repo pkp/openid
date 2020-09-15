@@ -29,7 +29,6 @@ class OauthPlugin extends GenericPlugin
 	{
 		$success = parent::register($category, $path);
 		if ($success && $this->getEnabled()) {
-			HookRegistry::register('TemplateManager::display', array($this, 'templateCallback'));
 			HookRegistry::register('LoadHandler', array($this, 'callbackLoadHandler'));
 		}
 
@@ -41,77 +40,25 @@ class OauthPlugin extends GenericPlugin
 	{
 		$page = $args[0];
 		$op = $args[1];
+		define('KEYCLOAK_PLUGIN_NAME', $this->getName());
 		if ($this->getEnabled())
 			switch ("$page/$op") {
 				case 'keycloak/doAuthentication':
 					define('HANDLER_CLASS', 'KeycloakHandler');
-					define('KEYCLOAK_PLUGIN_NAME', $this->getName());
 					$args[2] = $this->getPluginPath().'/'.'KeycloakHandler.inc.php';
 					break;
-			}
-
-		return false;
-	}
-
-
-	/**
-	 * Hook callback function for TemplateManager::display
-	 * @param $hookName string
-	 * @param $args array
-	 * @return boolean
-	 */
-	function templateCallback($hookName, $args)
-	{
-		$templateMgr =& $args[0];
-		$template =& $args[1];
-		if ($this->getEnabled()) {
-			switch ($template) {
-				case 'frontend/pages/userRegister.tpl':
-				case 'frontend/pages/userLogin.tpl':
-					$templateMgr->registerFilter('output', array($this, 'loginFilter'));
+				case 'login/index':
+				case 'user/register':
+				case 'login/signOut':
+				case 'login/signOutOjs':
+					define('HANDLER_CLASS', 'LoginRegisterHandler');
+					$args[2] = $this->getPluginPath().'/'.'LoginRegisterHandler.inc.php';
 					break;
 			}
-		}
 
 		return false;
 	}
 
-	/**
-	 * Output filter adds other oauth app interaction to login form.
-	 * @param $output string
-	 * @param $templateMgr TemplateManager
-	 * @return string
-	 */
-	function loginFilter($output, $templateMgr)
-	{
-		if (preg_match('/<form.*id="login" (?s)(.*)<\/form>/', $output, $matches, PREG_OFFSET_CAPTURE)) {
-			$match = $matches[0][0];
-			$offset = $matches[0][1];
-			$context = Application::get()->getRequest()->getContext();
-			$contextId = ($context == null) ? 0 : $context->getId();
-			$settingsJson = $this->getSetting($contextId, 'keycloakSettings');
-			if ($settingsJson != null) {
-				$settings = json_decode($settingsJson, true);
-				if (key_exists('url', $settings) && key_exists('realm', $settings) && key_exists('clientId', $settings)) {
-					$templateMgr->assign(
-						array(
-							'targetOp' => 'login',
-							'url' => $settings['url'],
-							'realm' => $settings['realm'],
-							'clientId' => $settings['clientId'],
-						)
-					);
-					$newOutput = substr($output, 0, $offset + strlen($match));
-					$newOutput .= $templateMgr->fetch($this->getTemplateResource('authLink.tpl'));
-					$newOutput .= substr($output, $offset + strlen($match));
-					$output = $newOutput;
-				}
-			}
-			$templateMgr->unregisterFilter('output', array($this, 'loginFilter'));
-		}
-
-		return $output;
-	}
 
 	/**
 	 * Override the builtin to get the correct template path.
