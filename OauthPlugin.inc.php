@@ -43,16 +43,21 @@ class OauthPlugin extends GenericPlugin
 		define('KEYCLOAK_PLUGIN_NAME', $this->getName());
 		if ($this->getEnabled())
 			switch ("$page/$op") {
-				case 'keycloak/doAuthentication':
-					define('HANDLER_CLASS', 'KeycloakHandler');
-					$args[2] = $this->getPluginPath().'/'.'KeycloakHandler.inc.php';
+				case 'oauth/doAuthentication':
+				case 'oauth/registerOrConnect':
+					$request = Application::get()->getRequest();
+					$templateMgr = TemplateManager::getManager($request);
+					$templateMgr->addStyleSheet('OauthPluginStyle', '/'.$this->getPluginPath().'/css/oauth.css');
+					$templateMgr->addJavaScript('OauthPluginScript', '/'.$this->getPluginPath().'/js/oauth.js');
+					define('HANDLER_CLASS', 'OauthPluginHandler');
+					$args[2] = $this->getPluginPath().'/handler/OauthPluginHandler.inc.php';
 					break;
 				case 'login/index':
 				case 'user/register':
 				case 'login/signOut':
 				case 'login/signOutOjs':
-					define('HANDLER_CLASS', 'LoginRegisterHandler');
-					$args[2] = $this->getPluginPath().'/'.'LoginRegisterHandler.inc.php';
+					define('HANDLER_CLASS', 'OauthLoginRegisterHandler');
+					$args[2] = $this->getPluginPath().'/handler/OauthLoginRegisterHandler.inc.php';
 					break;
 			}
 
@@ -126,8 +131,8 @@ class OauthPlugin extends GenericPlugin
 	{
 		switch ($request->getUserVar('verb')) {
 			case 'settings':
-				$this->import('KeycloakPluginSetupForm');
-				$form = new KeycloakPluginSetupForm($this);
+				$this->import('forms/OauthPluginSetupForm');
+				$form = new OauthPluginSetupForm($this);
 				if (!$request->getUserVar('save')) {
 					$form->initData();
 

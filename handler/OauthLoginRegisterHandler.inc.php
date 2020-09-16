@@ -2,8 +2,10 @@
 
 import('classes.handler.Handler');
 
-class LoginRegisterHandler extends Handler
+class OauthLoginRegisterHandler extends Handler
 {
+
+
 	/**
 	 * Disables the default login.
 	 * This function redirects to the oauth login page.
@@ -28,7 +30,7 @@ class LoginRegisterHandler extends Handler
 						'/protocol/openid-connect/auth?client_id='.
 						$settings['clientId'].
 						'&response_type=code&scope=openid&redirect_uri='.
-						$router->url($request, $context, "keycloak", "doAuthentication")
+						$router->url($request, null, "oauth", "doAuthentication")
 					);
 				}
 			}

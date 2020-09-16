@@ -1,0 +1,11 @@
+
+
+#oauth #register-form,
+#oauth #login-form{
+	display: none;
+	cursor: pointer;
+}
+
+#oauth #register-form .optin-privacy .required{
+	color: #ff4040;
+}

@@ -16,10 +16,10 @@
 
 import('lib.pkp.classes.form.Form');
 
-class KeycloakPluginSetupForm extends Form
+class OauthPluginSetupForm extends Form
 {
 
-	private $plugin;
+	private OauthPlugin $plugin;
 
 	/**
 	 * Constructor

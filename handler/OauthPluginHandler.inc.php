@@ -17,54 +17,74 @@ use Firebase\JWT\JWT;
 
 import('classes.handler.Handler');
 
-class KeycloakHandler extends Handler
+class OauthPluginHandler extends Handler
 {
 	function doAuthentication($args, $request)
 	{
+		$templateMgr = TemplateManager::getManager($request);
 		$context = $request->getContext();
 		$user = null;
-		$credentials = null;
+		$tokenData = null;
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		$contextId = ($context == null) ? 0 : $context->getId();
 		$settings = json_decode($plugin->getSetting($contextId, 'keycloakSettings'), true);
 		$accessToken = $this->getAccessTokenViaAuthCode($settings, $request->getUserVar('code'));
 		$publicKey = $this->getPublicKey($settings);
 		if ($accessToken != null && $publicKey != null) {
-			$jwtPayload = JWT::decode($accessToken, $publicKey, array('RS256'));
-			$credentials = [
-				'id' => $jwtPayload->sub,
-				'email' => $jwtPayload->email,
-				'username' => $jwtPayload->preferred_username,
-				'given_name' => $jwtPayload->given_name,
-				'family_name' => $jwtPayload->family_name,
-				'email_verified' => $jwtPayload->email_verified,
-			];
-			$user = $this->getUserViaKeycloakId($credentials);
-		}
-
-		if ($user == null) {
-			$user = $this->registerUser($credentials);
-		}
-
-		if ($user && is_a($user, 'User') && !$user->getDisabled()) {
-			$user = $this->registerUserSession($user, true);
-			// TODO save OJS-API-KEY into KEYCLOAK or use keycloak id as encrypted api-key???
-			//$user = $this->setOjsApiKey($user, time());
-			$user = $this->setOjsApiKey($user, $credentials['id']);
-			error_log('##################### '.$user->getData('apiKey'));
-
-			return $request->redirect($context->getPath(), 'user', 'profile', null, $args);
-		} elseif ($user->getDisabled()) {
-			$reason = $user->getDisabledReason();
-			if ($reason === null) {
-				$reason = '';
+			$tokenData = $this->extractCredentialsFromToken($accessToken, $publicKey);
+			$user = $this->getUserViaKeycloakId($tokenData);
+			if ($user == null) {
+				import($plugin->getPluginPath().'/forms/OauthStep2Form');
+				$regForm = new OauthStep2Form($plugin->getTemplateResource('authStep2.tpl'), $tokenData);
+				$regForm->initData();
+				$regForm->display($request);
+				//$user = $this->registerUser($credentials);
+				// create and enable API-KEY
+				//$this->setOjsApiKey($user, $credentials['id']);
+			} elseif (is_a($user, 'User') && !$user->getDisabled()) {
+				$this->registerUserSession($user, true);
+				$request->redirect($context->getPath(), 'user', 'profile', null, $args);
+			} elseif ($user->getDisabled()) {
+				// TODO return to login page with error messages
+				$reason = $user->getDisabledReason();
+				if ($reason === null) {
+					$reason = '';
+				}
 			}
+		} else {
+			// TODO OAUTH ERROR Handling
 		}
 
-		// TODO return to login page with error messages
-		return false;
+		return true;
+	}
+
+	function registerOrConnect($args, $request)
+	{
+		if (Validation::isLoggedIn()) {
+			$this->setupTemplate($request);
+			$templateMgr = TemplateManager::getManager($request);
+			$templateMgr->assign('pageTitle', 'user.login.registrationComplete');
+			return $templateMgr->display('frontend/pages/userRegisterComplete.tpl');
+		}
+		// redirect to login if no post request
+		if (!$request->isPost()) {
+			$request->redirect(Application::get()->getRequest()->getContext(), 'login');
+		}
+		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
+		import($plugin->getPluginPath().'/forms/OauthStep2Form');
+		$regForm = new OauthStep2Form($plugin->getTemplateResource('authStep2.tpl'));
+		$regForm->readInputData();
+		if (!$regForm->validate()) {
+			$regForm->display($request);
+		}
+		$regForm->execute();
+
+		$regForm->display($request);
+
+
 
 	}
+
 
 	private function getUserViaKeycloakId($credentials)
 	{
@@ -83,6 +103,18 @@ class KeycloakHandler extends Handler
 		}
 
 		return null;
+	}
+
+
+	private function checkAndCreateUsername($username)
+	{
+		$userDao = DAORegistry::getDAO('UserDAO');
+		$user = $userDao->getByUsername($username, true);
+		if (isset($user)) {
+			return $this->checkAndCreateUsername($username.openssl_random_pseudo_bytes(2));
+		}
+
+		return $username;
 	}
 
 	/**
@@ -147,12 +179,11 @@ class KeycloakHandler extends Handler
 	/**
 	 * This function is used to login a user to OJS after the Keycloak login was successful.
 	 *
-	 * @param $user
-	 * @param $reason
-	 * @param false $remember
+	 * @param User $user
+	 * @param bool $remember
 	 * @return User
 	 */
-	private function registerUserSession($user, $remember = false)
+	private function registerUserSession(User $user, bool $remember = false): User
 	{
 		$sessionManager = SessionManager::getManager();
 		$sessionManager->regenerateSessionId();
@@ -175,13 +206,12 @@ class KeycloakHandler extends Handler
 	/**
 	 * This function returns the access token which contains the user data.
 	 *
-	 * @param $settings
-	 * @param $authorizationCode
+	 * @param array $settings
+	 * @param string $authorizationCode
 	 * @return string|null
 	 */
-	private function getAccessTokenViaAuthCode($settings, $authorizationCode)
+	private function getAccessTokenViaAuthCode(array $settings, string $authorizationCode): string
 	{
-
 		$accessToken = null;
 		$curl = curl_init();
 		curl_setopt_array(
@@ -197,7 +227,7 @@ class KeycloakHandler extends Handler
 						'grant_type' => 'authorization_code',
 						'client_id' => $settings['clientId'],
 						'client_secret' => $settings['clientSecret'],
-						'redirect_uri' => Application::get()->getRequest()->url(null, 'keycloak', 'doAuthentication'),
+						'redirect_uri' => Application::get()->getRequest()->url(null, 'oauth', 'doAuthentication'),
 					)
 				),
 			)
@@ -221,7 +251,7 @@ class KeycloakHandler extends Handler
 	 * @param $settings
 	 * @return string|null
 	 */
-	private function getPublicKey($settings)
+	private function getPublicKey(array $settings): string
 	{
 
 		$beginCert = '-----BEGIN CERTIFICATE-----';
@@ -254,6 +284,30 @@ class KeycloakHandler extends Handler
 		}
 
 		return $publicKey;
+	}
+
+
+	/**
+	 * @param string $accessToken
+	 * @param string $publicKey
+	 * @return array|null
+	 */
+	private function extractCredentialsFromToken(string $accessToken, string $publicKey): array
+	{
+		$jwtPayload = JWT::decode($accessToken, $publicKey, array('RS256'));
+		$credentials = null;
+		if ($jwtPayload) {
+			$credentials = [
+				'id' => $jwtPayload->sub,
+				'email' => $jwtPayload->email,
+				'username' => $jwtPayload->preferred_username,
+				'given_name' => $jwtPayload->given_name,
+				'family_name' => $jwtPayload->family_name,
+				'email_verified' => $jwtPayload->email_verified,
+			];
+		}
+
+		return $credentials;
 	}
 }
 
