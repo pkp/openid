@@ -1,8 +1,11 @@
-$(document).ready(function () {
-	console.log('oAuth loaded');
 
+let returnTo = document.querySelector('.page_oauth #returnTo');
+if (returnTo.value === 'register') {
+	showRegisterForm();
+} else if (returnTo.value === 'connect') {
+	showLoginForm();
+}
 
-});
 document.querySelector('.page_oauth #showRegisterForm').addEventListener('click', showRegisterForm);
 document.querySelector('.page_oauth #showLoginForm').addEventListener('click', showLoginForm);
 

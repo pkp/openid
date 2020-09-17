@@ -1,18 +1,5 @@
 <?php
 
-/**
- * @file plugins/generic/oauth/OauthPlugin.inc.php
- *
- * Copyright (c) 2015-2016 University of Pittsburgh
- * Copyright (c) 2014 Simon Fraser University Library
- * Copyright (c) 2014 John Willinsky
- * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
- *
- * @class OauthPlugin
- * @ingroup plugins_generic_oauth
- *
- * @brief This plugin adds the ability to link local user accounts to OAuth sources.
- */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
 
@@ -47,8 +34,8 @@ class OauthPlugin extends GenericPlugin
 				case 'oauth/registerOrConnect':
 					$request = Application::get()->getRequest();
 					$templateMgr = TemplateManager::getManager($request);
-					$templateMgr->addStyleSheet('OauthPluginStyle', '/'.$this->getPluginPath().'/css/oauth.css');
-					$templateMgr->addJavaScript('OauthPluginScript', '/'.$this->getPluginPath().'/js/oauth.js');
+					$templateMgr->addStyleSheet('OauthPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/oauth.css');
+					$templateMgr->addJavaScript('OauthPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/oauth.js');
 					define('HANDLER_CLASS', 'OauthPluginHandler');
 					$args[2] = $this->getPluginPath().'/handler/OauthPluginHandler.inc.php';
 					break;

@@ -3,21 +3,20 @@
 <div class="page page_oauth">
 	{include file="frontend/components/breadcrumbs.tpl" currentTitleKey="user.oauth.step2.headline"}
 	<h1>
-		{translate key="user.oauth.step2.headline"}
+		{translate key="plugin.generic.oauth.step2.headline"}
 	</h1>
 
-	<div id="showRegisterForm">Show Register</div>
-	<div id="showLoginForm">Show Login</div>
 
 	<form class="cmp_form cmp_form oauth" id="oauth" method="post" action="{url page="oauth" op="registerOrConnect"}">
 		{csrf}
 		<input type="hidden" name="oauthId" id="oauthId" value="{$oauthId}">
+		<input type="hidden" name="returnTo" id="returnTo" value="{$returnTo}">
+
 		{include file="common/formErrors.tpl"}
-		{if $error}
-			<div class="pkp_form_error">
-				{translate key=$error reason=$reason}
-			</div>
-		{/if}
+
+		<div id="showRegisterForm">Show Register new Account</div>
+		<div id="showLoginForm">Show Merge Accounts</div>
+
 		<div id="register-form">
 			<fieldset class="register">
 				<legend>
@@ -110,8 +109,8 @@
 								<input type="checkbox" name="privacyConsent" value="1" required{if $privacyConsent} checked="checked"{/if}>
 								{capture assign="privacyUrl"}{url router=$smarty.const.ROUTE_PAGE page="about" op="privacy"}{/capture}
 								{translate key="user.register.form.privacyConsent" privacyUrl=$privacyUrl}
-									<span class="required" aria-hidden="true">*</span>
-									<span class="pkp_screen_reader">
+								<span class="required" aria-hidden="true">*</span>
+								<span class="pkp_screen_reader">
 										{translate key="common.required"}
 									</span>
 							</label>
@@ -159,6 +158,9 @@
 						</span>
 						<input type="password" name="passwordLogin" id="passwordLogin" value="{$passwordLogin|escape}" maxlength="32" required
 						       aria-required="true">
+						<a href="{url page="login" op="lostPassword"}">
+							{translate key="user.login.forgotPassword"}
+						</a>
 					</label>
 				</div>
 			</fieldset>

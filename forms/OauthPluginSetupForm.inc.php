@@ -47,6 +47,7 @@ class OauthPluginSetupForm extends Form
 			'realm' => $settings['realm'],
 			'clientId' => $settings['clientId'],
 			'clientSecret' => $settings['clientSecret'],
+			'hashSecret' => $settings['hashSecret'],
 		);
 		parent::initData();
 	}
@@ -56,7 +57,7 @@ class OauthPluginSetupForm extends Form
 	 */
 	function readInputData()
 	{
-		$this->readUserVars(array('url', 'realm', 'clientId', 'clientSecret',));
+		$this->readUserVars(array('url', 'realm', 'clientId', 'clientSecret', 'hashSecret'));
 		parent::readInputData();
 	}
 
@@ -83,6 +84,7 @@ class OauthPluginSetupForm extends Form
 			'realm' => $this->getData('realm'),
 			'clientId' => $this->getData('clientId'),
 			'clientSecret' => $this->getData('clientSecret'),
+			'hashSecret' => $this->getData('hashSecret'),
 		);
 		$this->plugin->updateSetting($contextId, 'keycloakSettings', json_encode($settings), 'string');
 		import('classes.notification.NotificationManager');

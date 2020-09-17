@@ -94,7 +94,6 @@ class OauthLoginRegisterHandler extends Handler
 	 */
 	function signOutOjs($args, $request)
 	{
-		$this->setupTemplate($request);
 		if (Validation::isLoggedIn()) {
 			Validation::logout();
 		}

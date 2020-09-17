@@ -1,17 +1,4 @@
 <?php
-/**
- * @file plugins/generic/oauth/pages/OauthHandler.inc.php
- *
- * Copyright (c) 2015-2016 University of Pittsburgh
- * Copyright (c) 2014-2016 Simon Fraser University Library
- * Copyright (c) 2003-2016 John Willinsky
- * Distributed under the GNU GPL v2 or later. For full terms see the file docs/COPYING.
- *
- * @class OauthHandler
- * @ingroup plugins_generic_oauth
- *
- * @brief Handle return call from OAuth
- */
 
 use Firebase\JWT\JWT;
 
@@ -35,14 +22,11 @@ class OauthPluginHandler extends Handler
 			$user = $this->getUserViaKeycloakId($tokenData);
 			if ($user == null) {
 				import($plugin->getPluginPath().'/forms/OauthStep2Form');
-				$regForm = new OauthStep2Form($plugin->getTemplateResource('authStep2.tpl'), $tokenData);
+				$regForm = new OauthStep2Form($plugin, $tokenData);
 				$regForm->initData();
 				$regForm->display($request);
-				//$user = $this->registerUser($credentials);
-				// create and enable API-KEY
-				//$this->setOjsApiKey($user, $credentials['id']);
 			} elseif (is_a($user, 'User') && !$user->getDisabled()) {
-				$this->registerUserSession($user, true);
+				Validation::registerUserSession($user, $reason, true);
 				$request->redirect($context->getPath(), 'user', 'profile', null, $args);
 			} elseif ($user->getDisabled()) {
 				// TODO return to login page with error messages
@@ -50,6 +34,8 @@ class OauthPluginHandler extends Handler
 				if ($reason === null) {
 					$reason = '';
 				}
+			} else {
+				// TODO internal ERROR Handling
 			}
 		} else {
 			// TODO OAUTH ERROR Handling
@@ -60,29 +46,29 @@ class OauthPluginHandler extends Handler
 
 	function registerOrConnect($args, $request)
 	{
+		$generateApiKey = true;
 		if (Validation::isLoggedIn()) {
 			$this->setupTemplate($request);
 			$templateMgr = TemplateManager::getManager($request);
 			$templateMgr->assign('pageTitle', 'user.login.registrationComplete');
-			return $templateMgr->display('frontend/pages/userRegisterComplete.tpl');
-		}
-		// redirect to login if no post request
-		if (!$request->isPost()) {
+			$templateMgr->display('frontend/pages/userRegisterComplete.tpl');
+		} elseif (!$request->isPost()) {
 			$request->redirect(Application::get()->getRequest()->getContext(), 'login');
+		} else {
+			$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
+			import($plugin->getPluginPath().'/forms/OauthStep2Form');
+			$regForm = new OauthStep2Form($plugin);
+			$regForm->readInputData();
+			if (!$regForm->validate()) {
+				$regForm->display($request);
+			}elseif ($regForm->execute($generateApiKey)) {
+				$request->redirect(Application::get()->getRequest()->getContext(), 'oauth', 'registerOrConnect');
+			} else {
+				// TODO execution error display
+				$regForm->addError('', '');
+				$regForm->display($request);
+			}
 		}
-		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
-		import($plugin->getPluginPath().'/forms/OauthStep2Form');
-		$regForm = new OauthStep2Form($plugin->getTemplateResource('authStep2.tpl'));
-		$regForm->readInputData();
-		if (!$regForm->validate()) {
-			$regForm->display($request);
-		}
-		$regForm->execute();
-
-		$regForm->display($request);
-
-
-
 	}
 
 
@@ -97,8 +83,8 @@ class OauthPluginHandler extends Handler
 		if (isset($user) && $user->getData('openid::keycloak') == $credentials['id']) {
 			return $user;
 		}
-		$users = $userDao->getBySetting('openid::keycloak', $credentials['id'], true);
-		if (isset($users)) {
+		$user = $userDao->getBySetting('openid::keycloak', $credentials['id'], true);
+		if (isset($user)) {
 			return $user;
 		}
 
@@ -106,102 +92,8 @@ class OauthPluginHandler extends Handler
 	}
 
 
-	private function checkAndCreateUsername($username)
-	{
-		$userDao = DAORegistry::getDAO('UserDAO');
-		$user = $userDao->getByUsername($username, true);
-		if (isset($user)) {
-			return $this->checkAndCreateUsername($username.openssl_random_pseudo_bytes(2));
-		}
-
-		return $username;
-	}
-
-	/**
-	 * This function creates a new OJS User if no user exists with the given username, email or openid::keycloak!
-	 *
-	 * @param $credentials
-	 * @return User|null
-	 */
-	private function registerUser($credentials)
-	{
-		$userDao = DAORegistry::getDAO('UserDAO');
-		$user = $userDao->newDataObject();
-		$user->setUsername($credentials['username']);
-		$request = Application::get()->getRequest();
-		$site = $request->getSite();
-		$sitePrimaryLocale = $site->getPrimaryLocale();
-		$currentLocale = AppLocale::getLocale();
-		$user->setGivenName($credentials['given_name'], $currentLocale);
-		$user->setFamilyName($credentials['family_name'], $currentLocale);
-		$user->setEmail($credentials['email']);
-		if ($sitePrimaryLocale != $currentLocale) {
-			$user->setGivenName($credentials['given_name'], $sitePrimaryLocale);
-			$user->setFamilyName($credentials['family_name'], $sitePrimaryLocale);
-		}
-		$user->setDateRegistered(Core::getCurrentDate());
-		$user->setInlineHelp(1);
-		$user->setPassword(Validation::encryptCredentials($credentials['username'], openssl_random_pseudo_bytes(16)));
-		$userDao->insertObject($user);
-		if ($user->getId()) {
-			// Save the selected roles or assign the Reader role if none selected
-			if ($request->getContext()) {
-				$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
-				$defaultReaderGroup = $userGroupDao->getDefaultByRoleId($request->getContext()->getId(), ROLE_ID_READER);
-				if ($defaultReaderGroup) {
-					$userGroupDao->assignUserToGroup($user->getId(), $defaultReaderGroup->getId());
-				}
-			}
-			// save keycloak id to user settings
-			$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
-			$userSettingsDao->updateSetting($user->getId(), 'openid::keycloak', $credentials['id'], 'string');
-		} else {
-			$user = null;
-		}
-
-		return $user;
-	}
 
 
-	private function setOjsApiKey($user, $value)
-	{
-		$secret = Config::getVar('security', 'api_key_secret', '');
-		if ($secret) {
-			$userDao = DAORegistry::getDAO('UserDAO');
-			$user->setData('apiKeyEnabled', true);
-			$user->setData('apiKey', hash('sha256', $value));
-			$userDao->updateObject($user);
-		}
-
-		return $user;
-	}
-
-	/**
-	 * This function is used to login a user to OJS after the Keycloak login was successful.
-	 *
-	 * @param User $user
-	 * @param bool $remember
-	 * @return User
-	 */
-	private function registerUserSession(User $user, bool $remember = false): User
-	{
-		$sessionManager = SessionManager::getManager();
-		$sessionManager->regenerateSessionId();
-		$session = $sessionManager->getUserSession();
-		$session->setSessionVar('userId', $user->getId());
-		$session->setUserId($user->getId());
-		$session->setSessionVar('username', $user->getUsername());
-		$session->getCSRFToken();
-		$session->setRemember($remember);
-		if ($remember && Config::getVar('general', 'session_lifetime') > 0) {
-			$sessionManager->updateSessionLifetime(time() + Config::getVar('general', 'session_lifetime') * 86400);
-		}
-		$user->setDateLastLogin(Core::getCurrentDate());
-		$userDao = DAORegistry::getDAO('UserDAO');
-		$userDao->updateObject($user);
-
-		return $user;
-	}
 
 	/**
 	 * This function returns the access token which contains the user data.

@@ -7,15 +7,33 @@ import('lib.pkp.classes.form.Form');
 class OauthStep2Form extends Form
 {
 	private array $credentials;
+	private OauthPlugin $plugin;
+	private ?int $contextId;
 
-	function __construct(string $template, array $credentials = array())
+	/**
+	 * OauthStep2Form constructor.
+	 *
+	 * @param OauthPlugin $plugin
+	 * @param array $credentials
+	 */
+	function __construct(OauthPlugin $plugin, array $credentials = array())
 	{
+		$context = Application::get()->getRequest()->getContext();
+		$this->contextId = ($context == null) ? 0 : $context->getId();
+		$this->plugin = $plugin;
 		$this->credentials = $credentials;
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
-		parent::__construct($template);
+		parent::__construct($plugin->getTemplateResource('authStep2.tpl'));
 	}
 
+	/**
+	 *
+	 * @param PKPRequest $request
+	 * @param null $template
+	 * @param false $display
+	 * @return string|null
+	 */
 	function fetch($request, $template = null, $display = false)
 	{
 		$templateMgr = TemplateManager::getManager($request);
@@ -30,9 +48,20 @@ class OauthStep2Form extends Form
 		return parent::fetch($request, $template, $display);
 	}
 
+	/**
+	 *
+	 */
 	function initData()
 	{
 		if (is_array($this->credentials) && !empty($this->credentials)) {
+			// generate username if username is orchid id
+			if (key_exists('username', $this->credentials)) {
+				if (preg_match('/\d{4}-\d{4}-\d{4}-\d{4}/', $this->credentials['username'])) {
+					$given = key_exists('given_name', $this->credentials) ? $this->credentials['given_name'] : '';
+					$family = key_exists('family_name', $this->credentials) ? $this->credentials['family_name'] : '';
+					$this->credentials['username'] = mb_strtolower($given.$family, 'UTF-8');
+				}
+			}
 			$this->_data = array(
 				'oauthId' => $this->_encryptOrDecrypt('encrypt', $this->credentials['id']),
 				'username' => $this->credentials['username'],
@@ -43,6 +72,9 @@ class OauthStep2Form extends Form
 		}
 	}
 
+	/**
+	 *
+	 */
 	function readInputData()
 	{
 		parent::readInputData();
@@ -65,29 +97,182 @@ class OauthStep2Form extends Form
 		);
 	}
 
+	/**
+	 *
+	 * @param bool $callHooks
+	 * @return bool|mixed|null
+	 */
 	function validate($callHooks = true)
 	{
-
+		$userDao = DAORegistry::getDAO('UserDAO');
+		$register = is_string($this->getData('register'));
+		$connect = is_string($this->getData('connect'));
+		if ($register) {
+			$this->_data['returnTo'] = "register";
+			$this->addCheck(new FormValidator($this, 'username', 'required', 'user.profile.form.usernameRequired'));
+			$this->addCheck(
+				new FormValidatorCustom(
+					$this, 'username', 'required', 'user.register.form.usernameExists',
+					array(DAORegistry::getDAO('UserDAO'), 'userExistsByUsername'), array(), true
+				)
+			);
+			$this->addCheck(new FormValidator($this, 'givenName', 'required', 'user.profile.form.givenNameRequired'));
+			$this->addCheck(new FormValidator($this, 'familyName', 'required', 'user.profile.form.familyNameRequired'));
+			$this->addCheck(new FormValidator($this, 'country', 'required', 'user.profile.form.countryRequired'));
+			$this->addCheck(new FormValidator($this, 'affiliation', 'required', 'user.profile.form.affiliationRequired'));
+			$this->addCheck(new FormValidatorEmail($this, 'email', 'required', 'user.profile.form.emailRequired'));
+			$this->addCheck(
+				new FormValidatorCustom(
+					$this, 'email', 'required', 'user.register.form.emailExists',
+					array(DAORegistry::getDAO('UserDAO'), 'userExistsByEmail'), array(), true
+				)
+			);
+			$context = Application::get()->getRequest()->getContext();
+			if ($context && $context->getData('privacyStatement')) {
+				$this->addCheck(new FormValidator($this, 'privacyConsent', 'required', 'user.profile.form.privacyConsentRequired'));
+			}
+		} elseif ($connect) {
+			$this->_data['returnTo'] = "connect";
+			$this->addCheck(new FormValidator($this, 'usernameLogin', 'required', 'user.profile.form.givenNameRequired'));
+			$this->addCheck(new FormValidator($this, 'passwordLogin', 'required', 'user.profile.form.givenNameRequired'));
+			$username = $this->getData('usernameLogin');
+			$password = $this->getData('passwordLogin');
+			$user = $userDao->getByUsername($username, true);
+			if (!isset($user)) {
+				$user = $userDao->getUserByEmail($username, true);
+			}
+			if (!isset($user)) {
+				$this->addError('usernameLogin', __('plugin.oauth.user.not.found'));
+			} else {
+				$valid = Validation::verifyPassword($user->getUsername(), $password, $user->getPassword(), $rehash);
+				if (!$valid) {
+					$this->addError('usernameLogin', __('plugin.oauth.user.invalid.credentials'));
+				}
+			}
+		}
 
 		return parent::validate($callHooks);
 	}
 
-
+	/**
+	 *
+	 * @param mixed ...$functionArgs
+	 * @return bool|mixed|null
+	 */
 	function execute(...$functionArgs)
 	{
 		$userDao = DAORegistry::getDAO('UserDAO');
 		$register = is_string($this->getData('register'));
 		$connect = is_string($this->getData('connect'));
-
+		$result = false;
 		if ($register) {
-
+			$oauthId = $this->getData('oauthId');
+			if (!empty($oauthId)) {
+				$user = $this->_registerUser($oauthId);
+				if ($user) {
+					if ($functionArgs[0] = true) {
+						$this->_generateApiKey($user, $oauthId);
+					}
+					Validation::registerUserSession($user, $reason, true);
+					$result = true;
+				}
+			}
 		} elseif ($connect) {
+			$username = $this->getData('usernameLogin');
+			$password = $this->getData('passwordLogin');
+			$oauthId = $this->getData('oauthId');
+			$user = $userDao->getByUsername($username, true);
+			if (!isset($user)) {
+				$user = $userDao->getUserByEmail($username, true);
+			}
+			if (!empty($oauthId) && isset($user) && Validation::verifyPassword($user->getUsername(), $password, $user->getPassword(), $rehash)) {
+				$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
+				$userSettingsDao->updateSetting($user->getId(), 'openid::keycloak', $this->_encryptOrDecrypt('decrypt', $oauthId), 'string');
+				if ($functionArgs[0] = true) {
+					$this->_generateApiKey($user, $oauthId);
+				}
+				Validation::registerUserSession($user, $reason, true);
+				$result = true;
+			}
+		}
+		parent::execute(...$functionArgs);
 
+		return $result;
+	}
+
+
+	/**
+	 * This function creates a new OJS User if no user exists with the given username, email or openid::keycloak!
+	 *
+	 * @param $credentials
+	 * @return User|null
+	 */
+	private function _registerUser($oauthId)
+	{
+		$userDao = DAORegistry::getDAO('UserDAO');
+		$user = $userDao->newDataObject();
+		$user->setUsername($this->getData('username'));
+
+		$request = Application::get()->getRequest();
+		$site = $request->getSite();
+		$sitePrimaryLocale = $site->getPrimaryLocale();
+		$currentLocale = AppLocale::getLocale();
+
+		$user->setGivenName($this->getData('givenName'), $currentLocale);
+		$user->setFamilyName($this->getData('familyName'), $currentLocale);
+		$user->setEmail($this->getData('email'));
+		$user->setCountry($this->getData('country'));
+		$user->setAffiliation($this->getData('affiliation'), $currentLocale);
+
+		if ($sitePrimaryLocale != $currentLocale) {
+			$user->setGivenName($this->getData('givenName'), $sitePrimaryLocale);
+			$user->setFamilyName($this->getData('familyName'), $sitePrimaryLocale);
+			$user->setAffiliation($this->getData('affiliation'), $sitePrimaryLocale);
 		}
 
-		$user = $userDao->newDataObject();
+		$user->setDateRegistered(Core::getCurrentDate());
+		$user->setInlineHelp(1);
 
-		$user->setUsername($this->getData('username'));
+		$user->setPassword(Validation::encryptCredentials($this->getData('username'), openssl_random_pseudo_bytes(16)));
+
+		$userDao->insertObject($user);
+
+		if ($user->getId()) {
+			if ($request->getContext()) {
+				$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
+				$defaultReaderGroup = $userGroupDao->getDefaultByRoleId($request->getContext()->getId(), ROLE_ID_READER);
+				if ($defaultReaderGroup) {
+					$userGroupDao->assignUserToGroup($user->getId(), $defaultReaderGroup->getId());
+				}
+			}
+			$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
+			$userSettingsDao->updateSetting($user->getId(), 'openid::keycloak', $this->_encryptOrDecrypt('decrypt', $oauthId), 'string');
+		} else {
+			$user = null;
+		}
+
+		return $user;
+	}
+
+	/**
+	 * @param $user
+	 * @param $value
+	 * @return bool
+	 */
+	private function _generateApiKey($user, $value)
+	{
+		$secret = Config::getVar('security', 'api_key_secret', '');
+
+		if ($secret) {
+			$userDao = DAORegistry::getDAO('UserDAO');
+			$user->setData('apiKeyEnabled', true);
+			$user->setData('apiKey', $this->_encryptOrDecrypt('encrypt', $value));
+			$userDao->updateObject($user);
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -98,12 +283,17 @@ class OauthStep2Form extends Form
 	private function _encryptOrDecrypt(string $action, string $string): string
 	{
 		$alg = 'AES-256-CBC';
-		$pwd = '9wPp\28AE:Xj9P3E?i';
+		$settings = json_decode($this->plugin->getSetting($this->contextId, 'keycloakSettings'), true);
 		$result = null;
-		if ($action == 'encrypt') {
-			$result = openssl_encrypt($string, $alg, $pwd);
-		} elseif ($action == 'decrypt') {
-			$result = openssl_decrypt($string, $alg, $pwd);
+		if (key_exists('hashSecret', $settings) && !empty($settings['hashSecret'])) {
+			$pwd = $settings['hashSecret'];
+			if ($action == 'encrypt') {
+				$result = openssl_encrypt($string, $alg, $pwd);
+			} elseif ($action == 'decrypt') {
+				$result = openssl_decrypt($string, $alg, $pwd);
+			}
+		} else {
+			$result = $string;
 		}
 
 		return $result;

@@ -34,6 +34,9 @@
 		{fbvFormSection title="plugins.generic.keycloak.settings.clientSecret"}
 			{fbvElement type="text" required="true"  id="clientSecret" value=$clientSecret maxlength="50" size=$fbvStyles.size.MEDIUM}
 		{/fbvFormSection}
+		{fbvFormSection title="plugins.generic.keycloak.settings.hashSecret"}
+			{fbvElement type="text" required="true"  id="hashSecret" value=$hashSecret maxlength="50" size=$fbvStyles.size.MEDIUM}
+		{/fbvFormSection}
 	{/fbvFormArea}
 	{fbvFormButtons}
 </form>

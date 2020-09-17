@@ -3,7 +3,13 @@
 #oauth #register-form,
 #oauth #login-form{
 	display: none;
+
+}
+
+#oauth #showRegisterForm,
+#oauth #showLoginForm{
 	cursor: pointer;
+	margin-bottom: 20px;
 }
 
 #oauth #register-form .optin-privacy .required{

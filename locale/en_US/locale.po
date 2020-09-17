@@ -1,0 +1,15 @@
+msgid "plugins.generic.oauth.name"
+msgstr "OpenId OAuth Plugin"
+
+msgid "plugins.generic.oauth.description"
+msgstr "lorem ipsum"
+
+
+msgid "plugin.generic.oauth.step2.headline"
+msgstr "Auth Step 2"
+
+msgid "user.profile.form.familyNameRequired"
+msgstr "A family name is required."
+msgid "user.profile.form.affiliationRequired"
+msgstr "An affiliation is required."
+
