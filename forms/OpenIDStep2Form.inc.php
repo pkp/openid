@@ -164,35 +164,34 @@ class OpenIDStep2Form extends Form
 		$userDao = DAORegistry::getDAO('UserDAO');
 		$register = is_string($this->getData('register'));
 		$connect = is_string($this->getData('connect'));
+		$oauthId = $this->getData('oauthId');
 		$result = false;
-		if ($register) {
-			$oauthId = $this->getData('oauthId');
-			if (!empty($oauthId)) {
-				$user = $this->_registerUser($oauthId);
-				if ($user) {
-					if ($functionArgs[0] = true) {
-						$this->_generateApiKey($user, $oauthId);
-					}
-					Validation::registerUserSession($user, $reason, true);
+		$user = null;
+		if (!empty($oauthId)) {
+			$oauthId = $this->_encryptOrDecrypt('decrypt', $oauthId);
+			if ($register) {
+				$user = $this->_registerUser();
+				if (isset($user)) {
+					$result = true;
+				}
+			} elseif ($connect) {
+				$username = $this->getData('usernameLogin');
+				$password = $this->getData('passwordLogin');
+				$user = $userDao->getByUsername($username, true);
+				if (!isset($user)) {
+					$user = $userDao->getUserByEmail($username, true);
+				}
+				if (isset($user) && Validation::verifyPassword($user->getUsername(), $password, $user->getPassword(), $rehash)) {
 					$result = true;
 				}
 			}
-		} elseif ($connect) {
-			$username = $this->getData('usernameLogin');
-			$password = $this->getData('passwordLogin');
-			$oauthId = $this->getData('oauthId');
-			$user = $userDao->getByUsername($username, true);
-			if (!isset($user)) {
-				$user = $userDao->getUserByEmail($username, true);
-			}
-			if (!empty($oauthId) && isset($user) && Validation::verifyPassword($user->getUsername(), $password, $user->getPassword(), $rehash)) {
+			if ($result && isset($user)) {
 				$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
-				$userSettingsDao->updateSetting($user->getId(), 'openid::identifier', $this->_encryptOrDecrypt('decrypt', $oauthId), 'string');
+				$userSettingsDao->updateSetting($user->getId(), 'openid::ident', hash('sha256', $oauthId), 'string');
 				if ($functionArgs[0] = true) {
 					$this->_generateApiKey($user, $oauthId);
 				}
 				Validation::registerUserSession($user, $reason, true);
-				$result = true;
 			}
 		}
 		parent::execute(...$functionArgs);
@@ -204,10 +203,10 @@ class OpenIDStep2Form extends Form
 	/**
 	 * This function creates a new OJS User if no user exists with the given username, email or openid::identifier!
 	 *
-	 * @param $credentials
+	 * @param string $oauthId
 	 * @return User|null
 	 */
-	private function _registerUser($oauthId)
+	private function _registerUser()
 	{
 		$userDao = DAORegistry::getDAO('UserDAO');
 		$user = $userDao->newDataObject();
@@ -245,8 +244,6 @@ class OpenIDStep2Form extends Form
 					$userGroupDao->assignUserToGroup($user->getId(), $defaultReaderGroup->getId());
 				}
 			}
-			$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
-			$userSettingsDao->updateSetting($user->getId(), 'openid::identifier', $this->_encryptOrDecrypt('decrypt', $oauthId), 'string');
 		} else {
 			$user = null;
 		}

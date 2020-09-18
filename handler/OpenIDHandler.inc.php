@@ -76,14 +76,14 @@ class OpenIDHandler extends Handler
 	{
 		$userDao = DAORegistry::getDAO('UserDAO');
 		$user = $userDao->getUserByEmail($credentials['email'], true);
-		if (isset($user) && $user->getData('openid::identifier') == $credentials['id']) {
+		if (isset($user) && $user->getData('openid::ident') == hash('sha256', $credentials['id'])) {
 			return $user;
 		}
 		$user = $userDao->getByUsername($credentials['username'], true);
-		if (isset($user) && $user->getData('openid::identifier') == $credentials['id']) {
+		if (isset($user) && $user->getData('openid::ident') == hash('sha256', $credentials['id'])) {
 			return $user;
 		}
-		$user = $userDao->getBySetting('openid::identifier', $credentials['id'], true);
+		$user = $userDao->getBySetting('openid::ident', hash('sha256', $credentials['id']));
 		if (isset($user)) {
 			return $user;
 		}
