@@ -16,16 +16,16 @@
 
 import('lib.pkp.classes.form.Form');
 
-class OauthPluginSetupForm extends Form
+class OpenIDPluginSettingsForm extends Form
 {
 
-	private OauthPlugin $plugin;
+	private OpenIDPlugin $plugin;
 
 	/**
 	 * Constructor
-	 * @param $plugin
+	 * @param OpenIDPlugin $plugin
 	 */
-	public function __construct($plugin)
+	public function __construct(OpenIDPlugin $plugin)
 	{
 		parent::__construct($plugin->getTemplateResource('settings.tpl'));
 		$this->plugin = $plugin;
@@ -40,7 +40,7 @@ class OauthPluginSetupForm extends Form
 	{
 		$request = Application::get()->getRequest();
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
-		$settingsJson = $this->plugin->getSetting($contextId, 'keycloakSettings');
+		$settingsJson = $this->plugin->getSetting($contextId, 'openIDSettings');
 		$settings = json_decode($settingsJson, true);
 		$this->_data = array(
 			'url' => $settings['url'],
@@ -86,7 +86,7 @@ class OauthPluginSetupForm extends Form
 			'clientSecret' => $this->getData('clientSecret'),
 			'hashSecret' => $this->getData('hashSecret'),
 		);
-		$this->plugin->updateSetting($contextId, 'keycloakSettings', json_encode($settings), 'string');
+		$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
 		import('classes.notification.NotificationManager');
 		$notificationMgr = new NotificationManager();
 		$notificationMgr->createTrivialNotification(

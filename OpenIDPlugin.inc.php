@@ -3,7 +3,7 @@
 
 import('lib.pkp.classes.plugins.GenericPlugin');
 
-class OauthPlugin extends GenericPlugin
+class OpenIDPlugin extends GenericPlugin
 {
 	/**
 	 * Register the plugin, if enabled
@@ -30,21 +30,21 @@ class OauthPlugin extends GenericPlugin
 		define('KEYCLOAK_PLUGIN_NAME', $this->getName());
 		if ($this->getEnabled())
 			switch ("$page/$op") {
-				case 'oauth/doAuthentication':
-				case 'oauth/registerOrConnect':
+				case 'openid/doAuthentication':
+				case 'openid/registerOrConnect':
 					$request = Application::get()->getRequest();
 					$templateMgr = TemplateManager::getManager($request);
-					$templateMgr->addStyleSheet('OauthPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/oauth.css');
-					$templateMgr->addJavaScript('OauthPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/oauth.js');
-					define('HANDLER_CLASS', 'OauthPluginHandler');
-					$args[2] = $this->getPluginPath().'/handler/OauthPluginHandler.inc.php';
+					$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
+					$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
+					define('HANDLER_CLASS', 'OpenIDHandler');
+					$args[2] = $this->getPluginPath().'/handler/OpenIDHandler.inc.php';
 					break;
 				case 'login/index':
 				case 'user/register':
 				case 'login/signOut':
 				case 'login/signOutOjs':
-					define('HANDLER_CLASS', 'OauthLoginRegisterHandler');
-					$args[2] = $this->getPluginPath().'/handler/OauthLoginRegisterHandler.inc.php';
+					define('HANDLER_CLASS', 'OpenIDLoginHandler');
+					$args[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
 					break;
 			}
 
@@ -68,7 +68,7 @@ class OauthPlugin extends GenericPlugin
 	 */
 	function getDisplayName()
 	{
-		return __('plugins.generic.oauth.name');
+		return __('plugins.generic.openid.name');
 	}
 
 	/**
@@ -77,7 +77,7 @@ class OauthPlugin extends GenericPlugin
 	 */
 	function getDescription()
 	{
-		return __('plugins.generic.oauth.description');
+		return __('plugins.generic.openid.description');
 	}
 
 
@@ -118,8 +118,8 @@ class OauthPlugin extends GenericPlugin
 	{
 		switch ($request->getUserVar('verb')) {
 			case 'settings':
-				$this->import('forms/OauthPluginSetupForm');
-				$form = new OauthPluginSetupForm($this);
+				$this->import('forms/OpenIDPluginSettingsForm');
+				$form = new OpenIDPluginSettingsForm($this);
 				if (!$request->getUserVar('save')) {
 					$form->initData();
 

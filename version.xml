@@ -14,8 +14,8 @@
 <version>
 	<application>oauth</application>
 	<type>plugins.generic</type>
-	<release>1.0.0.0</release>
-	<date>2014-07-09</date>
+	<release>1.0.0.1</release>
+	<date>2020-09-17</date>
 	<lazy-load>1</lazy-load>
-	<class>OauthPlugin</class>
+	<class>OpenIDPlugin</class>
 </version>

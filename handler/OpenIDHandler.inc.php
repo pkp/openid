@@ -4,7 +4,7 @@ use Firebase\JWT\JWT;
 
 import('classes.handler.Handler');
 
-class OauthPluginHandler extends Handler
+class OpenIDHandler extends Handler
 {
 	function doAuthentication($args, $request)
 	{
@@ -14,15 +14,15 @@ class OauthPluginHandler extends Handler
 		$tokenData = null;
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		$contextId = ($context == null) ? 0 : $context->getId();
-		$settings = json_decode($plugin->getSetting($contextId, 'keycloakSettings'), true);
+		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
 		$accessToken = $this->getAccessTokenViaAuthCode($settings, $request->getUserVar('code'));
 		$publicKey = $this->getPublicKey($settings);
 		if ($accessToken != null && $publicKey != null) {
 			$tokenData = $this->extractCredentialsFromToken($accessToken, $publicKey);
 			$user = $this->getUserViaKeycloakId($tokenData);
 			if ($user == null) {
-				import($plugin->getPluginPath().'/forms/OauthStep2Form');
-				$regForm = new OauthStep2Form($plugin, $tokenData);
+				import($plugin->getPluginPath().'/forms/OpenIDStep2Form');
+				$regForm = new OpenIDStep2Form($plugin, $tokenData);
 				$regForm->initData();
 				$regForm->display($request);
 			} elseif (is_a($user, 'User') && !$user->getDisabled()) {
@@ -56,13 +56,13 @@ class OauthPluginHandler extends Handler
 			$request->redirect(Application::get()->getRequest()->getContext(), 'login');
 		} else {
 			$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
-			import($plugin->getPluginPath().'/forms/OauthStep2Form');
-			$regForm = new OauthStep2Form($plugin);
+			import($plugin->getPluginPath().'/forms/OpenIDStep2Form');
+			$regForm = new OpenIDStep2Form($plugin);
 			$regForm->readInputData();
 			if (!$regForm->validate()) {
 				$regForm->display($request);
 			}elseif ($regForm->execute($generateApiKey)) {
-				$request->redirect(Application::get()->getRequest()->getContext(), 'oauth', 'registerOrConnect');
+				$request->redirect(Application::get()->getRequest()->getContext(), 'openid', 'registerOrConnect');
 			} else {
 				// TODO execution error display
 				$regForm->addError('', '');
@@ -76,14 +76,14 @@ class OauthPluginHandler extends Handler
 	{
 		$userDao = DAORegistry::getDAO('UserDAO');
 		$user = $userDao->getUserByEmail($credentials['email'], true);
-		if (isset($user) && $user->getData('openid::keycloak') == $credentials['id']) {
+		if (isset($user) && $user->getData('openid::identifier') == $credentials['id']) {
 			return $user;
 		}
 		$user = $userDao->getByUsername($credentials['username'], true);
-		if (isset($user) && $user->getData('openid::keycloak') == $credentials['id']) {
+		if (isset($user) && $user->getData('openid::identifier') == $credentials['id']) {
 			return $user;
 		}
-		$user = $userDao->getBySetting('openid::keycloak', $credentials['id'], true);
+		$user = $userDao->getBySetting('openid::identifier', $credentials['id'], true);
 		if (isset($user)) {
 			return $user;
 		}
@@ -119,7 +119,7 @@ class OauthPluginHandler extends Handler
 						'grant_type' => 'authorization_code',
 						'client_id' => $settings['clientId'],
 						'client_secret' => $settings['clientSecret'],
-						'redirect_uri' => Application::get()->getRequest()->url(null, 'oauth', 'doAuthentication'),
+						'redirect_uri' => Application::get()->getRequest()->url(null, 'openid', 'doAuthentication'),
 					)
 				),
 			)

@@ -10,13 +10,13 @@
  *}
 <script>
 	$(function () {ldelim}
-		$('#keycloakSettings').pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
+		$('#openIDSettings').pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
 		{rdelim});
 </script>
 
 <form
 	class="pkp_form"
-	id="keycloakSettings"
+	id="openIDSettings"
 	method="POST"
 	action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="settings" save=true}">
 

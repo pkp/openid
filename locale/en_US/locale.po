@@ -1,12 +1,12 @@
-msgid "plugins.generic.oauth.name"
+msgid "plugins.generic.openid.name"
 msgstr "OpenId OAuth Plugin"
 
-msgid "plugins.generic.oauth.description"
+msgid "plugins.generic.openid.description"
 msgstr "lorem ipsum"
 
 
-msgid "plugin.generic.oauth.step2.headline"
-msgstr "Auth Step 2"
+msgid "plugins.generic.oauth.step2.headline"
+msgstr "OpenID Authentication Step 2"
 
 msgid "user.profile.form.familyNameRequired"
 msgstr "A family name is required."

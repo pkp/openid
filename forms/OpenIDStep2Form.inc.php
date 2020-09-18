@@ -4,19 +4,19 @@ use Sokil\IsoCodes\IsoCodesFactory;
 
 import('lib.pkp.classes.form.Form');
 
-class OauthStep2Form extends Form
+class OpenIDStep2Form extends Form
 {
 	private array $credentials;
-	private OauthPlugin $plugin;
+	private OpenIDPlugin $plugin;
 	private ?int $contextId;
 
 	/**
-	 * OauthStep2Form constructor.
+	 * OpenIDStep2Form constructor.
 	 *
-	 * @param OauthPlugin $plugin
+	 * @param OpenIDPlugin $plugin
 	 * @param array $credentials
 	 */
-	function __construct(OauthPlugin $plugin, array $credentials = array())
+	function __construct(OpenIDPlugin $plugin, array $credentials = array())
 	{
 		$context = Application::get()->getRequest()->getContext();
 		$this->contextId = ($context == null) ? 0 : $context->getId();
@@ -187,7 +187,7 @@ class OauthStep2Form extends Form
 			}
 			if (!empty($oauthId) && isset($user) && Validation::verifyPassword($user->getUsername(), $password, $user->getPassword(), $rehash)) {
 				$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
-				$userSettingsDao->updateSetting($user->getId(), 'openid::keycloak', $this->_encryptOrDecrypt('decrypt', $oauthId), 'string');
+				$userSettingsDao->updateSetting($user->getId(), 'openid::identifier', $this->_encryptOrDecrypt('decrypt', $oauthId), 'string');
 				if ($functionArgs[0] = true) {
 					$this->_generateApiKey($user, $oauthId);
 				}
@@ -202,7 +202,7 @@ class OauthStep2Form extends Form
 
 
 	/**
-	 * This function creates a new OJS User if no user exists with the given username, email or openid::keycloak!
+	 * This function creates a new OJS User if no user exists with the given username, email or openid::identifier!
 	 *
 	 * @param $credentials
 	 * @return User|null
@@ -246,7 +246,7 @@ class OauthStep2Form extends Form
 				}
 			}
 			$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
-			$userSettingsDao->updateSetting($user->getId(), 'openid::keycloak', $this->_encryptOrDecrypt('decrypt', $oauthId), 'string');
+			$userSettingsDao->updateSetting($user->getId(), 'openid::identifier', $this->_encryptOrDecrypt('decrypt', $oauthId), 'string');
 		} else {
 			$user = null;
 		}
@@ -283,7 +283,7 @@ class OauthStep2Form extends Form
 	private function _encryptOrDecrypt(string $action, string $string): string
 	{
 		$alg = 'AES-256-CBC';
-		$settings = json_decode($this->plugin->getSetting($this->contextId, 'keycloakSettings'), true);
+		$settings = json_decode($this->plugin->getSetting($this->contextId, 'openIDSettings'), true);
 		$result = null;
 		if (key_exists('hashSecret', $settings) && !empty($settings['hashSecret'])) {
 			$pwd = $settings['hashSecret'];

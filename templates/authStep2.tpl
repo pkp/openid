@@ -1,13 +1,13 @@
-{include file="frontend/components/header.tpl" pageTitle="user.oauth.step2.headline"}
+{include file="frontend/components/header.tpl" pageTitle="plugins.generic.oauth.step2.headline"}
 
 <div class="page page_oauth">
-	{include file="frontend/components/breadcrumbs.tpl" currentTitleKey="user.oauth.step2.headline"}
+	{include file="frontend/components/breadcrumbs.tpl" currentTitleKey="plugins.generic.oauth.step2.headline"}
 	<h1>
-		{translate key="plugin.generic.oauth.step2.headline"}
+		{translate key="plugins.generic.oauth.step2.headline"}
 	</h1>
 
 
-	<form class="cmp_form cmp_form oauth" id="oauth" method="post" action="{url page="oauth" op="registerOrConnect"}">
+	<form class="cmp_form cmp_form oauth" id="oauth" method="post" action="{url page="openid" op="registerOrConnect"}">
 		{csrf}
 		<input type="hidden" name="oauthId" id="oauthId" value="{$oauthId}">
 		<input type="hidden" name="returnTo" id="returnTo" value="{$returnTo}">

@@ -2,7 +2,7 @@
 
 import('classes.handler.Handler');
 
-class OauthLoginRegisterHandler extends Handler
+class OpenIDLoginHandler extends Handler
 {
 
 
@@ -20,7 +20,7 @@ class OauthLoginRegisterHandler extends Handler
 			$router = $request->getRouter();
 			$context = Application::get()->getRequest()->getContext();
 			$contextId = ($context == null) ? 0 : $context->getId();
-			$settingsJson = $plugin->getSetting($contextId, 'keycloakSettings');
+			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
 			if ($settingsJson != null) {
 				$settings = json_decode($settingsJson, true);
 				if (key_exists('url', $settings) && key_exists('realm', $settings) && key_exists('clientId', $settings)) {
@@ -30,7 +30,7 @@ class OauthLoginRegisterHandler extends Handler
 						'/protocol/openid-connect/auth?client_id='.
 						$settings['clientId'].
 						'&response_type=code&scope=openid&redirect_uri='.
-						$router->url($request, null, "oauth", "doAuthentication")
+						$router->url($request, null, "openid", "doAuthentication")
 					);
 				}
 			}
@@ -66,7 +66,7 @@ class OauthLoginRegisterHandler extends Handler
 			$router = $request->getRouter();
 			$context = Application::get()->getRequest()->getContext();
 			$contextId = ($context == null) ? 0 : $context->getId();
-			$settingsJson = $plugin->getSetting($contextId, 'keycloakSettings');
+			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
 			if ($settingsJson != null) {
 				$settings = json_decode($settingsJson, true);
 				if (key_exists('url', $settings) && key_exists('realm', $settings) && key_exists('clientId', $settings)) {

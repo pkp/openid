@@ -17,8 +17,8 @@
  *
  */
 
-require_once('OauthPlugin.inc.php');
+require_once('OpenIDPlugin.inc.php');
 
-return new OauthPlugin();
+return new OpenIDPlugin();
 
 ?>
