@@ -1,27 +1,27 @@
-{include file="frontend/components/header.tpl" pageTitle="plugins.generic.oauth.step2.headline"}
-
+{include file="frontend/components/header.tpl" pageTitle="plugins.generic.openid.step2.title"}
 <div class="page page_oauth">
-	{include file="frontend/components/breadcrumbs.tpl" currentTitleKey="plugins.generic.oauth.step2.headline"}
+	{include file="frontend/components/breadcrumbs.tpl" currentTitleKey="plugins.generic.openid.step2.title"}
 	<h1>
-		{translate key="plugins.generic.oauth.step2.headline"}
+		{translate key="plugins.generic.openid.step2.headline"}
 	</h1>
-
-
+	<p>
+		{translate key="plugins.generic.openid.step2.help"}
+	</p>
 	<form class="cmp_form cmp_form oauth" id="oauth" method="post" action="{url page="openid" op="registerOrConnect"}">
 		{csrf}
 		<input type="hidden" name="oauthId" id="oauthId" value="{$oauthId}">
 		<input type="hidden" name="returnTo" id="returnTo" value="{$returnTo}">
-
-		{include file="common/formErrors.tpl"}
-
-		<div id="showRegisterForm">Show Register new Account</div>
-		<div id="showLoginForm">Show Merge Accounts</div>
-
+		<p>
+			{translate key="plugins.generic.openid.step2.choice"}
+		</p>
 		<div id="register-form">
 			<fieldset class="register">
 				<legend>
-					{translate key="user.profile"}
+					{translate key="plugins.generic.openid.step2.complete"}
 				</legend>
+				{if $returnTo == 'register'}
+					{include file="common/formErrors.tpl"}
+				{/if}
 				<div class="fields">
 					<div class="given_name">
 						<label>
@@ -129,16 +129,23 @@
 			</fieldset>
 			<div class="buttons">
 				<button class="submit" type="submit" name="register">
-					{translate key="user.oauth.step2.submit.register"}
+					{translate key="plugins.generic.openid.step2.complete.btn"}
 				</button>
 			</div>
 		</div>
+
 		<div id="login-form">
 			<fieldset class="login">
+				<legend>
+					{translate key="plugins.generic.openid.step2.connect"}
+				</legend>
+				{if $returnTo == 'connect'}
+					{include file="common/formErrors.tpl"}
+				{/if}
 				<div class="username">
 					<label>
 						<span class="label">
-							{translate key="user.username"}
+							{translate key="plugins.generic.openid.step2.connect.username"}
 							<span class="required" aria-hidden="true">*</span>
 							<span class="pkp_screen_reader">
 								{translate key="common.required"}
@@ -166,13 +173,10 @@
 			</fieldset>
 			<div class="buttons">
 				<button class="submit" type="submit" name="connect">
-					{translate key="user.oauth.step2.submit.connect"}
+					{translate key="plugins.generic.openid.step2.connect.btn"}
 				</button>
 			</div>
 		</div>
-
 	</form>
-
 </div><!-- .page -->
-
 {include file="frontend/components/footer.tpl"}

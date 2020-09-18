@@ -109,32 +109,32 @@ class OpenIDStep2Form extends Form
 		$connect = is_string($this->getData('connect'));
 		if ($register) {
 			$this->_data['returnTo'] = "register";
-			$this->addCheck(new FormValidator($this, 'username', 'required', 'user.profile.form.usernameRequired'));
+			$this->addCheck(new FormValidator($this, 'username', 'required', 'plugins.generic.openid.form.error.username.required'));
 			$this->addCheck(
 				new FormValidatorCustom(
-					$this, 'username', 'required', 'user.register.form.usernameExists',
+					$this, 'username', 'required', 'plugins.generic.openid.form.error.usernameExists',
 					array(DAORegistry::getDAO('UserDAO'), 'userExistsByUsername'), array(), true
 				)
 			);
-			$this->addCheck(new FormValidator($this, 'givenName', 'required', 'user.profile.form.givenNameRequired'));
-			$this->addCheck(new FormValidator($this, 'familyName', 'required', 'user.profile.form.familyNameRequired'));
-			$this->addCheck(new FormValidator($this, 'country', 'required', 'user.profile.form.countryRequired'));
-			$this->addCheck(new FormValidator($this, 'affiliation', 'required', 'user.profile.form.affiliationRequired'));
-			$this->addCheck(new FormValidatorEmail($this, 'email', 'required', 'user.profile.form.emailRequired'));
+			$this->addCheck(new FormValidator($this, 'givenName', 'required', 'plugins.generic.openid.form.error.givenName.required'));
+			$this->addCheck(new FormValidator($this, 'familyName', 'required', 'plugins.generic.openid.form.error.familyName.required'));
+			$this->addCheck(new FormValidator($this, 'country', 'required', 'plugins.generic.openid.form.error.country.required'));
+			$this->addCheck(new FormValidator($this, 'affiliation', 'required', 'plugins.generic.openid.form.error.affiliation.required'));
+			$this->addCheck(new FormValidatorEmail($this, 'email', 'required', 'plugins.generic.openid.form.error.email.required'));
 			$this->addCheck(
 				new FormValidatorCustom(
-					$this, 'email', 'required', 'user.register.form.emailExists',
+					$this, 'email', 'required', 'plugins.generic.openid.form.error.emailExists',
 					array(DAORegistry::getDAO('UserDAO'), 'userExistsByEmail'), array(), true
 				)
 			);
 			$context = Application::get()->getRequest()->getContext();
 			if ($context && $context->getData('privacyStatement')) {
-				$this->addCheck(new FormValidator($this, 'privacyConsent', 'required', 'user.profile.form.privacyConsentRequired'));
+				$this->addCheck(new FormValidator($this, 'privacyConsent', 'required', 'plugins.generic.openid.form.error.privacyConsent.required'));
 			}
 		} elseif ($connect) {
 			$this->_data['returnTo'] = "connect";
-			$this->addCheck(new FormValidator($this, 'usernameLogin', 'required', 'user.profile.form.givenNameRequired'));
-			$this->addCheck(new FormValidator($this, 'passwordLogin', 'required', 'user.profile.form.givenNameRequired'));
+			$this->addCheck(new FormValidator($this, 'usernameLogin', 'required', 'plugins.generic.openid.form.error.usernameOrEmail.required'));
+			$this->addCheck(new FormValidator($this, 'passwordLogin', 'required', 'plugins.generic.openid.form.error.password.required'));
 			$username = $this->getData('usernameLogin');
 			$password = $this->getData('passwordLogin');
 			$user = $userDao->getByUsername($username, true);
@@ -142,11 +142,11 @@ class OpenIDStep2Form extends Form
 				$user = $userDao->getUserByEmail($username, true);
 			}
 			if (!isset($user)) {
-				$this->addError('usernameLogin', __('plugin.oauth.user.not.found'));
+				$this->addError('usernameLogin', __('plugins.generic.openid.form.error.user.not.found'));
 			} else {
 				$valid = Validation::verifyPassword($user->getUsername(), $password, $user->getPassword(), $rehash);
 				if (!$valid) {
-					$this->addError('usernameLogin', __('plugin.oauth.user.invalid.credentials'));
+					$this->addError('passwordLogin', __('plugins.generic.openid.form.error.invalid.credentials'));
 				}
 			}
 		}

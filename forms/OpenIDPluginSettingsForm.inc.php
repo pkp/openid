@@ -48,6 +48,7 @@ class OpenIDPluginSettingsForm extends Form
 			'clientId' => $settings['clientId'],
 			'clientSecret' => $settings['clientSecret'],
 			'hashSecret' => $settings['hashSecret'],
+			'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0
 		);
 		parent::initData();
 	}
@@ -57,7 +58,7 @@ class OpenIDPluginSettingsForm extends Form
 	 */
 	function readInputData()
 	{
-		$this->readUserVars(array('url', 'realm', 'clientId', 'clientSecret', 'hashSecret'));
+		$this->readUserVars(array('url', 'realm', 'clientId', 'clientSecret', 'hashSecret', 'generateAPIKey'));
 		parent::readInputData();
 	}
 
@@ -85,6 +86,7 @@ class OpenIDPluginSettingsForm extends Form
 			'clientId' => $this->getData('clientId'),
 			'clientSecret' => $this->getData('clientSecret'),
 			'hashSecret' => $this->getData('hashSecret'),
+			'generateAPIKey' => $this->getData('generateAPIKey'),
 		);
 		$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
 		import('classes.notification.NotificationManager');

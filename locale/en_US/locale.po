@@ -1,15 +1,127 @@
+# general messages
 msgid "plugins.generic.openid.name"
-msgstr "OpenId OAuth Plugin"
+msgstr "OpenID Authentication Plugin"
 
 msgid "plugins.generic.openid.description"
-msgstr "lorem ipsum"
+msgstr "This plugin allows the login and registration via OpenID provider (e.g. Keycloak)"
 
+# step2 messages
+msgid "plugins.generic.openid.step2.title"
+msgstr "Register or Connect Account"
 
-msgid "plugins.generic.oauth.step2.headline"
-msgstr "OpenID Authentication Step 2"
+msgid "plugins.generic.openid.step2.headline"
+msgstr "Register or Connect Account"
 
-msgid "user.profile.form.familyNameRequired"
+msgid "plugins.generic.openid.step2.help"
+msgstr "No account was found which is linked to your OpenID data.<br />Two options are available: <ul><li>If you do not yet have an account for this journal, please provide your details and complete the registration.</li><li>If you already have an account for this journal, please log in with your former user data. Your accounts will be automatically connected and you only need to authenticate via OpenID in the future.</li></ul>"
+
+msgid "plugins.generic.openid.step2.choice"
+msgstr "Please <span id='showRegisterForm' class='step2-choice-links'>complete registration</span> or <span id='showLoginForm' class='step2-choice-links'>log in to your existing Account</span>."
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr "Please verify the transmitted details and add missing"
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "Complete registration"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr "Enter former login credentials"
+
+msgid "plugins.generic.openid.step2.connect.username"
+msgstr "Username or email"
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "Login and connect accounts"
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "A username is required."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "The selected username is already in use by another user."
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "A given name is required."
+
+msgid "plugins.generic.openid.form.error.familyName.required"
 msgstr "A family name is required."
-msgid "user.profile.form.affiliationRequired"
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "A country is required."
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
 msgstr "An affiliation is required."
 
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "An email is required."
+
+msgid "plugins.generic.openid.form.error.emailExists"
+msgstr "The selected email is already in use. Please try to log in to this account."
+
+msgid "plugins.generic.openid.form.error.privacyConsent.required"
+msgstr "You must agree to the terms of the privacy statement."
+
+msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
+msgstr "A username or email is required."
+
+msgid "plugins.generic.openid.form.error.password.required"
+msgstr "A password is required."
+
+msgid "plugins.generic.openid.form.error.user.not.found"
+msgstr "No user was found that matches your credentials."
+
+msgid "plugins.generic.openid.form.error.invalid.credentials"
+msgstr "The password is incorrect."
+
+# settings messages
+
+msgid "plugins.generic.openid.settings.openid.head"
+msgstr "OpenId Provider:"
+
+msgid "plugins.generic.openid.settings.openid.desc"
+msgstr "Please enter the following information according to your OpenID provider."
+
+msgid "plugins.generic.openid.settings.url"
+msgstr "OpenID Provider URL"
+
+msgid "plugins.generic.openid.settings.url.desc"
+msgstr "Please enter the base URL to your OpenID provider. <strong>The URL must end with \"/\" (e.g. \"https://sso.example.com/\").</strong>"
+
+msgid "plugins.generic.openid.settings.realm"
+msgstr "Realm"
+
+msgid "plugins.generic.openid.settings.realm.desc"
+msgstr "Please enter your realm identifier."
+
+msgid "plugins.generic.openid.settings.clientId"
+msgstr "Client identifier"
+
+msgid "plugins.generic.openid.settings.clientId.desc"
+msgstr "Please enter your clientId."
+
+msgid "plugins.generic.openid.settings.clientSecret"
+msgstr "Client secret"
+
+msgid "plugins.generic.openid.settings.clientSecret.desc"
+msgstr "Please enter your client secret."
+
+msgid "plugins.generic.openid.settings.features.head"
+msgstr "Advanced plugin functions"
+
+msgid "plugins.generic.openid.settings.features.desc"
+msgstr "The following inputs are only for advanced plugin functions. They are not important for the connection to the OpenID provider."
+
+msgid "plugins.generic.openid.settings.hashSecret"
+msgstr "Encrypt/Decrypt secret"
+
+msgid "plugins.generic.openid.settings.hashSecret.desc"
+msgstr "If you want to encrypt the OpenID information like the OpenID identifier in the HTML code and you want to use the following function for the automated API-KEY generation, you have to enter a secret here. You can choose your secret freely. The more characters, the more secure!"
+
+msgid "plugins.generic.openid.settings.generateAPIKey"
+msgstr "Automated API-Key"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.check"
+msgstr "Enable automatic API key generation"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.desc"
+msgstr "This plugin can generate a key by encrypting the OpenID identifier with <strong>the secret you entered before</strong>. This key will be encrypted again with a secret that must be specified in the OJS settings. This should be adequately secure."

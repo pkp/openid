@@ -9,7 +9,8 @@
 #oauth #showRegisterForm,
 #oauth #showLoginForm{
 	cursor: pointer;
-	margin-bottom: 20px;
+	color: #007ab2;
+	text-decoration: underline;
 }
 
 #oauth #register-form .optin-privacy .required{
