@@ -166,32 +166,35 @@ class OpenIDStep2Form extends Form
 		$connect = is_string($this->getData('connect'));
 		$oauthId = $this->getData('oauthId');
 		$result = false;
-		$user = null;
 		if (!empty($oauthId)) {
 			$oauthId = $this->_encryptOrDecrypt('decrypt', $oauthId);
-			if ($register) {
-				$user = $this->_registerUser();
-				if (isset($user)) {
-					$result = true;
+			// prevent saving one openid:ident to multiple accounts
+			$user = $userDao->getBySetting('openid::ident', hash('sha256', $oauthId));
+			if (!isset($user)) {
+				if ($register) {
+					$user = $this->_registerUser();
+					if (isset($user)) {
+						$result = true;
+					}
+				} elseif ($connect) {
+					$username = $this->getData('usernameLogin');
+					$password = $this->getData('passwordLogin');
+					$user = $userDao->getByUsername($username, true);
+					if (!isset($user)) {
+						$user = $userDao->getUserByEmail($username, true);
+					}
+					if (isset($user) && Validation::verifyPassword($user->getUsername(), $password, $user->getPassword(), $rehash)) {
+						$result = true;
+					}
 				}
-			} elseif ($connect) {
-				$username = $this->getData('usernameLogin');
-				$password = $this->getData('passwordLogin');
-				$user = $userDao->getByUsername($username, true);
-				if (!isset($user)) {
-					$user = $userDao->getUserByEmail($username, true);
+				if ($result && isset($user)) {
+					$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
+					$userSettingsDao->updateSetting($user->getId(), 'openid::ident', hash('sha256', $oauthId), 'string');
+					if ($functionArgs[0] = true) {
+						$this->_generateApiKey($user, $oauthId);
+					}
+					Validation::registerUserSession($user, $reason, true);
 				}
-				if (isset($user) && Validation::verifyPassword($user->getUsername(), $password, $user->getPassword(), $rehash)) {
-					$result = true;
-				}
-			}
-			if ($result && isset($user)) {
-				$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
-				$userSettingsDao->updateSetting($user->getId(), 'openid::ident', hash('sha256', $oauthId), 'string');
-				if ($functionArgs[0] = true) {
-					$this->_generateApiKey($user, $oauthId);
-				}
-				Validation::registerUserSession($user, $reason, true);
 			}
 		}
 		parent::execute(...$functionArgs);
