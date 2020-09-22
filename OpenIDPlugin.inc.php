@@ -28,25 +28,24 @@ class OpenIDPlugin extends GenericPlugin
 		$page = $args[0];
 		$op = $args[1];
 		define('KEYCLOAK_PLUGIN_NAME', $this->getName());
-		if ($this->getEnabled())
-			switch ("$page/$op") {
-				case 'openid/doAuthentication':
-				case 'openid/registerOrConnect':
-					$request = Application::get()->getRequest();
-					$templateMgr = TemplateManager::getManager($request);
-					$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
-					$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
-					define('HANDLER_CLASS', 'OpenIDHandler');
-					$args[2] = $this->getPluginPath().'/handler/OpenIDHandler.inc.php';
-					break;
-				case 'login/index':
-				case 'user/register':
-				case 'login/signOut':
-				case 'login/signOutOjs':
-					define('HANDLER_CLASS', 'OpenIDLoginHandler');
-					$args[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
-					break;
-			}
+		switch ("$page/$op") {
+			case 'openid/doAuthentication':
+			case 'openid/registerOrConnect':
+				$request = Application::get()->getRequest();
+				$templateMgr = TemplateManager::getManager($request);
+				$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
+				$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
+				define('HANDLER_CLASS', 'OpenIDHandler');
+				$args[2] = $this->getPluginPath().'/handler/OpenIDHandler.inc.php';
+				break;
+			case 'login/index':
+			case 'user/register':
+			case 'login/signOut':
+			case 'login/signOutOjs':
+				define('HANDLER_CLASS', 'OpenIDLoginHandler');
+				$args[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
+				break;
+		}
 
 		return false;
 	}
