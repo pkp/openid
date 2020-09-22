@@ -23,20 +23,17 @@ class OpenIDLoginHandler extends Handler
 			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
 			if ($settingsJson != null) {
 				$settings = json_decode($settingsJson, true);
-				if (key_exists('url', $settings) && key_exists('realm', $settings) && key_exists('clientId', $settings)) {
+				if (key_exists('authUrl', $settings) && key_exists('clientId', $settings)) {
 					$request->redirectUrl(
-						$settings['url'].
-						'auth/realms/'.$settings['realm'].
-						'/protocol/openid-connect/auth?client_id='.
-						$settings['clientId'].
+						$settings['authUrl'].
+						'?client_id='.$settings['clientId'].
 						'&response_type=code&scope=openid&redirect_uri='.
 						$router->url($request, null, "openid", "doAuthentication")
 					);
 				}
 			}
-		} else {
-			$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 		}
+		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 	}
 
 	/**
@@ -69,20 +66,18 @@ class OpenIDLoginHandler extends Handler
 			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
 			if ($settingsJson != null) {
 				$settings = json_decode($settingsJson, true);
-				if (key_exists('url', $settings) && key_exists('realm', $settings) && key_exists('clientId', $settings)) {
+				if (key_exists('logoutUrl', $settings) && !empty($settings['logoutUrl']) && key_exists('clientId', $settings)) {
 					$request->redirectUrl(
-						$settings['url'].
-						'auth/realms/'.$settings['realm'].
-						'/protocol/openid-connect/logout?client_id='.
-						$settings['clientId'].
-						'&redirect_uri='.
-						$router->url($request, $context, "login", "signOutOjs")
+						$settings['logoutUrl'].
+						'?client_id='.$settings['clientId'].
+						'&redirect_uri='.$router->url($request, $context, "login", "signOutOjs")
 					);
+				} else {
+					$request->redirect(Application::get()->getRequest()->getContext(), 'login', 'signOutOjs');
 				}
 			}
-		} else {
-			$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 		}
+		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 	}
 
 	/**

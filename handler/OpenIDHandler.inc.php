@@ -1,6 +1,12 @@
 <?php
+require_once 'plugins/generic/oauth/handler/phpseclib/Crypt/Hash.php';
+require_once 'plugins/generic/oauth/handler/phpseclib/Crypt/RSA.php';
+require_once 'plugins/generic/oauth/handler/phpseclib/Math/BigInteger.php';
 
 use Firebase\JWT\JWT;
+use phpseclib\Crypt\RSA;
+use phpseclib\Math\BigInteger;
+
 
 import('classes.handler.Handler');
 
@@ -20,11 +26,11 @@ class OpenIDHandler extends Handler
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		$contextId = ($context == null) ? 0 : $context->getId();
 		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
-		$accessToken = $this->getAccessTokenViaAuthCode($settings, $request->getUserVar('code'));
+		$token = $this->getAccessTokenViaAuthCode($settings, $request->getUserVar('code'));
 		$publicKey = $this->getOpenIDAuthenticationCert($settings);
 		$error = false;
-		if ($accessToken != null && $publicKey != null) {
-			$tokenData = $this->validateAndExtractToken($accessToken, $publicKey);
+		if (isset($token) && $publicKey != null) {
+			$tokenData = $this->validateAndExtractToken($token, $publicKey);
 			if (isset($tokenData) && is_array($tokenData)) {
 				$user = $this->getUserViaKeycloakId($tokenData);
 				if ($user == null) {
@@ -67,6 +73,7 @@ class OpenIDHandler extends Handler
 			}
 			$templateMgr->display($plugin->getTemplateResource('error.tpl'));
 		}
+
 		return true;
 	}
 
@@ -114,6 +121,7 @@ class OpenIDHandler extends Handler
 		if (isset($user) && is_a($user, 'User')) {
 			return $user;
 		}
+
 		return null;
 	}
 
@@ -123,16 +131,16 @@ class OpenIDHandler extends Handler
 	 *
 	 * @param array $settings
 	 * @param string $authorizationCode
-	 * @return string|null
+	 * @return array
 	 */
 	private function getAccessTokenViaAuthCode(array $settings, string $authorizationCode)
 	{
-		$accessToken = null;
+		$token = null;
 		$curl = curl_init();
 		curl_setopt_array(
 			$curl,
 			array(
-				CURLOPT_URL => $settings['url'].'auth/realms/'.$settings['realm'].'/protocol/openid-connect/token',
+				CURLOPT_URL => $settings['tokenUrl'],
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_HTTPHEADER => array('Accept: application/json'),
 				CURLOPT_POST => true,
@@ -152,11 +160,12 @@ class OpenIDHandler extends Handler
 		if (isset($result) && !empty($result)) {
 			$result = json_decode($result, true);
 			if (is_array($result) && !empty($result) && key_exists('access_token', $result)) {
-				$accessToken = $result['access_token'];
+				$token['access_token'] = $result['access_token'];
+				$token['id_token'] = $result['id_token'];
 			}
 		}
 
-		return $accessToken;
+		return $token;
 	}
 
 	/**
@@ -164,7 +173,7 @@ class OpenIDHandler extends Handler
 	 * If no key is found, null is returned
 	 *
 	 * @param $settings
-	 * @return string|null
+	 * @return array
 	 */
 	private function getOpenIDAuthenticationCert(array $settings)
 	{
@@ -175,7 +184,7 @@ class OpenIDHandler extends Handler
 		curl_setopt_array(
 			$curl,
 			array(
-				CURLOPT_URL => $settings['url'].'auth/realms/'.$settings['realm'].'/protocol/openid-connect/certs',
+				CURLOPT_URL => $settings['certUrl'],
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_HTTPHEADER => array('Accept: application/json'),
 				CURLOPT_POST => false,
@@ -184,50 +193,65 @@ class OpenIDHandler extends Handler
 		$result = curl_exec($curl);
 		curl_close($curl);
 		$arr = json_decode($result, true);
-		$publicKey = null;
+		$publicKeys = array();
 		if (key_exists('keys', $arr)) {
 			foreach ($arr['keys'] as $key) {
-				if (key_exists('alg', $key) && key_exists('x5c', $key) && $key['alg'] = 'RS256') {
-					if ($key['x5c'] != null && is_array($key['x5c'])) {
+				if (key_exists('alg', $key) && $key['alg'] = 'RS256') {
+					if (key_exists('x5c', $key) && $key['x5c'] != null && is_array($key['x5c'])) {
 						foreach ($key['x5c'] as $n) {
 							if (!empty($n)) {
-								$publicKey = $beginCert.PHP_EOL.$n.PHP_EOL.$endCert;
-								break;
+								$publicKeys[] = $beginCert.PHP_EOL.$n.PHP_EOL.$endCert;
 							}
 						}
+					} elseif (key_exists('n', $key) && key_exists('e', $key)) {
+						$rsa = new RSA();
+						$modulus = new BigInteger(JWT::urlsafeB64Decode($key['n']), 256);
+						$exponent = new BigInteger(JWT::urlsafeB64Decode($key['e']), 256);
+						$rsa->loadKey(array('n' => $modulus, 'e' => $exponent));
+						$publicKeys[] = $rsa->getPublicKey();
 					}
 				}
 			}
 		}
 
-		return $publicKey;
+		return $publicKeys;
 	}
-
 
 	/**
 	 * Validates the token via JWT and public key and returns the token payload data as array.
 	 * In case of an error null is returned
 	 *
-	 * @param string $accessToken
-	 * @param string $publicKey
+	 * @param array $token
+	 * @param array $publicKeys
 	 * @return array|null
 	 */
-	private function validateAndExtractToken(string $accessToken, string $publicKey)
+	private function validateAndExtractToken(array $token, array $publicKeys)
 	{
-		$jwtPayload = JWT::decode($accessToken, $publicKey, array('RS256'));
 		$credentials = null;
-		if ($jwtPayload) {
-			$credentials = [
-				'id' => $jwtPayload->sub,
-				'email' => $jwtPayload->email,
-				'username' => $jwtPayload->preferred_username,
-				'given_name' => $jwtPayload->given_name,
-				'family_name' => $jwtPayload->family_name,
-				'email_verified' => $jwtPayload->email_verified,
-			];
-		}
+		if($publicKeys!=null)
+			foreach ($publicKeys as $publicKey){
+				try {
+					$jwtPayload = JWT::decode($token['id_token'], $publicKey, array('RS256'));
+					if ($jwtPayload) {
+						$credentials = [
+							'id' => $jwtPayload->sub,
+							'email' => $jwtPayload->email,
+							'username' => $jwtPayload->preferred_username,
+							'given_name' => $jwtPayload->given_name,
+							'family_name' => $jwtPayload->family_name,
+							'email_verified' => $jwtPayload->email_verified,
+						];
+					}
+					var_dump($credentials);
+					if(isset($credentials))
+						break;
+				}catch (Exception $e){
+					$credentials = null;
+				}
+			}
 
 		return $credentials;
 	}
+
 }
 

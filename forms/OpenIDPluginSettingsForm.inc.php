@@ -43,12 +43,15 @@ class OpenIDPluginSettingsForm extends Form
 		$settingsJson = $this->plugin->getSetting($contextId, 'openIDSettings');
 		$settings = json_decode($settingsJson, true);
 		$this->_data = array(
-			'url' => $settings['url'],
-			'realm' => $settings['realm'],
+			'authUrl' => $settings['authUrl'],
+			'tokenUrl' => $settings['tokenUrl'],
+			'certUrl' => $settings['certUrl'],
+			'certString' => $settings['certString'],
+			'logoutUrl' => $settings['logoutUrl'],
 			'clientId' => $settings['clientId'],
 			'clientSecret' => $settings['clientSecret'],
 			'hashSecret' => $settings['hashSecret'],
-			'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0
+			'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0,
 		);
 		parent::initData();
 	}
@@ -58,7 +61,9 @@ class OpenIDPluginSettingsForm extends Form
 	 */
 	function readInputData()
 	{
-		$this->readUserVars(array('url', 'realm', 'clientId', 'clientSecret', 'hashSecret', 'generateAPIKey'));
+		$this->readUserVars(
+			array('authUrl', 'tokenUrl', 'certUrl', 'certString', 'logoutUrl', 'clientId', 'clientSecret', 'hashSecret', 'generateAPIKey')
+		);
 		parent::readInputData();
 	}
 
@@ -81,8 +86,11 @@ class OpenIDPluginSettingsForm extends Form
 		$request = Application::get()->getRequest();
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
 		$settings = array(
-			'url' => $this->getData('url'),
-			'realm' => $this->getData('realm'),
+			'authUrl' => $this->getData('authUrl'),
+			'tokenUrl' => $this->getData('tokenUrl'),
+			'certUrl' => $this->getData('certUrl'),
+			'certString' => $this->getData('certString'),
+			'logoutUrl' => $this->getData('logoutUrl'),
 			'clientId' => $this->getData('clientId'),
 			'clientSecret' => $this->getData('clientSecret'),
 			'hashSecret' => $this->getData('hashSecret'),
