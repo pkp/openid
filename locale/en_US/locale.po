@@ -81,10 +81,10 @@ msgstr "OpenId Provider:"
 msgid "plugins.generic.openid.settings.openid.desc"
 msgstr "Please enter the following information according to your OpenID provider."
 
-msgid "plugins.generic.openid.settings.url"
+msgid "plugins.generic.openid.settings.configUrl"
 msgstr "OpenID Provider URL"
 
-msgid "plugins.generic.openid.settings.url.desc"
+msgid "plugins.generic.openid.settings.configUrl.desc"
 msgstr "Please enter the base URL to your OpenID provider. <strong>The URL must end with \"/\" (e.g. \"https://sso.example.com/\").</strong>"
 
 msgid "plugins.generic.openid.settings.realm"

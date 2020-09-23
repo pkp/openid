@@ -63,22 +63,22 @@ class OpenIDLoginHandler extends Handler
 			$router = $request->getRouter();
 			$context = Application::get()->getRequest()->getContext();
 			$contextId = ($context == null) ? 0 : $context->getId();
-			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
-			if ($settingsJson != null) {
-				$settings = json_decode($settingsJson, true);
+			$settings = $plugin->getSetting($contextId, 'openIDSettings');
+			if (isset($settings)) {
+				$settings = json_decode($settings, true);
 				if (key_exists('logoutUrl', $settings) && !empty($settings['logoutUrl']) && key_exists('clientId', $settings)) {
 					$request->redirectUrl(
 						$settings['logoutUrl'].
 						'?client_id='.$settings['clientId'].
 						'&redirect_uri='.$router->url($request, $context, "login", "signOutOjs")
 					);
-				} else {
-					$request->redirect(Application::get()->getRequest()->getContext(), 'login', 'signOutOjs');
 				}
+				$request->redirect(Application::get()->getRequest()->getContext(), 'login', 'signOutOjs');
 			}
 		}
 		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 	}
+
 
 	/**
 	 * Sign a user out.

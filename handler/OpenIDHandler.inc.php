@@ -26,11 +26,13 @@ class OpenIDHandler extends Handler
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		$contextId = ($context == null) ? 0 : $context->getId();
 		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
-		$token = $this->getAccessTokenViaAuthCode($settings, $request->getUserVar('code'));
+		$token = $this->getTokenViaAuthCode($settings, $request->getUserVar('code'));
 		$publicKey = $this->getOpenIDAuthenticationCert($settings);
 		$error = false;
 		if (isset($token) && $publicKey != null) {
 			$tokenData = $this->validateAndExtractToken($token, $publicKey);
+			// TODO google id token does not contain mail address or other client data
+			//$this->getClientDetails($token, $settings);
 			if (isset($tokenData) && is_array($tokenData)) {
 				$user = $this->getUserViaKeycloakId($tokenData);
 				if ($user == null) {
@@ -40,7 +42,14 @@ class OpenIDHandler extends Handler
 					$regForm->display($request);
 				} elseif (is_a($user, 'User') && !$user->getDisabled()) {
 					Validation::registerUserSession($user, $reason, true);
-					$request->redirect($context->getPath(), 'user', 'profile', null, $args);
+					if ($user->hasRole(
+						[ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR, ROLE_ID_REVIEWER, ROLE_ID_ASSISTANT],
+						$contextId
+					)) {
+						$request->redirect($context->getPath(), 'submissions');
+					} else {
+						$request->redirect($context->getPath(), 'user', 'profile', null, $args);
+					}
 				} elseif ($user->getDisabled()) {
 					$error = true;
 					$templateMgr->assign('errorType', 'plugins.generic.openid.error.openid.disabled.head');
@@ -127,13 +136,13 @@ class OpenIDHandler extends Handler
 
 
 	/**
-	 * This function returns the access token which contains the user data.
+	 * This function returns the token data.
 	 *
 	 * @param array $settings
 	 * @param string $authorizationCode
 	 * @return array
 	 */
-	private function getAccessTokenViaAuthCode(array $settings, string $authorizationCode)
+	private function getTokenViaAuthCode(array $settings, string $authorizationCode)
 	{
 		$token = null;
 		$curl = curl_init();
@@ -155,13 +164,20 @@ class OpenIDHandler extends Handler
 				),
 			)
 		);
+
 		$result = curl_exec($curl);
 		curl_close($curl);
 		if (isset($result) && !empty($result)) {
 			$result = json_decode($result, true);
-			if (is_array($result) && !empty($result) && key_exists('access_token', $result)) {
-				$token['access_token'] = $result['access_token'];
-				$token['id_token'] = $result['id_token'];
+			var_dump($result);
+			if (is_array($result) && !empty($result)
+				&& key_exists('access_token', $result)
+				&& key_exists('id_token', $result)) {
+				$token = [
+					'access_token' => $result['access_token'],
+					'id_token' => $result['id_token'],
+					'refresh_token' => key_exists('refresh_token', $result) ? $result['refresh_token'] : null,
+				];
 			}
 		}
 
@@ -228,30 +244,50 @@ class OpenIDHandler extends Handler
 	private function validateAndExtractToken(array $token, array $publicKeys)
 	{
 		$credentials = null;
-		if($publicKeys!=null)
-			foreach ($publicKeys as $publicKey){
+		if ($publicKeys != null) {
+			foreach ($publicKeys as $publicKey) {
 				try {
 					$jwtPayload = JWT::decode($token['id_token'], $publicKey, array('RS256'));
 					if ($jwtPayload) {
 						$credentials = [
-							'id' => $jwtPayload->sub,
-							'email' => $jwtPayload->email,
-							'username' => $jwtPayload->preferred_username,
-							'given_name' => $jwtPayload->given_name,
-							'family_name' => $jwtPayload->family_name,
-							'email_verified' => $jwtPayload->email_verified,
+							'id' => property_exists($jwtPayload, 'sub') ? $jwtPayload->sub : null,
+							'email' => property_exists($jwtPayload, 'email') ? $jwtPayload->email : null,
+							'username' => property_exists($jwtPayload, 'preferred_username') ? $jwtPayload->preferred_username : null,
+							'given_name' => property_exists($jwtPayload, 'given_name') ? $jwtPayload->given_name : null,
+							'family_name' => property_exists($jwtPayload, 'family_name') ? $jwtPayload->family_name : null,
+							'email_verified' => property_exists($jwtPayload, 'email_verified') ? $jwtPayload->email_verified : null,
 						];
 					}
-					var_dump($credentials);
-					if(isset($credentials))
+					if (isset($credentials) && key_exists('id', $credentials) && !empty($credentials['id'])) {
 						break;
-				}catch (Exception $e){
+					}
+				} catch (Exception $e) {
 					$credentials = null;
 				}
 			}
+		}
 
 		return $credentials;
 	}
+
+
+	private function getClientDetails($token, $settings)
+	{
+		$curl = curl_init();
+		curl_setopt_array(
+			$curl,
+			array(
+				CURLOPT_URL => $settings['userInfoUrl'],
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_HTTPHEADER => array('Accept: application/json', 'Authorization: Bearer '.$token['access_token']),
+				CURLOPT_POST => false,
+			)
+		);
+		$result = curl_exec($curl);
+		var_dump($result);
+		curl_close($curl);
+	}
+
 
 }
 

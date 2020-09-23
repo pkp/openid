@@ -43,11 +43,7 @@ class OpenIDPluginSettingsForm extends Form
 		$settingsJson = $this->plugin->getSetting($contextId, 'openIDSettings');
 		$settings = json_decode($settingsJson, true);
 		$this->_data = array(
-			'authUrl' => $settings['authUrl'],
-			'tokenUrl' => $settings['tokenUrl'],
-			'certUrl' => $settings['certUrl'],
-			'certString' => $settings['certString'],
-			'logoutUrl' => $settings['logoutUrl'],
+			'configUrl' => $settings['configUrl'],
 			'clientId' => $settings['clientId'],
 			'clientSecret' => $settings['clientSecret'],
 			'hashSecret' => $settings['hashSecret'],
@@ -62,7 +58,7 @@ class OpenIDPluginSettingsForm extends Form
 	function readInputData()
 	{
 		$this->readUserVars(
-			array('authUrl', 'tokenUrl', 'certUrl', 'certString', 'logoutUrl', 'clientId', 'clientSecret', 'hashSecret', 'generateAPIKey')
+			array('configUrl', 'clientId', 'clientSecret', 'hashSecret', 'generateAPIKey')
 		);
 		parent::readInputData();
 	}
@@ -85,27 +81,62 @@ class OpenIDPluginSettingsForm extends Form
 	{
 		$request = Application::get()->getRequest();
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
-		$settings = array(
-			'authUrl' => $this->getData('authUrl'),
-			'tokenUrl' => $this->getData('tokenUrl'),
-			'certUrl' => $this->getData('certUrl'),
-			'certString' => $this->getData('certString'),
-			'logoutUrl' => $this->getData('logoutUrl'),
-			'clientId' => $this->getData('clientId'),
-			'clientSecret' => $this->getData('clientSecret'),
-			'hashSecret' => $this->getData('hashSecret'),
-			'generateAPIKey' => $this->getData('generateAPIKey'),
-		);
-		$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
-		import('classes.notification.NotificationManager');
-		$notificationMgr = new NotificationManager();
-		$notificationMgr->createTrivialNotification(
-			$request->getUser()->getId(),
-			NOTIFICATION_TYPE_SUCCESS,
-			['contents' => __('common.changesSaved')]
-		);
+		$openIdConfig = $this->loadOpenIdConfig($this->getData('configUrl'));
+		if (is_array($openIdConfig)
+			&& key_exists('authorization_endpoint', $openIdConfig)
+			&& key_exists('token_endpoint', $openIdConfig)
+			&& key_exists('jwks_uri', $openIdConfig)) {
+			$settings = array(
+				'configUrl' => $this->getData('configUrl'),
+				'authUrl' => $openIdConfig['authorization_endpoint'],
+				'tokenUrl' => $openIdConfig['token_endpoint'],
+				'userInfoUrl' => key_exists('userinfo_endpoint', $openIdConfig) ? $openIdConfig['userinfo_endpoint'] : null,
+				'certUrl' => $openIdConfig['jwks_uri'],
+				'logoutUrl' => key_exists('end_session_endpoint', $openIdConfig) ? $openIdConfig['end_session_endpoint'] : null,
+				'revokeUrl' => key_exists('revocation_endpoint', $openIdConfig) ? $openIdConfig['revocation_endpoint'] : null,
+				'clientId' => $this->getData('clientId'),
+				'clientSecret' => $this->getData('clientSecret'),
+				'hashSecret' => $this->getData('hashSecret'),
+				'generateAPIKey' => $this->getData('generateAPIKey'),
+			);
+			$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
+			import('classes.notification.NotificationManager');
+			$notificationMgr = new NotificationManager();
+			$notificationMgr->createTrivialNotification(
+				$request->getUser()->getId(),
+				NOTIFICATION_TYPE_SUCCESS,
+				['contents' => __('common.changesSaved')]
+			);
+		} else {
+			import('classes.notification.NotificationManager');
+			$notificationMgr = new NotificationManager();
+			$notificationMgr->createTrivialNotification(
+				$request->getUser()->getId(),
+				NOTIFICATION_TYPE_ERROR,
+				['contents' => __('common.changesSaved')] // TODO error msg
+			);
+		}
 
 		return parent::execute();
+	}
+
+
+	private function loadOpenIdConfig($configUrl)
+	{
+		$curl = curl_init();
+		curl_setopt_array(
+			$curl,
+			array(
+				CURLOPT_URL => $configUrl,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_HTTPHEADER => array('Accept: application/json'),
+				CURLOPT_POST => false,
+			)
+		);
+		$result = curl_exec($curl);
+		if (isset($result)) {
+			return json_decode($result, true);
+		}
 	}
 
 }
