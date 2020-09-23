@@ -18,6 +18,11 @@ import('lib.pkp.classes.form.Form');
 
 class OpenIDPluginSettingsForm extends Form
 {
+	public static array $PUBLIC_OPENID_PROVIDER = [
+		"custom" => "",
+		"google" => "https://accounts.google.com/.well-known/openid-configuration",
+		"microsoft" => "https://login.windows.net/common/.well-known/openid-configuration",
+	];
 
 	private OpenIDPlugin $plugin;
 
@@ -42,13 +47,17 @@ class OpenIDPluginSettingsForm extends Form
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
 		$settingsJson = $this->plugin->getSetting($contextId, 'openIDSettings');
 		$settings = json_decode($settingsJson, true);
-		$this->_data = array(
-			'configUrl' => $settings['configUrl'],
-			'clientId' => $settings['clientId'],
-			'clientSecret' => $settings['clientSecret'],
-			'hashSecret' => $settings['hashSecret'],
-			'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0,
-		);
+		if (isset($settings)) {
+			$this->_data = array(
+				'configUrl' => $settings['configUrl'],
+				'clientId' => $settings['clientId'],
+				'clientSecret' => $settings['clientSecret'],
+				'initProvider' => self::$PUBLIC_OPENID_PROVIDER,
+				'provider' => key_exists('provider', $settings) ? $settings['provider'] : ["google" => [], "microsoft" => []],
+				'hashSecret' => $settings['hashSecret'],
+				'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0,
+			);
+		}
 		parent::initData();
 	}
 
@@ -58,7 +67,7 @@ class OpenIDPluginSettingsForm extends Form
 	function readInputData()
 	{
 		$this->readUserVars(
-			array('configUrl', 'clientId', 'clientSecret', 'hashSecret', 'generateAPIKey')
+			array('configUrl', 'clientId', 'clientSecret', 'hashSecret', 'generateAPIKey', 'provider')
 		);
 		parent::readInputData();
 	}
@@ -81,7 +90,11 @@ class OpenIDPluginSettingsForm extends Form
 	{
 		$request = Application::get()->getRequest();
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
-		$openIdConfig = $this->loadOpenIdConfig($this->getData('configUrl'));
+
+		$providerList = $this->getData('provider');
+		$providerListResult = $this->_createProviderList($providerList);
+
+		$openIdConfig = $this->_loadOpenIdConfig($this->getData('configUrl'));
 		if (is_array($openIdConfig)
 			&& key_exists('authorization_endpoint', $openIdConfig)
 			&& key_exists('token_endpoint', $openIdConfig)
@@ -98,6 +111,7 @@ class OpenIDPluginSettingsForm extends Form
 				'clientSecret' => $this->getData('clientSecret'),
 				'hashSecret' => $this->getData('hashSecret'),
 				'generateAPIKey' => $this->getData('generateAPIKey'),
+				'provider' => $providerListResult,
 			);
 			$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
 			import('classes.notification.NotificationManager');
@@ -121,7 +135,7 @@ class OpenIDPluginSettingsForm extends Form
 	}
 
 
-	private function loadOpenIdConfig($configUrl)
+	private function _loadOpenIdConfig($configUrl)
 	{
 		$curl = curl_init();
 		curl_setopt_array(
@@ -137,6 +151,36 @@ class OpenIDPluginSettingsForm extends Form
 		if (isset($result)) {
 			return json_decode($result, true);
 		}
+	}
+
+	/**
+	 * @param $providerList
+	 * @return array
+	 */
+	private function _createProviderList($providerList): array
+	{
+		$providerListResult = array();
+		if (isset($providerList) && is_array($providerList)) {
+			foreach ($providerList as $name => $provider) {
+				if (key_exists('active', $provider) && $provider['active'] == 1) {
+					$openIdConfig = $this->_loadOpenIdConfig($provider['configUrl']);
+					if (is_array($openIdConfig)
+						&& key_exists('authorization_endpoint', $openIdConfig)
+						&& key_exists('token_endpoint', $openIdConfig)
+						&& key_exists('jwks_uri', $openIdConfig)) {
+						$provider['authUrl'] = $openIdConfig['authorization_endpoint'];
+						$provider['tokenUrl'] = $openIdConfig['token_endpoint'];
+						$provider['userInfoUrl'] = key_exists('userinfo_endpoint', $openIdConfig) ? $openIdConfig['userinfo_endpoint'] : null;
+						$provider['certUrl'] = $openIdConfig['jwks_uri'];
+						$provider['logoutUrl'] = key_exists('end_session_endpoint', $openIdConfig) ? $openIdConfig['end_session_endpoint'] : null;
+						$provider['revokeUrl'] = key_exists('revocation_endpoint', $openIdConfig) ? $openIdConfig['revocation_endpoint'] : null;
+						$providerListResult[$name] = $provider;
+					}
+				}
+			}
+		}
+
+		return $providerListResult;
 	}
 
 }
