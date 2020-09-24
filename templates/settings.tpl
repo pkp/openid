@@ -51,39 +51,27 @@
 	id="openIDSettings"
 	method="POST"
 	action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="settings" save=true}">
-
 	{csrf}
 	{fbvFormArea title="plugins.generic.openid.settings.openid.head" }
 		<p>{translate key="plugins.generic.openid.settings.openid.desc"}</p>
-		{fbvFormSection title="plugins.generic.openid.settings.configUrl"}
-			{fbvElement type="text" required="true" id="configUrl" value=$configUrl maxlength="250" label="plugins.generic.openid.settings.configUrl.desc"}
-		{/fbvFormSection}
-		{fbvFormSection title="plugins.generic.openid.settings.clientId"}
-			{fbvElement type="text" required="true"  id="clientId" value=$clientId maxlength="250" label="plugins.generic.openid.settings.clientId.desc"}
-		{/fbvFormSection}
-		{fbvFormSection title="plugins.generic.openid.settings.clientSecret"}
-			{fbvElement type="text" required="true"  id="clientSecret" value=$clientSecret maxlength="250" label="plugins.generic.openid.settings.clientSecret.desc"}
-		{/fbvFormSection}
-
-	{foreach from=$initProvider item=configUrl key=name}
-		<div class="showContent">
-			{fbvFormSection title="plugins.generic.openid.settings.{$name}.enable" list=true style="padding: 0;"}
-				<p>{translate key="plugins.generic.openid.settings.{$name}.desc"}</p>
-				{fbvElement type="checkbox" id="provider[{$name}][active]" checked=$provider[{$name}]['active']  value=1 label="plugins.generic.openid.settings.{$name}.enable.desc" }
-				<div class="hiddenContent">
-					{if $name eq 'custom'}
-						{fbvElement type="text" id="provider[{$name}][configUrl]" value=$provider[{$name}]['configUrl'] maxlength="250" label="plugins.generic.openid.settings.configUrl.desc"}
-					{else}
-						{fbvElement type="hidden" id="provider[{$name}][configUrl]" value=$configUrl }
-					{/if}
-					{fbvElement type="text" id="provider[{$name}][clientId]" value=$provider[{$name}]['clientId'] maxlength="250" label="plugins.generic.openid.settings.clientId.desc" inline=true size=$fbvStyles.size.MEDIUM}
-					{fbvElement type="text" id="provider[{$name}][clientSecret]" value=$provider[{$name}]['clientSecret'] maxlength="250" label="plugins.generic.openid.settings.clientSecret.desc" inline=true size=$fbvStyles.size.MEDIUM}
-				</div>
-			{/fbvFormSection}
-		</div>
-	{/foreach}
+		{foreach from=$initProvider item=settings key=name}
+			<div class="showContent">
+				{fbvFormSection title="plugins.generic.openid.settings.{$name}.enable" list=true style="padding: 0;"}
+					<p>{translate key="plugins.generic.openid.settings.{$name}.desc"}</p>
+					{fbvElement type="checkbox" id="provider[{$name}][active]" checked=$provider[{$name}]['active']  value=1 label="plugins.generic.openid.settings.{$name}.enable.desc" }
+					<div class="hiddenContent">
+						{if $name eq 'custom'}
+							{fbvElement type="text" id="provider[{$name}][configUrl]" value=$provider[{$name}]['configUrl'] maxlength="250" label="plugins.generic.openid.settings.configUrl.desc"}
+						{else}
+							{fbvElement type="hidden" id="provider[{$name}][configUrl]" value=$settings['configUrl'] }
+						{/if}
+						{fbvElement type="text" id="provider[{$name}][clientId]" value=$provider[{$name}]['clientId'] maxlength="250" label="plugins.generic.openid.settings.clientId.desc" inline=true size=$fbvStyles.size.MEDIUM}
+						{fbvElement type="text" id="provider[{$name}][clientSecret]" value=$provider[{$name}]['clientSecret'] maxlength="250" label="plugins.generic.openid.settings.clientSecret.desc" inline=true size=$fbvStyles.size.MEDIUM}
+					</div>
+				{/fbvFormSection}
+			</div>
+		{/foreach}
 	{/fbvFormArea}
-
 	{fbvFormArea title="plugins.generic.openid.settings.features.head"}
 		<p>{translate key="plugins.generic.openid.settings.features.desc"}</p>
 		{fbvFormSection title="plugins.generic.openid.settings.hashSecret"}

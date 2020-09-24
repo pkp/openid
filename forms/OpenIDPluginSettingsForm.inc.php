@@ -18,10 +18,12 @@ import('lib.pkp.classes.form.Form');
 
 class OpenIDPluginSettingsForm extends Form
 {
-	public static array $PUBLIC_OPENID_PROVIDER = [
+	private const PUBLIC_OPENID_PROVIDER = [
 		"custom" => "",
-		"google" => "https://accounts.google.com/.well-known/openid-configuration",
-		"microsoft" => "https://login.windows.net/common/.well-known/openid-configuration",
+		"google" => ["configUrl" => "https://accounts.google.com/.well-known/openid-configuration"],
+		"microsoft" => ["configUrl" => "https://login.windows.net/common/.well-known/openid-configuration"],
+		"telekom" => ["configUrl" => "https://accounts.login.idm.telekom.com/.well-known/openid-configuration"],
+		"myidbe" => ["configUrl" => "https://auth.myid.be/.well-known/openid-configuration"],
 	];
 
 	private OpenIDPlugin $plugin;
@@ -49,11 +51,8 @@ class OpenIDPluginSettingsForm extends Form
 		$settings = json_decode($settingsJson, true);
 		if (isset($settings)) {
 			$this->_data = array(
-				'configUrl' => $settings['configUrl'],
-				'clientId' => $settings['clientId'],
-				'clientSecret' => $settings['clientSecret'],
-				'initProvider' => self::$PUBLIC_OPENID_PROVIDER,
-				'provider' => key_exists('provider', $settings) ? $settings['provider'] : ["google" => [], "microsoft" => []],
+				'initProvider' => self::PUBLIC_OPENID_PROVIDER,
+				'provider' => $settings['provider'],
 				'hashSecret' => $settings['hashSecret'],
 				'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0,
 			);
@@ -67,7 +66,7 @@ class OpenIDPluginSettingsForm extends Form
 	function readInputData()
 	{
 		$this->readUserVars(
-			array('configUrl', 'clientId', 'clientSecret', 'hashSecret', 'generateAPIKey', 'provider')
+			array('provider', 'hashSecret', 'generateAPIKey')
 		);
 		parent::readInputData();
 	}
@@ -90,28 +89,13 @@ class OpenIDPluginSettingsForm extends Form
 	{
 		$request = Application::get()->getRequest();
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
-
 		$providerList = $this->getData('provider');
 		$providerListResult = $this->_createProviderList($providerList);
-
-		$openIdConfig = $this->_loadOpenIdConfig($this->getData('configUrl'));
-		if (is_array($openIdConfig)
-			&& key_exists('authorization_endpoint', $openIdConfig)
-			&& key_exists('token_endpoint', $openIdConfig)
-			&& key_exists('jwks_uri', $openIdConfig)) {
+		if (isset($providerListResult) && sizeof($providerListResult) > 0) {
 			$settings = array(
-				'configUrl' => $this->getData('configUrl'),
-				'authUrl' => $openIdConfig['authorization_endpoint'],
-				'tokenUrl' => $openIdConfig['token_endpoint'],
-				'userInfoUrl' => key_exists('userinfo_endpoint', $openIdConfig) ? $openIdConfig['userinfo_endpoint'] : null,
-				'certUrl' => $openIdConfig['jwks_uri'],
-				'logoutUrl' => key_exists('end_session_endpoint', $openIdConfig) ? $openIdConfig['end_session_endpoint'] : null,
-				'revokeUrl' => key_exists('revocation_endpoint', $openIdConfig) ? $openIdConfig['revocation_endpoint'] : null,
-				'clientId' => $this->getData('clientId'),
-				'clientSecret' => $this->getData('clientSecret'),
+				'provider' => $providerListResult,
 				'hashSecret' => $this->getData('hashSecret'),
 				'generateAPIKey' => $this->getData('generateAPIKey'),
-				'provider' => $providerListResult,
 			);
 			$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
 			import('classes.notification.NotificationManager');
@@ -132,25 +116,6 @@ class OpenIDPluginSettingsForm extends Form
 		}
 
 		return parent::execute();
-	}
-
-
-	private function _loadOpenIdConfig($configUrl)
-	{
-		$curl = curl_init();
-		curl_setopt_array(
-			$curl,
-			array(
-				CURLOPT_URL => $configUrl,
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_HTTPHEADER => array('Accept: application/json'),
-				CURLOPT_POST => false,
-			)
-		);
-		$result = curl_exec($curl);
-		if (isset($result)) {
-			return json_decode($result, true);
-		}
 	}
 
 	/**
@@ -181,6 +146,26 @@ class OpenIDPluginSettingsForm extends Form
 		}
 
 		return $providerListResult;
+	}
+
+	private function _loadOpenIdConfig($configUrl)
+	{
+		$curl = curl_init();
+		curl_setopt_array(
+			$curl,
+			array(
+				CURLOPT_URL => $configUrl,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_HTTPHEADER => array('Accept: application/json'),
+				CURLOPT_POST => false,
+			)
+		);
+		$result = curl_exec($curl);
+		if (isset($result)) {
+			return json_decode($result, true);
+		}
+
+		return null;
 	}
 
 }

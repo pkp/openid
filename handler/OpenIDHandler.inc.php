@@ -21,27 +21,27 @@ class OpenIDHandler extends Handler
 	{
 		$templateMgr = TemplateManager::getManager($request);
 		$context = $request->getContext();
-		$user = null;
-		$tokenData = null;
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		$contextId = ($context == null) ? 0 : $context->getId();
 		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
-		$token = $this->getTokenViaAuthCode($settings, $request->getUserVar('code'));
-		$publicKey = $this->getOpenIDAuthenticationCert($settings);
+		$selectedProvider = $request->getUserVar('provider');
+		$token = $this->_getTokenViaAuthCode($settings['provider'], $request->getUserVar('code'), $selectedProvider);
+		$publicKey = $this->_getOpenIDAuthenticationCert($settings['provider'], $selectedProvider);
 		$error = false;
-		if (isset($token) && $publicKey != null) {
-			$tokenData = $this->validateAndExtractToken($token, $publicKey);
-			// TODO google id token does not contain mail address or other client data
-			//$this->getClientDetails($token, $settings);
-			if (isset($tokenData) && is_array($tokenData)) {
-				$user = $this->getUserViaKeycloakId($tokenData);
-				if ($user == null) {
+		if (isset($token) && isset($publicKey)) {
+			$tokenPayload = $this->_validateAndExtractToken($token, $publicKey);
+			if (isset($tokenPayload) && is_array($tokenPayload)) {
+				$tokenPayload['selectedProvider'] = $selectedProvider;
+				$user = $this->_getUserViaKeycloakId($tokenPayload);
+				if (!isset($user)) {
 					import($plugin->getPluginPath().'/forms/OpenIDStep2Form');
-					$regForm = new OpenIDStep2Form($plugin, $tokenData);
+					$regForm = new OpenIDStep2Form($plugin, $tokenPayload);
 					$regForm->initData();
 					$regForm->display($request);
 				} elseif (is_a($user, 'User') && !$user->getDisabled()) {
 					Validation::registerUserSession($user, $reason, true);
+					$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
+					$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
 					if ($user->hasRole(
 						[ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR, ROLE_ID_REVIEWER, ROLE_ID_ASSISTANT],
 						$contextId
@@ -110,7 +110,6 @@ class OpenIDHandler extends Handler
 			} elseif ($regForm->execute($generateApiKey)) {
 				$request->redirect(Application::get()->getRequest()->getContext(), 'openid', 'registerOrConnect');
 			} else {
-				// TODO execution error display
 				$regForm->addError('', '');
 				$regForm->display($request);
 			}
@@ -123,10 +122,10 @@ class OpenIDHandler extends Handler
 	 * @param array $credentials
 	 * @return User|null
 	 */
-	private function getUserViaKeycloakId(array $credentials)
+	private function _getUserViaKeycloakId(array $credentials)
 	{
 		$userDao = DAORegistry::getDAO('UserDAO');
-		$user = $userDao->getBySetting('openid::ident', hash('sha256', $credentials['id']));
+		$user = $userDao->getBySetting('openid::'.$credentials['selectedProvider'], hash('sha256', $credentials['id']));
 		if (isset($user) && is_a($user, 'User')) {
 			return $user;
 		}
@@ -138,46 +137,52 @@ class OpenIDHandler extends Handler
 	/**
 	 * This function returns the token data.
 	 *
-	 * @param array $settings
+	 * @param array $providerList
 	 * @param string $authorizationCode
+	 * @param string $selectedProvider
 	 * @return array
 	 */
-	private function getTokenViaAuthCode(array $settings, string $authorizationCode)
+	private function _getTokenViaAuthCode(array $providerList, string $authorizationCode, string $selectedProvider)
 	{
 		$token = null;
-		$curl = curl_init();
-		curl_setopt_array(
-			$curl,
-			array(
-				CURLOPT_URL => $settings['tokenUrl'],
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_HTTPHEADER => array('Accept: application/json'),
-				CURLOPT_POST => true,
-				CURLOPT_POSTFIELDS => http_build_query(
-					array(
-						'code' => $authorizationCode,
-						'grant_type' => 'authorization_code',
-						'client_id' => $settings['clientId'],
-						'client_secret' => $settings['clientSecret'],
-						'redirect_uri' => Application::get()->getRequest()->url(null, 'openid', 'doAuthentication'),
-					)
-				),
-			)
-		);
-
-		$result = curl_exec($curl);
-		curl_close($curl);
-		if (isset($result) && !empty($result)) {
-			$result = json_decode($result, true);
-			var_dump($result);
-			if (is_array($result) && !empty($result)
-				&& key_exists('access_token', $result)
-				&& key_exists('id_token', $result)) {
-				$token = [
-					'access_token' => $result['access_token'],
-					'id_token' => $result['id_token'],
-					'refresh_token' => key_exists('refresh_token', $result) ? $result['refresh_token'] : null,
-				];
+		if (isset($providerList) && key_exists($selectedProvider, $providerList)) {
+			$settings = $providerList[$selectedProvider];
+			$curl = curl_init();
+			curl_setopt_array(
+				$curl,
+				array(
+					CURLOPT_URL => $settings['tokenUrl'],
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_HTTPHEADER => array('Accept: application/json'),
+					CURLOPT_POST => true,
+					CURLOPT_POSTFIELDS => http_build_query(
+						array(
+							'code' => $authorizationCode,
+							'grant_type' => 'authorization_code',
+							'client_id' => $settings['clientId'],
+							'client_secret' => $settings['clientSecret'],
+							'redirect_uri' => Application::get()->getRequest()->url(
+								null,
+								'openid',
+								'doAuthentication',
+								null,
+								array('provider' => $selectedProvider)
+							),
+						)
+					),
+				)
+			);
+			$result = curl_exec($curl);
+			curl_close($curl);
+			if (isset($result) && !empty($result)) {
+				$result = json_decode($result, true);
+				if (is_array($result) && !empty($result) && key_exists('access_token', $result)) {
+					$token = [
+						'access_token' => $result['access_token'],
+						'id_token' => key_exists('id_token', $result) ? $result['id_token'] : null,
+						'refresh_token' => key_exists('refresh_token', $result) ? $result['refresh_token'] : null,
+					];
+				}
 			}
 		}
 
@@ -188,43 +193,47 @@ class OpenIDHandler extends Handler
 	 * This function uses the certs endpoint of the openid provider to get the server certificate.
 	 * If no key is found, null is returned
 	 *
-	 * @param $settings
+	 * @param array $providerList
+	 * @param string $selectedProvider
 	 * @return array
 	 */
-	private function getOpenIDAuthenticationCert(array $settings)
+	private function _getOpenIDAuthenticationCert(array $providerList, string $selectedProvider)
 	{
-
-		$beginCert = '-----BEGIN CERTIFICATE-----';
-		$endCert = '-----END CERTIFICATE----- ';
-		$curl = curl_init();
-		curl_setopt_array(
-			$curl,
-			array(
-				CURLOPT_URL => $settings['certUrl'],
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_HTTPHEADER => array('Accept: application/json'),
-				CURLOPT_POST => false,
-			)
-		);
-		$result = curl_exec($curl);
-		curl_close($curl);
-		$arr = json_decode($result, true);
-		$publicKeys = array();
-		if (key_exists('keys', $arr)) {
-			foreach ($arr['keys'] as $key) {
-				if (key_exists('alg', $key) && $key['alg'] = 'RS256') {
-					if (key_exists('x5c', $key) && $key['x5c'] != null && is_array($key['x5c'])) {
-						foreach ($key['x5c'] as $n) {
-							if (!empty($n)) {
-								$publicKeys[] = $beginCert.PHP_EOL.$n.PHP_EOL.$endCert;
+		$publicKeys = null;
+		if (isset($providerList) && key_exists($selectedProvider, $providerList)) {
+			$settings = $providerList[$selectedProvider];
+			$beginCert = '-----BEGIN CERTIFICATE-----';
+			$endCert = '-----END CERTIFICATE----- ';
+			$curl = curl_init();
+			curl_setopt_array(
+				$curl,
+				array(
+					CURLOPT_URL => $settings['certUrl'],
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_HTTPHEADER => array('Accept: application/json'),
+					CURLOPT_POST => false,
+				)
+			);
+			$result = curl_exec($curl);
+			curl_close($curl);
+			$arr = json_decode($result, true);
+			if (key_exists('keys', $arr)) {
+				$publicKeys = array();
+				foreach ($arr['keys'] as $key) {
+					if (key_exists('alg', $key) && $key['alg'] = 'RS256') {
+						if (key_exists('x5c', $key) && $key['x5c'] != null && is_array($key['x5c'])) {
+							foreach ($key['x5c'] as $n) {
+								if (!empty($n)) {
+									$publicKeys[] = $beginCert.PHP_EOL.$n.PHP_EOL.$endCert;
+								}
 							}
+						} elseif (key_exists('n', $key) && key_exists('e', $key)) {
+							$rsa = new RSA();
+							$modulus = new BigInteger(JWT::urlsafeB64Decode($key['n']), 256);
+							$exponent = new BigInteger(JWT::urlsafeB64Decode($key['e']), 256);
+							$rsa->loadKey(array('n' => $modulus, 'e' => $exponent));
+							$publicKeys[] = $rsa->getPublicKey();
 						}
-					} elseif (key_exists('n', $key) && key_exists('e', $key)) {
-						$rsa = new RSA();
-						$modulus = new BigInteger(JWT::urlsafeB64Decode($key['n']), 256);
-						$exponent = new BigInteger(JWT::urlsafeB64Decode($key['e']), 256);
-						$rsa->loadKey(array('n' => $modulus, 'e' => $exponent));
-						$publicKeys[] = $rsa->getPublicKey();
 					}
 				}
 			}
@@ -241,25 +250,27 @@ class OpenIDHandler extends Handler
 	 * @param array $publicKeys
 	 * @return array|null
 	 */
-	private function validateAndExtractToken(array $token, array $publicKeys)
+	private function _validateAndExtractToken(array $token, array $publicKeys)
 	{
 		$credentials = null;
-		if ($publicKeys != null) {
-			foreach ($publicKeys as $publicKey) {
+		foreach ($publicKeys as $publicKey) {
+			foreach ($token as $t) {
 				try {
-					$jwtPayload = JWT::decode($token['id_token'], $publicKey, array('RS256'));
-					if ($jwtPayload) {
-						$credentials = [
-							'id' => property_exists($jwtPayload, 'sub') ? $jwtPayload->sub : null,
-							'email' => property_exists($jwtPayload, 'email') ? $jwtPayload->email : null,
-							'username' => property_exists($jwtPayload, 'preferred_username') ? $jwtPayload->preferred_username : null,
-							'given_name' => property_exists($jwtPayload, 'given_name') ? $jwtPayload->given_name : null,
-							'family_name' => property_exists($jwtPayload, 'family_name') ? $jwtPayload->family_name : null,
-							'email_verified' => property_exists($jwtPayload, 'email_verified') ? $jwtPayload->email_verified : null,
-						];
-					}
-					if (isset($credentials) && key_exists('id', $credentials) && !empty($credentials['id'])) {
-						break;
+					if (!empty($t)) {
+						$jwtPayload = JWT::decode($t, $publicKey, array('RS256'));
+						if (isset($jwtPayload)) {
+							$credentials = [
+								'id' => property_exists($jwtPayload, 'sub') ? $jwtPayload->sub : null,
+								'email' => property_exists($jwtPayload, 'email') ? $jwtPayload->email : null,
+								'username' => property_exists($jwtPayload, 'preferred_username') ? $jwtPayload->preferred_username : null,
+								'given_name' => property_exists($jwtPayload, 'given_name') ? $jwtPayload->given_name : null,
+								'family_name' => property_exists($jwtPayload, 'family_name') ? $jwtPayload->family_name : null,
+								'email_verified' => property_exists($jwtPayload, 'email_verified') ? $jwtPayload->email_verified : null,
+							];
+						}
+						if (isset($credentials) && key_exists('id', $credentials) && !empty($credentials['id'])) {
+							break 2;
+						}
 					}
 				} catch (Exception $e) {
 					$credentials = null;
@@ -284,7 +295,6 @@ class OpenIDHandler extends Handler
 			)
 		);
 		$result = curl_exec($curl);
-		var_dump($result);
 		curl_close($curl);
 	}
 

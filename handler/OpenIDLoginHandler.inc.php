@@ -15,25 +15,57 @@ class OpenIDLoginHandler extends Handler
 	 */
 	function index($args, $request)
 	{
+		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		if (!Validation::isLoggedIn()) {
-			$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 			$router = $request->getRouter();
 			$context = Application::get()->getRequest()->getContext();
 			$contextId = ($context == null) ? 0 : $context->getId();
 			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
+			$showErrorPage = true;
 			if ($settingsJson != null) {
 				$settings = json_decode($settingsJson, true);
-				if (key_exists('authUrl', $settings) && key_exists('clientId', $settings)) {
-					$request->redirectUrl(
-						$settings['authUrl'].
-						'?client_id='.$settings['clientId'].
-						'&response_type=code&scope=openid&redirect_uri='.
-						$router->url($request, null, "openid", "doAuthentication")
-					);
+				$providerList = key_exists('provider', $settings) ? $settings['provider'] : null;
+				if (isset($providerList)) {
+					foreach ($providerList as $name => $settings) {
+						if (key_exists('authUrl', $settings) && !empty($settings['authUrl'])
+							&& key_exists('clientId', $settings) && !empty($settings['clientId'])) {
+							$showErrorPage = false;
+							if (sizeof($providerList) == 1) {
+								$request->redirectUrl(
+									$settings['authUrl'].
+									'?client_id='.$settings['clientId'].
+									'&response_type=code&scope=openid&redirect_uri='.
+									$router->url($request, null, "openid", "doAuthentication", null, array('provider' => $name))
+								);
+							} else {
+								$linkList[$name] = $settings['authUrl'].
+									'?client_id='.$settings['clientId'].
+									'&response_type=code&scope=openid'.
+									'&redirect_uri='.urlencode($router->url($request, null, "openid", "doAuthentication", null, array('provider' => $name)));
+							}
+						}
+					}
 				}
 			}
 		}
-		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
+		$templateMgr = TemplateManager::getManager($request);
+		if (isset($linkList)) {
+			$templateMgr->assign('linkList', $linkList);
+
+			$templateMgr->display($plugin->getTemplateResource('provider.tpl'));
+		} elseif (isset($showErrorPage) && $showErrorPage) {
+			$templateMgr->assign('loginMessage', 'plugins.generic.openid.settings.error');
+			$loginUrl = $request->url(null, 'login', 'signIn');
+			if (Config::getVar('security', 'force_login_ssl')) {
+				$loginUrl = PKPString::regexp_replace('/^http:/', 'https:', $loginUrl);
+			}
+			$templateMgr->assign('loginUrl', $loginUrl);
+			$templateMgr->display('frontend/pages/userLogin.tpl');
+		} else {
+			$request->redirect(Application::get()->getRequest()->getContext(), 'index');
+		}
+
+		return true;
 	}
 
 	/**
@@ -61,20 +93,22 @@ class OpenIDLoginHandler extends Handler
 		if (Validation::isLoggedIn()) {
 			$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 			$router = $request->getRouter();
+			$lastProvider = $request->getUser()->getSetting('openid::lastProvider');
 			$context = Application::get()->getRequest()->getContext();
 			$contextId = ($context == null) ? 0 : $context->getId();
-			$settings = $plugin->getSetting($contextId, 'openIDSettings');
-			if (isset($settings)) {
-				$settings = json_decode($settings, true);
-				if (key_exists('logoutUrl', $settings) && !empty($settings['logoutUrl']) && key_exists('clientId', $settings)) {
+			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
+			if (isset($settingsJson) && isset($lastProvider)) {
+				$providerList = json_decode($settingsJson, true)['provider'];
+				$settings = $providerList[$lastProvider];
+				if (isset($settings) && key_exists('logoutUrl', $settings) && !empty($settings['logoutUrl']) && key_exists('clientId', $settings)) {
 					$request->redirectUrl(
 						$settings['logoutUrl'].
 						'?client_id='.$settings['clientId'].
 						'&redirect_uri='.$router->url($request, $context, "login", "signOutOjs")
 					);
 				}
-				$request->redirect(Application::get()->getRequest()->getContext(), 'login', 'signOutOjs');
 			}
+			$request->redirect(Application::get()->getRequest()->getContext(), 'login', 'signOutOjs');
 		}
 		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 	}

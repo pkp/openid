@@ -29,7 +29,7 @@ class OpenIDStep2Form extends Form
 
 	/**
 	 *
-	 * @param PKPRequest $request
+	 * @param $request
 	 * @param null $template
 	 * @param false $display
 	 * @return string|null
@@ -63,6 +63,7 @@ class OpenIDStep2Form extends Form
 				}
 			}
 			$this->_data = array(
+				'selectedProvider' => $this->credentials['selectedProvider'],
 				'oauthId' => $this->_encryptOrDecrypt('encrypt', $this->credentials['id']),
 				'username' => $this->credentials['username'],
 				'givenName' => $this->credentials['given_name'],
@@ -80,6 +81,7 @@ class OpenIDStep2Form extends Form
 		parent::readInputData();
 		$this->readUserVars(
 			array(
+				'selectedProvider',
 				'oauthId',
 				'username',
 				'email',
@@ -165,13 +167,15 @@ class OpenIDStep2Form extends Form
 		$register = is_string($this->getData('register'));
 		$connect = is_string($this->getData('connect'));
 		$oauthId = $this->getData('oauthId');
+		$selectedProvider = $this->getData('selectedProvider');
 		$result = false;
-		if (!empty($oauthId)) {
+		if (!empty($oauthId) && !empty($selectedProvider)) {
 			$oauthId = $this->_encryptOrDecrypt('decrypt', $oauthId);
 			// prevent saving one openid:ident to multiple accounts
-			$user = $userDao->getBySetting('openid::ident', hash('sha256', $oauthId));
+			$user = $userDao->getBySetting('openid::'.$selectedProvider, hash('sha256', $oauthId));
 			if (!isset($user)) {
 				if ($register) {
+
 					$user = $this->_registerUser();
 					if (isset($user)) {
 						$result = true;
@@ -189,7 +193,8 @@ class OpenIDStep2Form extends Form
 				}
 				if ($result && isset($user)) {
 					$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
-					$userSettingsDao->updateSetting($user->getId(), 'openid::ident', hash('sha256', $oauthId), 'string');
+					$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, hash('sha256', $oauthId), 'string');
+					$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
 					if ($functionArgs[0] = true) {
 						$this->_generateApiKey($user, $oauthId);
 					}
@@ -250,6 +255,7 @@ class OpenIDStep2Form extends Form
 		} else {
 			$user = null;
 		}
+
 
 		return $user;
 	}
