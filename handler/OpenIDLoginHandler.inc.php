@@ -40,7 +40,7 @@ class OpenIDLoginHandler extends Handler
 							} else {
 								$linkList[$name] = $settings['authUrl'].
 									'?client_id='.$settings['clientId'].
-									'&response_type=code&scope=openid'.
+									'&response_type=code&scope=openid profile email'.
 									'&redirect_uri='.urlencode($router->url($request, null, "openid", "doAuthentication", null, array('provider' => $name)));
 							}
 						}
@@ -82,8 +82,7 @@ class OpenIDLoginHandler extends Handler
 
 	/**
 	 * Disables default logout.
-	 * This function redirects to the oauth logout to delete session and tokens.
-	 * It uses a redirect_uri parameter (/login/signOutOjs) to call the OJS/OMP/OPS logout afterwards.
+	 * Performs OJS logout and redirects to the oauth logout to delete session and tokens.
 	 *
 	 * @param $args
 	 * @param $request
@@ -97,6 +96,7 @@ class OpenIDLoginHandler extends Handler
 			$context = Application::get()->getRequest()->getContext();
 			$contextId = ($context == null) ? 0 : $context->getId();
 			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
+			Validation::logout();
 			if (isset($settingsJson) && isset($lastProvider)) {
 				$providerList = json_decode($settingsJson, true)['provider'];
 				$settings = $providerList[$lastProvider];
@@ -104,11 +104,10 @@ class OpenIDLoginHandler extends Handler
 					$request->redirectUrl(
 						$settings['logoutUrl'].
 						'?client_id='.$settings['clientId'].
-						'&redirect_uri='.$router->url($request, $context, "login", "signOutOjs")
+						'&redirect_uri='.$router->url($request, $context, "index")
 					);
 				}
 			}
-			$request->redirect(Application::get()->getRequest()->getContext(), 'login', 'signOutOjs');
 		}
 		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 	}

@@ -215,12 +215,13 @@ class OpenIDHandler extends Handler
 				)
 			);
 			$result = curl_exec($curl);
+
 			curl_close($curl);
 			$arr = json_decode($result, true);
 			if (key_exists('keys', $arr)) {
 				$publicKeys = array();
 				foreach ($arr['keys'] as $key) {
-					if (key_exists('alg', $key) && $key['alg'] = 'RS256') {
+					if ((key_exists('alg', $key) && $key['alg'] = 'RS256') || (key_exists('kty', $key) && $key['kty'] = 'RSA')) {
 						if (key_exists('x5c', $key) && $key['x5c'] != null && is_array($key['x5c'])) {
 							foreach ($key['x5c'] as $n) {
 								if (!empty($n)) {
