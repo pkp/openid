@@ -61,12 +61,17 @@
 	.provider_list .checkbox_and_radiobutton > li > label{
 		font-weight: 600 !important;
 	}
+
+	.margin-top-15{
+		margin-top: 15px;
+	}
 </style>
 
 <form
 	class="pkp_form"
 	id="openIDSettings"
 	method="POST"
+	enctype="multipart/form-data"
 	action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="settings" save=true}">
 	{csrf}
 	{fbvFormArea title="plugins.generic.openid.settings.openid.head" }
@@ -80,15 +85,21 @@
 						<p>{translate key="plugins.generic.openid.settings.{$name}.desc"}&nbsp;<strong>{$redirectUrl|escape}{if $name == 'microsoft'}{$providerSuffix|escape:'url'}{else}{$providerSuffix}{/if}</strong></p>
 						{if $name eq 'custom'}
 							{fbvElement type="text" id="provider[{$name}][configUrl]" value=$provider[{$name}]['configUrl'] maxlength="250" label="plugins.generic.openid.settings.configUrl.desc"}
+							<div class="margin-15" style="clear: both;">&nbsp;</div>
+							<div>
+								<div><strong>{translate key="plugins.generic.openid.settings.btn.settings"}</strong></div>
+								{fbvElement type="text" id="provider[{$name}][btnImg]" value=$provider[{$name}]['btnImg'] label="plugins.generic.openid.settings.btnImg.desc" inline=true size=$fbvStyles.size.MEDIUM}
+								{fbvElement type="text" id="provider[{$name}][btnTxt]" value=$provider[{$name}]['btnTxt'] maxlength="40" label="plugins.generic.openid.settings.btnTxt.desc" inline=true size=$fbvStyles.size.MEDIUM multilingual=true}
+							</div>
+							<div class="margin-15" style="clear: both;">&nbsp;</div>
 						{else}
 							{fbvElement type="hidden" id="provider[{$name}][configUrl]" value=$settings['configUrl'] }
 						{/if}
-						{fbvElement type="text" id="provider[{$name}][clientId]" value=$provider[{$name}]['clientId'] maxlength="250" label="plugins.generic.openid.settings.clientId.desc" inline=true size=$fbvStyles.size.MEDIUM}
-						<div class="inline pkp_helpers_half">
-							<input type="password" maxlength="250" class="field text" name="provider[{$name}][clientSecret]" id="provider[{$name}][clientSecret]" value="{$provider[{$name}]['clientSecret']}">
-							<span><label class="sub_label" for="provider[{$name}][clientSecret]">{translate key="plugins.generic.openid.settings.clientSecret.desc"}</label></span>
+						<div>
+							<div><strong>{translate key="plugins.generic.openid.settings.provider.settings"}</strong></div>
+							{fbvElement type="text" id="provider[{$name}][clientId]" value=$provider[{$name}]['clientId'] maxlength="250" label="plugins.generic.openid.settings.clientId.desc" inline=true size=$fbvStyles.size.MEDIUM}
+							{fbvElement type="text" id="provider[{$name}][clientSecret]" value=$provider[{$name}]['clientSecret'] maxlength="250" label="plugins.generic.openid.settings.clientSecret.desc" inline=true size=$fbvStyles.size.MEDIUM}
 						</div>
-						{*{fbvElement type="text" id="provider[{$name}][clientSecret]" value=$provider[{$name}]['clientSecret'] maxlength="250" label="plugins.generic.openid.settings.clientSecret.desc" inline=true size=$fbvStyles.size.MEDIUM}*}
 					</div>
 				{/fbvFormSection}
 			</div>

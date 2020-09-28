@@ -42,6 +42,11 @@ class OpenIDPlugin extends GenericPlugin
 			case 'user/register':
 			case 'login/signOut':
 			case 'login/signOutOjs':
+				$request = Application::get()->getRequest();
+				$templateMgr = TemplateManager::getManager($request);
+				$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
+				$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
+				$templateMgr->assign('imageURL', $request->getBaseUrl().'/'.$this->getPluginPath().'/images/');
 				define('HANDLER_CLASS', 'OpenIDLoginHandler');
 				$args[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
 				break;

@@ -15,13 +15,17 @@ class OpenIDLoginHandler extends Handler
 	 */
 	function index($args, $request)
 	{
+		$this->setupTemplate($request);
+		if (Config::getVar('security', 'force_login_ssl') && $request->getProtocol() != 'https') {
+			$request->redirectSSL();
+		}
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
+		$showErrorPage = true;
 		if (!Validation::isLoggedIn()) {
 			$router = $request->getRouter();
 			$context = Application::get()->getRequest()->getContext();
 			$contextId = ($context == null) ? 0 : $context->getId();
 			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
-			$showErrorPage = true;
 			if ($settingsJson != null) {
 				$settings = json_decode($settingsJson, true);
 				$providerList = key_exists('provider', $settings) ? $settings['provider'] : null;
@@ -38,6 +42,11 @@ class OpenIDLoginHandler extends Handler
 									$router->url($request, null, "openid", "doAuthentication", null, array('provider' => $name))
 								);
 							} else {
+								if ($name == "custom") {
+									$btnTxt = key_exists('btnTxt', $settings) && isset($settings['btnTxt']) && isset(
+										$settings['btnTxt'][AppLocale::getLocale()]
+									) ? $settings['btnTxt'][AppLocale::getLocale()] : null;
+								}
 								$linkList[$name] = $settings['authUrl'].
 									'?client_id='.$settings['clientId'].
 									'&response_type=code&scope=openid profile email'.
@@ -49,21 +58,27 @@ class OpenIDLoginHandler extends Handler
 			}
 		}
 		$templateMgr = TemplateManager::getManager($request);
+		$legacyLoginEnabled = true;
+		$loginUrl = $request->url(null, 'login', 'signIn');
+		if (Config::getVar('security', 'force_login_ssl')) {
+			$loginUrl = PKPString::regexp_replace('/^http:/', 'https:', $loginUrl);
+		}
 		if (isset($linkList)) {
-			$templateMgr->assign('linkList', $linkList);
-
-			$templateMgr->display($plugin->getTemplateResource('provider.tpl'));
-		} elseif (isset($showErrorPage) && $showErrorPage) {
-			$templateMgr->assign('loginMessage', 'plugins.generic.openid.settings.error');
-			$loginUrl = $request->url(null, 'login', 'signIn');
-			if (Config::getVar('security', 'force_login_ssl')) {
-				$loginUrl = PKPString::regexp_replace('/^http:/', 'https:', $loginUrl);
+			if (isset($btnTxt)) {
+				$templateMgr->assign('customBtnTxt', $btnTxt);
 			}
+			$templateMgr->assign('linkList', $linkList);
+			if ($legacyLoginEnabled) {
+				$templateMgr->assign('legacyLoginEnabled', true);
+				$templateMgr->assign('loginUrl', $loginUrl);
+			}
+			$templateMgr->display($plugin->getTemplateResource('provider.tpl'));
+		} elseif ($showErrorPage) {
+			$templateMgr->assign('loginMessage', 'plugins.generic.openid.settings.error');
 			$templateMgr->assign('loginUrl', $loginUrl);
 			$templateMgr->display('frontend/pages/userLogin.tpl');
-		} else {
-			$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 		}
+		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 
 		return true;
 	}

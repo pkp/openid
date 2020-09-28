@@ -23,8 +23,6 @@ class OpenIDPluginSettingsForm extends Form
 		"google" => ["configUrl" => "https://accounts.google.com/.well-known/openid-configuration"],
 		"microsoft" => ["configUrl" => "https://login.windows.net/common/.well-known/openid-configuration"],
 		"apple" => ["configUrl" => "https://appleid.apple.com/.well-known/openid-configuration"],
-		//"telekom" => ["configUrl" => "https://accounts.login.idm.telekom.com/.well-known/openid-configuration"],
-		//"myidbe" => ["configUrl" => "https://auth.myid.be/.well-known/openid-configuration"],
 	];
 
 	private OpenIDPlugin $plugin;
@@ -48,7 +46,6 @@ class OpenIDPluginSettingsForm extends Form
 	{
 		$request = Application::get()->getRequest();
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
-
 		$settingsJson = $this->plugin->getSetting($contextId, 'openIDSettings');
 		$settings = json_decode($settingsJson, true);
 		if (isset($settings)) {
@@ -77,7 +74,6 @@ class OpenIDPluginSettingsForm extends Form
 	public function fetch($request, $template = null, $display = false)
 	{
 		$templateMgr = TemplateManager::getManager($request);
-		$router = $request->getRouter();
 		$request->getBasePath();
 		$templateMgr->assign('pluginName', $this->plugin->getName());
 		$templateMgr->assign('redirectUrl', $request->getIndexUrl().'/'.$request->getContext()->getPath().'/openid/doAuthentication');

@@ -1,18 +1,57 @@
 
-
 #oauth #register-form,
-#oauth #login-form{
+#oauth #login-form {
 	display: none;
 
 }
 
 #oauth #showRegisterForm,
-#oauth #showLoginForm{
+#oauth #showLoginForm {
 	cursor: pointer;
 	color: #007ab2;
 	text-decoration: underline;
 }
 
-#oauth #register-form .optin-privacy .required{
+#oauth #register-form .optin-privacy .required {
 	color: #ff4040;
 }
+
+#openid-provider-list {
+	margin: auto;
+	padding: 0;
+	width: 400px;
+}
+
+#openid-provider-list li {
+	margin-bottom: 15px;
+	list-style: none;
+	margin-left: 0;
+}
+
+#openid-provider-list a{
+	font-size: 15px;
+	text-decoration: none;
+	color: white;
+}
+
+#openid-provider-list a > div {
+	min-width: 215px;
+	min-height: 41px;
+	max-height: 41px;
+	background-color: black;
+	background-repeat: no-repeat;
+	white-space: nowrap;
+}
+
+#openid-provider-list a > div > span{
+	position: relative;
+	bottom: 15px;
+}
+
+#openid-provider-list a div:hover {
+	-webkit-box-shadow: 0 0 2px 2px rgba(66, 133, 244, 0.6);
+	-moz-box-shadow: 0 0 2px 2px rgba(66, 133, 244, 0.6);
+	box-shadow: 0 0 2px 2px rgba(66, 133, 244, 0.6);
+}
+
+
