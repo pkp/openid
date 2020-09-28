@@ -18,6 +18,12 @@ import('lib.pkp.classes.form.Form');
 
 class OpenIDPluginSettingsForm extends Form
 {
+	private const PUBLIC_OPENID_PROVIDER = [
+		"custom" => "",
+		"google" => ["configUrl" => "https://accounts.google.com/.well-known/openid-configuration"],
+		"microsoft" => ["configUrl" => "https://login.windows.net/common/.well-known/openid-configuration"],
+		"apple" => ["configUrl" => "https://appleid.apple.com/.well-known/openid-configuration"],
+	];
 
 	private OpenIDPlugin $plugin;
 
@@ -42,14 +48,14 @@ class OpenIDPluginSettingsForm extends Form
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
 		$settingsJson = $this->plugin->getSetting($contextId, 'openIDSettings');
 		$settings = json_decode($settingsJson, true);
-		$this->_data = array(
-			'url' => $settings['url'],
-			'realm' => $settings['realm'],
-			'clientId' => $settings['clientId'],
-			'clientSecret' => $settings['clientSecret'],
-			'hashSecret' => $settings['hashSecret'],
-			'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0
-		);
+		if (isset($settings)) {
+			$this->_data = array(
+				'initProvider' => self::PUBLIC_OPENID_PROVIDER,
+				'provider' => $settings['provider'],
+				'hashSecret' => $settings['hashSecret'],
+				'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0,
+			);
+		}
 		parent::initData();
 	}
 
@@ -58,7 +64,9 @@ class OpenIDPluginSettingsForm extends Form
 	 */
 	function readInputData()
 	{
-		$this->readUserVars(array('url', 'realm', 'clientId', 'clientSecret', 'hashSecret', 'generateAPIKey'));
+		$this->readUserVars(
+			array('provider', 'hashSecret', 'generateAPIKey')
+		);
 		parent::readInputData();
 	}
 
@@ -66,7 +74,9 @@ class OpenIDPluginSettingsForm extends Form
 	public function fetch($request, $template = null, $display = false)
 	{
 		$templateMgr = TemplateManager::getManager($request);
+		$request->getBasePath();
 		$templateMgr->assign('pluginName', $this->plugin->getName());
+		$templateMgr->assign('redirectUrl', $request->getIndexUrl().'/'.$request->getContext()->getPath().'/openid/doAuthentication');
 
 		return parent::fetch($request, $template, $display);
 	}
@@ -80,24 +90,83 @@ class OpenIDPluginSettingsForm extends Form
 	{
 		$request = Application::get()->getRequest();
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
-		$settings = array(
-			'url' => $this->getData('url'),
-			'realm' => $this->getData('realm'),
-			'clientId' => $this->getData('clientId'),
-			'clientSecret' => $this->getData('clientSecret'),
-			'hashSecret' => $this->getData('hashSecret'),
-			'generateAPIKey' => $this->getData('generateAPIKey'),
-		);
-		$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
-		import('classes.notification.NotificationManager');
-		$notificationMgr = new NotificationManager();
-		$notificationMgr->createTrivialNotification(
-			$request->getUser()->getId(),
-			NOTIFICATION_TYPE_SUCCESS,
-			['contents' => __('common.changesSaved')]
-		);
+		$providerList = $this->getData('provider');
+		$providerListResult = $this->_createProviderList($providerList);
+		if (isset($providerListResult) && sizeof($providerListResult) > 0) {
+			$settings = array(
+				'provider' => $providerListResult,
+				'hashSecret' => $this->getData('hashSecret'),
+				'generateAPIKey' => $this->getData('generateAPIKey'),
+			);
+			$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
+			import('classes.notification.NotificationManager');
+			$notificationMgr = new NotificationManager();
+			$notificationMgr->createTrivialNotification(
+				$request->getUser()->getId(),
+				NOTIFICATION_TYPE_SUCCESS,
+				['contents' => __('common.changesSaved')]
+			);
+		} else {
+			import('classes.notification.NotificationManager');
+			$notificationMgr = new NotificationManager();
+			$notificationMgr->createTrivialNotification(
+				$request->getUser()->getId(),
+				NOTIFICATION_TYPE_ERROR,
+				['contents' => __('common.changesSaved')] // TODO error msg
+			);
+		}
 
 		return parent::execute();
+	}
+
+	/**
+	 * @param $providerList
+	 * @return array
+	 */
+	private function _createProviderList($providerList): array
+	{
+		$providerListResult = array();
+		if (isset($providerList) && is_array($providerList)) {
+			foreach ($providerList as $name => $provider) {
+				if (key_exists('active', $provider) && $provider['active'] == 1) {
+					$openIdConfig = $this->_loadOpenIdConfig($provider['configUrl']);
+					if (is_array($openIdConfig)
+						&& key_exists('authorization_endpoint', $openIdConfig)
+						&& key_exists('token_endpoint', $openIdConfig)
+						&& key_exists('jwks_uri', $openIdConfig)) {
+						$provider['authUrl'] = $openIdConfig['authorization_endpoint'];
+						$provider['tokenUrl'] = $openIdConfig['token_endpoint'];
+						$provider['userInfoUrl'] = key_exists('userinfo_endpoint', $openIdConfig) ? $openIdConfig['userinfo_endpoint'] : null;
+						$provider['certUrl'] = $openIdConfig['jwks_uri'];
+						$provider['logoutUrl'] = key_exists('end_session_endpoint', $openIdConfig) ? $openIdConfig['end_session_endpoint'] : null;
+						$provider['revokeUrl'] = key_exists('revocation_endpoint', $openIdConfig) ? $openIdConfig['revocation_endpoint'] : null;
+						$providerListResult[$name] = $provider;
+					}
+				}
+			}
+		}
+
+		return $providerListResult;
+	}
+
+	private function _loadOpenIdConfig($configUrl)
+	{
+		$curl = curl_init();
+		curl_setopt_array(
+			$curl,
+			array(
+				CURLOPT_URL => $configUrl,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_HTTPHEADER => array('Accept: application/json'),
+				CURLOPT_POST => false,
+			)
+		);
+		$result = curl_exec($curl);
+		if (isset($result)) {
+			return json_decode($result, true);
+		}
+
+		return null;
 	}
 
 }

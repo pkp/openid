@@ -74,24 +74,53 @@ msgid "plugins.generic.openid.form.error.invalid.credentials"
 msgstr "The password is incorrect."
 
 # settings messages
-
 msgid "plugins.generic.openid.settings.openid.head"
 msgstr "OpenId Provider:"
 
 msgid "plugins.generic.openid.settings.openid.desc"
 msgstr "Please enter the following information according to your OpenID provider."
 
-msgid "plugins.generic.openid.settings.url"
+msgid "plugins.generic.openid.settings.custom.enable"
+msgstr "Custom OpenID Provider"
+
+msgid "plugins.generic.openid.settings.custom.desc"
+msgstr "If you want to use a custom OpenID Connect Provider (e.g. a self-hosted Keycloak server), you have to provide the URL to the OpenID configuration endpoint and the client credentials."
+
+msgid "plugins.generic.openid.settings.btn.settings"
+msgstr "Custom login button settings"
+
+msgid "plugins.generic.openid.settings.provider.settings"
+msgstr "Login credentials"
+
+msgid "plugins.generic.openid.settings.btnImg.desc"
+msgstr "Please enter a URL to an image (size: 46x41) you want to display on the login button , otherwise the OpenID logo is shown"
+
+msgid "plugins.generic.openid.settings.btnTxt.desc"
+msgstr "Please enter a Text you want to display on the login button."
+
+msgid "plugins.generic.openid.settings.google.enable"
+msgstr "Google OpenID Connect"
+
+msgid "plugins.generic.openid.settings.google.desc"
+msgstr "You have to to create an OpenID Connect client in the <a href='https://console.developers.google.com/apis/credentials' target='_blank' rel='noopener'>Google Developer Console</a> to use Google as an OpenID Connect provider. A tutorial can be found <a href='https://developers.google.com/identity/protocols/oauth2/openid-connect' target='_blank' rel='noopener'>here</a>. Please use this redirect URL:"
+
+msgid "plugins.generic.openid.settings.microsoft.enable"
+msgstr "Microsoft Azure Active Directory"
+
+msgid "plugins.generic.openid.settings.microsoft.desc"
+msgstr "You have to to configure your App Service in the <a href='https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview' target='_blank' rel='noopener'>Azure portal</a> (go to 'App registrations' after login) to use Azure AD login. A tutorial can be found <a href='https://docs.microsoft.com/en-us/azure/app-service/configure-authentication-provider-aad' target='_blank' rel='noopener'>here</a>. Please use this redirect URL:"
+
+msgid "plugins.generic.openid.settings.apple.enable"
+msgstr "Apple ID"
+
+msgid "plugins.generic.openid.settings.apple.desc"
+msgstr "A tutorial how to configure Apple ID can be found <a href='https://developer.apple.com/documentation/authenticationservices' target='_blank' rel='noopener'>here</a>. Please use this redirect URL:"
+
+msgid "plugins.generic.openid.settings.configUrl"
 msgstr "OpenID Provider URL"
 
-msgid "plugins.generic.openid.settings.url.desc"
-msgstr "Please enter the base URL to your OpenID provider. <strong>The URL must end with \"/\" (e.g. \"https://sso.example.com/\").</strong>"
-
-msgid "plugins.generic.openid.settings.realm"
-msgstr "Realm"
-
-msgid "plugins.generic.openid.settings.realm.desc"
-msgstr "Please enter your realm identifier."
+msgid "plugins.generic.openid.settings.configUrl.desc"
+msgstr "Please enter the configuration URL of your OpenID provider.<strong>The URL must end with \".well-known/openid-configuration\" (e.g. \"https://sso.example.com/auth/realms/master/.well-known/openid-configuration\").</strong>"
 
 msgid "plugins.generic.openid.settings.clientId"
 msgstr "Client identifier"
@@ -150,3 +179,22 @@ msgstr "<strong>This account is disabled without any specific reason.</strong><b
 
 msgid "plugins.generic.openid.error.openid.disabled.with"
 msgstr "<strong>This account is disabled based on the following reason:</strong>"
+
+#provider page
+msgid "plugins.generic.openid.select.provider"
+msgstr "Sign in"
+
+msgid "plugins.generic.openid.select.provider.help"
+msgstr "Sign in or register with:"
+
+msgid "plugins.generic.openid.select.provider.custom"
+msgstr "Sign in with Custom Provider"
+
+msgid "plugins.generic.openid.select.provider.google"
+msgstr "Sign in with Google"
+
+msgid "plugins.generic.openid.select.provider.microsoft"
+msgstr "Sign in with Microsoft"
+
+msgid "plugins.generic.openid.select.provider.apple"
+msgstr "Sign in with Apple"
