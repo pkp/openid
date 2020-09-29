@@ -21,20 +21,23 @@ class OpenIDLoginHandler extends Handler
 		}
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		$showErrorPage = true;
+		$legacyLogin = false;
+		$templateMgr = TemplateManager::getManager($request);
+		$context = Application::get()->getRequest()->getContext();
 		if (!Validation::isLoggedIn()) {
 			$router = $request->getRouter();
-			$context = Application::get()->getRequest()->getContext();
 			$contextId = ($context == null) ? 0 : $context->getId();
 			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
 			if ($settingsJson != null) {
 				$settings = json_decode($settingsJson, true);
+				$legacyLogin = key_exists('legacyLogin', $settings) && isset($settings['legacyLogin']) ? $settings['legacyLogin'] : false;
 				$providerList = key_exists('provider', $settings) ? $settings['provider'] : null;
 				if (isset($providerList)) {
 					foreach ($providerList as $name => $settings) {
 						if (key_exists('authUrl', $settings) && !empty($settings['authUrl'])
 							&& key_exists('clientId', $settings) && !empty($settings['clientId'])) {
 							$showErrorPage = false;
-							if (sizeof($providerList) == 1) {
+							if (sizeof($providerList) == 1 && !$legacyLogin) {
 								$request->redirectUrl(
 									$settings['authUrl'].
 									'?client_id='.$settings['clientId'].
@@ -43,9 +46,14 @@ class OpenIDLoginHandler extends Handler
 								);
 							} else {
 								if ($name == "custom") {
-									$btnTxt = key_exists('btnTxt', $settings) && isset($settings['btnTxt']) && isset(
-										$settings['btnTxt'][AppLocale::getLocale()]
-									) ? $settings['btnTxt'][AppLocale::getLocale()] : null;
+									$templateMgr->assign('customBtnImg', key_exists('btnImg', $settings) && isset($settings['btnImg']) ? $settings['btnImg'] : null);
+									$templateMgr->assign(
+										'customBtnTxt',
+										key_exists('btnTxt', $settings)
+										&& isset($settings['btnTxt'])
+										&& isset($settings['btnTxt'][AppLocale::getLocale()])
+											? $settings['btnTxt'][AppLocale::getLocale()] : null
+									);
 								}
 								$linkList[$name] = $settings['authUrl'].
 									'?client_id='.$settings['clientId'].
@@ -57,28 +65,25 @@ class OpenIDLoginHandler extends Handler
 				}
 			}
 		}
-		$templateMgr = TemplateManager::getManager($request);
-		$legacyLoginEnabled = true;
 		$loginUrl = $request->url(null, 'login', 'signIn');
 		if (Config::getVar('security', 'force_login_ssl')) {
 			$loginUrl = PKPString::regexp_replace('/^http:/', 'https:', $loginUrl);
 		}
 		if (isset($linkList)) {
-			if (isset($btnTxt)) {
-				$templateMgr->assign('customBtnTxt', $btnTxt);
-			}
 			$templateMgr->assign('linkList', $linkList);
-			if ($legacyLoginEnabled) {
-				$templateMgr->assign('legacyLoginEnabled', true);
+			if ($legacyLogin) {
+				$templateMgr->assign('legacyLogin', true);
 				$templateMgr->assign('loginUrl', $loginUrl);
+				$templateMgr->assign('journalName', $context->getName(AppLocale::getLocale()));
 			}
-			$templateMgr->display($plugin->getTemplateResource('provider.tpl'));
+			$templateMgr->display($plugin->getTemplateResource('openidLogin.tpl'));
 		} elseif ($showErrorPage) {
 			$templateMgr->assign('loginMessage', 'plugins.generic.openid.settings.error');
 			$templateMgr->assign('loginUrl', $loginUrl);
 			$templateMgr->display('frontend/pages/userLogin.tpl');
+		} else {
+			$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 		}
-		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 
 		return true;
 	}

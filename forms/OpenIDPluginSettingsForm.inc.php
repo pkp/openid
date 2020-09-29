@@ -52,8 +52,15 @@ class OpenIDPluginSettingsForm extends Form
 			$this->_data = array(
 				'initProvider' => self::PUBLIC_OPENID_PROVIDER,
 				'provider' => $settings['provider'],
+				'legacyLogin' => key_exists('legacyLogin', $settings) ? $settings['legacyLogin'] : true,
 				'hashSecret' => $settings['hashSecret'],
 				'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0,
+			);
+		} else {
+			$this->_data = array(
+				'initProvider' => self::PUBLIC_OPENID_PROVIDER,
+				'legacyLogin' => true,
+				'generateAPIKey' => false,
 			);
 		}
 		parent::initData();
@@ -65,7 +72,7 @@ class OpenIDPluginSettingsForm extends Form
 	function readInputData()
 	{
 		$this->readUserVars(
-			array('provider', 'hashSecret', 'generateAPIKey')
+			array('provider', 'legacyLogin', 'hashSecret', 'generateAPIKey')
 		);
 		parent::readInputData();
 	}
@@ -92,29 +99,21 @@ class OpenIDPluginSettingsForm extends Form
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
 		$providerList = $this->getData('provider');
 		$providerListResult = $this->_createProviderList($providerList);
-		if (isset($providerListResult) && sizeof($providerListResult) > 0) {
-			$settings = array(
-				'provider' => $providerListResult,
-				'hashSecret' => $this->getData('hashSecret'),
-				'generateAPIKey' => $this->getData('generateAPIKey'),
-			);
-			$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
-			import('classes.notification.NotificationManager');
-			$notificationMgr = new NotificationManager();
-			$notificationMgr->createTrivialNotification(
-				$request->getUser()->getId(),
-				NOTIFICATION_TYPE_SUCCESS,
-				['contents' => __('common.changesSaved')]
-			);
-		} else {
-			import('classes.notification.NotificationManager');
-			$notificationMgr = new NotificationManager();
-			$notificationMgr->createTrivialNotification(
-				$request->getUser()->getId(),
-				NOTIFICATION_TYPE_ERROR,
-				['contents' => __('common.changesSaved')] // TODO error msg
-			);
-		}
+		$legacyLogin = $this->getData('legacyLogin');
+		$settings = array(
+			'provider' => $providerListResult,
+			'legacyLogin' => $legacyLogin,
+			'hashSecret' => $this->getData('hashSecret'),
+			'generateAPIKey' => $this->getData('generateAPIKey'),
+		);
+		$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
+		import('classes.notification.NotificationManager');
+		$notificationMgr = new NotificationManager();
+		$notificationMgr->createTrivialNotification(
+			$request->getUser()->getId(),
+			NOTIFICATION_TYPE_SUCCESS,
+			['contents' => __('common.changesSaved')]
+		);
 
 		return parent::execute();
 	}

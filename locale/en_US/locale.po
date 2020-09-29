@@ -140,6 +140,15 @@ msgstr "Advanced plugin functions"
 msgid "plugins.generic.openid.settings.features.desc"
 msgstr "The following inputs are only for advanced plugin functions. They are not important for the connection to the OpenID provider."
 
+msgid "plugins.generic.openid.settings.legacyLogin"
+msgstr "Legacy Login"
+
+msgid "plugins.generic.openid.settings.legacyLogin.check"
+msgstr "Enable legacy login"
+
+msgid "plugins.generic.openid.settings.legacyLogin.desc"
+msgstr "Enable this option if you want to use the OJS logon in addition to the OpenID logon."
+
 msgid "plugins.generic.openid.settings.hashSecret"
 msgstr "Encrypt/Decrypt secret"
 
@@ -182,13 +191,16 @@ msgstr "<strong>This account is disabled based on the following reason:</strong>
 
 #provider page
 msgid "plugins.generic.openid.select.provider"
-msgstr "Sign in"
+msgstr "Sign in or register"
+
+msgid "plugins.generic.openid.select.legacy.help"
+msgstr "Sign in with your {$journalName} account"
 
 msgid "plugins.generic.openid.select.provider.help"
 msgstr "Sign in or register with:"
 
 msgid "plugins.generic.openid.select.provider.custom"
-msgstr "Sign in with Custom Provider"
+msgstr "Sign in with custom provider"
 
 msgid "plugins.generic.openid.select.provider.google"
 msgstr "Sign in with Google"

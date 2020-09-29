@@ -1,0 +1,87 @@
+{include file="frontend/components/header.tpl" pageTitle='plugins.generic.openid.select.provider'}
+<div class="page page_openid_login">
+	{include file="frontend/components/breadcrumbs.tpl" currentTitleKey='plugins.generic.openid.select.provider'}
+	<h1>{translate key='plugins.generic.openid.select.provider'}</h1>
+	{if $loginMessage}
+		<p>
+			{translate key=$loginMessage}
+		</p>
+	{/if}
+	<ul id="openid-provider-list">
+		{if $legacyLogin}
+			<li class="margin-top-30"><strong>{translate key='plugins.generic.openid.select.legacy.help' journalName=$journalName|escape}</strong></li>
+			<li class="page_login">
+				<form class="cmp_form cmp_form login" id="login" method="post" action="{$loginUrl}">
+					{csrf}
+					<fieldset class="fields">
+						<div class="username">
+							<label>
+								<span class="label">
+									{translate key="user.username"}
+									<span class="required" aria-hidden="true">*</span>
+									<span class="pkp_screen_reader">
+										{translate key="common.required"}
+									</span>
+								</span>
+								<input type="text" name="username" id="username" value="{$username|escape}" maxlength="32" required aria-required="true">
+							</label>
+						</div>
+						<div class="password">
+							<label>
+								<span class="label">
+									{translate key="user.password"}
+									<span class="required" aria-hidden="true">*</span>
+									<span class="pkp_screen_reader">
+										{translate key="common.required"}
+									</span>
+								</span>
+								<input type="password" name="password" id="password" value="{$password|escape}" maxlength="32" required aria-required="true">
+								<a href="{url page="login" op="lostPassword"}">
+									{translate key="user.login.forgotPassword"}
+								</a>
+							</label>
+						</div>
+						<div class="remember checkbox">
+							<label>
+								<input type="checkbox" name="remember" id="remember" value="1">
+								<span class="label">
+									{translate key="user.login.rememberUsernameAndPassword"}
+								</span>
+							</label>
+						</div>
+						<div class="buttons">
+							<button class="submit" type="submit">
+								{translate key="user.login"}
+							</button>
+						</div>
+					</fieldset>
+				</form>
+			</li>
+		{/if}
+		<li class="margin-top-30"><strong>{translate key='plugins.generic.openid.select.provider.help'}</strong></li>
+		{foreach from=$linkList key=name item=url}
+			{if $name == 'custom'}
+				<li><a id="openid-provider-{$name}" href="{$url}">
+						<div><img src="{$imageURL}{$name}-sign-in.png" alt="{$name}">
+							<span>
+								{if isset($customBtnTxt)}
+									{$customBtnTxt}
+								{else}
+									{{translate key="plugins.generic.openid.select.provider.$name"}}
+								{/if}
+							</span>
+						</div>
+					</a>
+				</li>
+			{else}
+				<li><a id="openid-provider-{$name}" href="{$url}">
+						<div><img src="{$imageURL}{$name}-sign-in.png" alt="{$name}">
+							<span>{{translate key="plugins.generic.openid.select.provider.$name"}}</span>
+						</div>
+					</a>
+				</li>
+			{/if}
+		{/foreach}
+	</ul>
+</div><!-- .page -->
+{include file="frontend/components/footer.tpl"}
