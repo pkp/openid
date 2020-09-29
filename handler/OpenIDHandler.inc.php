@@ -1,8 +1,6 @@
 <?php
-require_once 'plugins/generic/oauth/handler/phpseclib/Crypt/Hash.php';
-require_once 'plugins/generic/oauth/handler/phpseclib/Crypt/RSA.php';
-require_once 'plugins/generic/oauth/handler/phpseclib/Math/BigInteger.php';
 
+$loader = require('plugins/generic/oauth/vendor/autoload.php');
 use Firebase\JWT\JWT;
 use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
@@ -229,6 +227,7 @@ class OpenIDHandler extends Handler
 								}
 							}
 						} elseif (key_exists('n', $key) && key_exists('e', $key)) {
+
 							$rsa = new RSA();
 							$modulus = new BigInteger(JWT::urlsafeB64Decode($key['n']), 256);
 							$exponent = new BigInteger(JWT::urlsafeB64Decode($key['e']), 256);
