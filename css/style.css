@@ -1,4 +1,3 @@
-
 #oauth #register-form,
 #oauth #login-form {
 	display: none;
@@ -17,7 +16,6 @@
 }
 
 #openid-provider-list {
-	margin: auto;
 	padding: 0;
 	width: 400px;
 }
@@ -28,14 +26,14 @@
 	margin-left: 0;
 }
 
-#openid-provider-list li:not([class="page_login"]) a{
+#openid-provider-list li:not([class="page_login"]) a {
 	font-size: 14px;
 	font-weight: bold;
 	text-decoration: none;
 	color: #007ab2;
 }
 
-#openid-provider-list li:not([class="page_login"]) a img{
+#openid-provider-list li:not([class="page_login"]) a img {
 	margin: 9px 6px 0 12px;
 	max-height: 22px;
 	max-width: 22px;
@@ -46,20 +44,20 @@
 	min-height: 42px;
 	max-height: 42px;
 	background-color: #eee;
-	box-shadow: inset 0 -1em 1em rgba(0,0,0,0.1);
+	box-shadow: inset 0 -1em 1em rgba(0, 0, 0, 0.1);
 	background-repeat: no-repeat;
 	white-space: nowrap;
-	border: 1px solid rgba(0,0,0,0.4);
+	border: 1px solid rgba(0, 0, 0, 0.4);
 	border-top-color: #bbbbbb;
 	border-radius: 3px;
 }
 
-#openid-provider-list li:not([class="page_login"]) a > div > span{
+#openid-provider-list li:not([class="page_login"]) a > div > span {
 	position: relative;
 	bottom: 6px;
 }
 
-.margin-top-30{
+.margin-top-30 {
 	margin-top: 30px;
 }
 
@@ -69,23 +67,37 @@
 	box-shadow: 0 0 2px 2px rgba(187, 187, 187, 0.6);
 }
 
-.page_openid_login .page_login{
+.page_openid_login .page_login {
 	-webkit-box-shadow: 0 0 2px 2px rgba(221, 221, 221, 0.5);
 	-moz-box-shadow: 0 0 2px 2px rgba(221, 221, 221, 0.5);
 	box-shadow: 0 0 2px 2px rgba(221, 221, 221, 0.5);
 }
 
-.page_openid_login .page_login .login{
+.page_openid_login .page_login .login {
 	padding: 20px 0 1px 0;
 	margin: auto;
 }
 
-.page_openid_login .page_login .login input{
+.page_openid_login .page_login .login input {
 	max-width: 100%;
 }
 
-.page_openid_login .page_login .login .fields>div{
+.page_openid_login .page_login .login .fields > div {
 	padding-bottom: 5px;
 }
 
+.openid-error {
+	background-color: #f8d7da;
+	padding: 15px;
+	border-radius: 3px;
+	border: 1px solid #f5c6cb;
+	color: #721c24
+}
 
+.openid-info {
+	background-color: #d1ecf1;
+	padding: 15px;
+	border-radius: 3px;
+	border: 1px solid #bee5eb;
+	color: #0c5460;
+}

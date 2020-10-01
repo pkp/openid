@@ -1,23 +1,62 @@
 <?php
 
 $loader = require('plugins/generic/oauth/vendor/autoload.php');
+
 use Firebase\JWT\JWT;
 use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 
-
 import('classes.handler.Handler');
 
+/**
+ * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
+ *
+ * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenID Authentication Plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ *
+ * @file plugins/generic/openid/handler/OpenIDHandler.inc.php
+ * @ingroup plugins_generic_openid
+ * @brief Handler for OpenID workflow:
+ *  - receive auth-code
+ *  - perform auth-code -> token exchange
+ *  - token validation via server certificate
+ *  - extract user details
+ *  - register new accounts
+ *  - connect existing accounts
+ *
+ *
+ */
 class OpenIDHandler extends Handler
 {
 	/**
+	 * This function is called via OpenID provider redirect URL.
+	 * It receives the authentication code via the get parameter and uses $this->_getTokenViaAuthCode to exchange the code into a JWT
+	 * The JWT is validated with the public key of the server fetched by $this->_getOpenIDAuthenticationCert.
+	 * If the JWT and the key are successfully retrieved, the JWT is validated and extracted using $this->_validateAndExtractToken.
+	 *
+	 * If no user was found with the provided OpenID identifier a second step is called to connect a local account with the OpenID account, or to register a
+	 * new OJS account. It is possible for a user to connect his/her OJS account to more than one OpenID provider.
+	 *
+	 * If the OJS account is disabled or in case of errors/exceptions the user is redirect to the sign in page and some errors will be displayed.
+	 *
 	 * @param $args
 	 * @param $request
 	 * @return bool
 	 */
 	function doAuthentication($args, $request)
 	{
-		$templateMgr = TemplateManager::getManager($request);
 		$context = $request->getContext();
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		$contextId = ($context == null) ? 0 : $context->getId();
@@ -25,7 +64,6 @@ class OpenIDHandler extends Handler
 		$selectedProvider = $request->getUserVar('provider');
 		$token = $this->_getTokenViaAuthCode($settings['provider'], $request->getUserVar('code'), $selectedProvider);
 		$publicKey = $this->_getOpenIDAuthenticationCert($settings['provider'], $selectedProvider);
-		$error = false;
 		if (isset($token) && isset($publicKey)) {
 			$tokenPayload = $this->_validateAndExtractToken($token, $publicKey);
 			if (isset($tokenPayload) && is_array($tokenPayload)) {
@@ -35,7 +73,8 @@ class OpenIDHandler extends Handler
 					import($plugin->getPluginPath().'/forms/OpenIDStep2Form');
 					$regForm = new OpenIDStep2Form($plugin, $tokenPayload);
 					$regForm->initData();
-					$regForm->display($request);
+
+					return $regForm->fetch($request, null, true);
 				} elseif (is_a($user, 'User') && !$user->getDisabled()) {
 					Validation::registerUserSession($user, $reason, true);
 					$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
@@ -44,47 +83,31 @@ class OpenIDHandler extends Handler
 						[ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR, ROLE_ID_REVIEWER, ROLE_ID_ASSISTANT],
 						$contextId
 					)) {
-						$request->redirect($context->getPath(), 'submissions');
+						return $request->redirect($context->getPath(), 'submissions');
 					} else {
-						$request->redirect($context->getPath(), 'user', 'profile', null, $args);
+						return $request->redirect($context->getPath(), 'user', 'profile', null, $args);
 					}
 				} elseif ($user->getDisabled()) {
-					$error = true;
-					$templateMgr->assign('errorType', 'plugins.generic.openid.error.openid.disabled.head');
 					$reason = $user->getDisabledReason();
-					if ($reason === null) {
-						$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.disabled.without');
-					} else {
-						$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.disabled.with');
-						$templateMgr->assign('reason', $reason);
+					$ssoErrors['sso_error'] = 'disabled';
+					if ($reason != null) {
+						$ssoErrors['sso_error_msg'] = $reason;
 					}
 				}
 			} else {
-				$error = true;
-				$templateMgr->assign('errorType', 'plugins.generic.openid.error.openid.cert.head');
-				$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.cert.desc');
+				$ssoErrors['sso_error'] = 'cert';
 			}
 		} else {
-			$error = true;
-			$templateMgr->assign('errorType', 'plugins.generic.openid.error.openid.connect.head');
-			if (!isset($publicKey)) {
-				$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.connect.desc.key');
-			} else {
-				$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.connect.desc.data');
-			}
-		}
-		if ($error) {
-			$supportEmail = $context ? $context->getSetting('supportEmail') : null;
-			if ($supportEmail) {
-				$templateMgr->assign('supportEmail', $supportEmail);
-			}
-			$templateMgr->display($plugin->getTemplateResource('error.tpl'));
+			$ssoErrors['sso_error'] = !isset($publicKey) ? 'connect_key' : 'connect_data';
 		}
 
-		return true;
+		return $request->redirect(Application::get()->getRequest()->getContext(), 'login', null, null, isset($ssoErrors) ? $ssoErrors : null);
 	}
 
 	/**
+	 * Step2 POST (Form submit) function.
+	 * OpenIDStep2Form is used to handle form initialization, validation and persistence.
+	 *
 	 * @param $args
 	 * @param $request
 	 */
@@ -115,7 +138,9 @@ class OpenIDHandler extends Handler
 	}
 
 	/**
-	 * Tries to find a user via OpenID credentials.
+	 * Tries to find a user via OpenID credentials via user settings openid::{provider}
+	 * This is a very simple step, and it should be safe because the token is valid at this point.
+	 * If the token is invalid, the auth process stops before this function is called.
 	 *
 	 * @param array $credentials
 	 * @return User|null
@@ -133,7 +158,9 @@ class OpenIDHandler extends Handler
 
 
 	/**
-	 * This function returns the token data.
+	 * This function swaps the Auth code into a JWT that contains the user_details and a signature.
+	 * An array with the access_token, id_token and/or refresh_token is returned on success, otherwise null.
+	 * The OpenID implementation differs a bit between the providers. Some use an id_token, others a refresh token.
 	 *
 	 * @param array $providerList
 	 * @param string $authorizationCode
@@ -189,6 +216,12 @@ class OpenIDHandler extends Handler
 
 	/**
 	 * This function uses the certs endpoint of the openid provider to get the server certificate.
+	 * There are provider-specific differences in case of the certificate.
+	 *
+	 * E.g.
+	 * - Keycloak uses x5c as certificate format which included the cert.
+	 * - Other vendors provide the cert modulus and exponent and the cert has to be created via phpseclib/RSA
+	 *
 	 * If no key is found, null is returned
 	 *
 	 * @param array $providerList
@@ -213,7 +246,6 @@ class OpenIDHandler extends Handler
 				)
 			);
 			$result = curl_exec($curl);
-
 			curl_close($curl);
 			$arr = json_decode($result, true);
 			if (key_exists('keys', $arr)) {
@@ -227,7 +259,6 @@ class OpenIDHandler extends Handler
 								}
 							}
 						} elseif (key_exists('n', $key) && key_exists('e', $key)) {
-
 							$rsa = new RSA();
 							$modulus = new BigInteger(JWT::urlsafeB64Decode($key['n']), 256);
 							$exponent = new BigInteger(JWT::urlsafeB64Decode($key['e']), 256);
@@ -282,6 +313,13 @@ class OpenIDHandler extends Handler
 	}
 
 
+	/**
+	 * This function is unused at the moment.
+	 * It can be unsed to get the user details from an endpoint but usually all user data are provided in the JWT.
+	 *
+	 * @param $token
+	 * @param $settings
+	 */
 	private function getClientDetails($token, $settings)
 	{
 		$curl = curl_init();

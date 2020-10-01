@@ -90,6 +90,7 @@ class OpenIDPlugin extends GenericPlugin
 				$args[2] = $this->getPluginPath().'/handler/OpenIDHandler.inc.php';
 				break;
 			case 'login/index':
+			case 'login/legacyLogin':
 			case 'user/register':
 			case 'login/signOut':
 				$request = Application::get()->getRequest();

@@ -32,10 +32,12 @@ class OpenIDLoginHandler extends Handler
 	 * - If only one OpenID provider is configured and legacy login is disabled, the user is automatically redirected to the sign-in page of that provider.
 	 * - If more than one provider is configured, a login page is shown within the OJS/OMP/OPS and the user can select his preferred OpenID provider for login/registration.
 	 *
-	 * In case of an error or a mismatched configuration, the default login page is displayed to prevent a complete login lock of the system.
+	 * In case of an error or incorrect configuration, a link to the default login page is provided to prevent a complete system lockout.
 	 *
 	 * @param $args
 	 * @param $request
+	 *
+	 * @return false|void
 	 */
 	function index($args, $request)
 	{
@@ -44,10 +46,9 @@ class OpenIDLoginHandler extends Handler
 			$request->redirectSSL();
 		}
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
-		$showErrorPage = true;
 		$legacyLogin = false;
 		$templateMgr = TemplateManager::getManager($request);
-		$context = Application::get()->getRequest()->getContext();
+		$context = $request->getContext();
 		if (!Validation::isLoggedIn()) {
 			$router = $request->getRouter();
 			$contextId = ($context == null) ? 0 : $context->getId();
@@ -60,7 +61,6 @@ class OpenIDLoginHandler extends Handler
 					foreach ($providerList as $name => $settings) {
 						if (key_exists('authUrl', $settings) && !empty($settings['authUrl'])
 							&& key_exists('clientId', $settings) && !empty($settings['clientId'])) {
-							$showErrorPage = false;
 							if (sizeof($providerList) == 1 && !$legacyLogin) {
 								$request->redirectUrl(
 									$settings['authUrl'].
@@ -68,6 +68,8 @@ class OpenIDLoginHandler extends Handler
 									'&response_type=code&scope=openid&redirect_uri='.
 									$router->url($request, null, "openid", "doAuthentication", null, array('provider' => $name))
 								);
+
+								return false;
 							} else {
 								if ($name == "custom") {
 									$templateMgr->assign(
@@ -91,29 +93,44 @@ class OpenIDLoginHandler extends Handler
 					}
 				}
 			}
-			$loginUrl = $request->url(null, 'login', 'signIn');
-			if (Config::getVar('security', 'force_login_ssl')) {
-				$loginUrl = PKPString::regexp_replace('/^http:/', 'https:', $loginUrl);
-			}
-			if (isset($linkList)) {
+			if (isset($linkList) && is_array($linkList) && sizeof($linkList) > 0) {
 				$templateMgr->assign('linkList', $linkList);
-				if ($legacyLogin) {
-					$templateMgr->assign('legacyLogin', true);
-					$templateMgr->assign('loginUrl', $loginUrl);
-					$templateMgr->assign('journalName', $context->getName(AppLocale::getLocale()));
+				$ssoError = $request->getUserVar('sso_error');
+				if (isset($ssoError) && !empty($ssoError)) {
+					$this->_setSSOErrorMessages($ssoError, $templateMgr, $request);
 				}
-				$templateMgr->display($plugin->getTemplateResource('openidLogin.tpl'));
-			} elseif ($showErrorPage) {
-				$templateMgr->assign('loginMessage', 'plugins.generic.openid.settings.error');
-				$templateMgr->assign('loginUrl', $loginUrl);
-				$templateMgr->display('frontend/pages/userLogin.tpl');
+				if ($legacyLogin) {
+					$this->_enableLegacyLogin($templateMgr, $request);
+				}
+			} else {
+				$templateMgr->assign('openidError', true);
+				$templateMgr->assign('errorMsg', 'plugins.generic.openid.settings.error');
 			}
+
+			return $templateMgr->display($plugin->getTemplateResource('openidLogin.tpl'));
 		}
 		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
+
+		return false;
 	}
 
 	/**
-	 * Disables the default registration, because it is not needed anymore.
+	 * Used for legacy login in case of errors or other bad things.
+	 *
+	 * @param $args
+	 * @param $request
+	 */
+	function legacyLogin($args, $request)
+	{
+		$templateMgr = TemplateManager::getManager($request);
+		$this->_enableLegacyLogin($templateMgr, $request);
+		$templateMgr->assign('disableUserReg', true);
+
+		return $templateMgr->display('frontend/pages/userLogin.tpl');
+	}
+
+	/**
+	 * Overwrites the default registration, because it is not needed anymore.
 	 * User registration is done via OpenID provider.
 	 *
 	 * @param $args
@@ -125,7 +142,7 @@ class OpenIDLoginHandler extends Handler
 	}
 
 	/**
-	 * Disables default logout.
+	 * Overwrites default signOut.
 	 * Performs OJS logout and if logoutUrl is provided (e.g. Apple doesn't provide this url) it redirects to the oauth logout to delete session and tokens.
 	 *
 	 * @param $args
@@ -154,5 +171,74 @@ class OpenIDLoginHandler extends Handler
 			}
 		}
 		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
+	}
+
+	/**
+	 * Sets user friendly error messages, which are thrown during the OpenID auth process.
+	 *
+	 * @param $ssoError
+	 * @param $templateMgr
+	 * @param $request
+	 */
+	private function _setSSOErrorMessages($ssoError, $templateMgr, $request)
+	{
+		$templateMgr->assign('openidError', true);
+		switch ($ssoError) {
+			case 'connect_data':
+				$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.connect.desc.data');
+				break;
+			case 'connect_key':
+				$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.connect.desc.key');
+				break;
+			case 'cert':
+				$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.cert.desc');
+				break;
+			case 'disabled':
+				$reason = $request->getUserVar('sso_error_msg');
+				$templateMgr->assign('accountDisabled', true);
+				if (isset($reason) && !empty($reason)) {
+					$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.disabled.with');
+					$templateMgr->assign('reason', $reason);
+				} else {
+					$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.disabled.without');
+				}
+				break;
+		}
+		$context = $request->getContext();
+		$supportEmail = $context != null ? $context->getSetting('supportEmail') : null;
+		if ($supportEmail) {
+			$templateMgr->assign('supportEmail', $supportEmail);
+		}
+	}
+
+	/**
+	 * This function is used
+	 *  - if the legacy login is activated via plugin settings,
+	 *  - or an error occurred during the Auth process to ensure that the Journal Manager can log in.
+	 *
+	 * @param $templateMgr
+	 * @param $request
+	 */
+	private function _enableLegacyLogin($templateMgr, $request)
+	{
+		$sessionManager = SessionManager::getManager();
+		$session = $sessionManager->getUserSession();
+		$context = $request->getContext();
+		$loginUrl = $request->url(null, 'login', 'signIn');
+		if (Config::getVar('security', 'force_login_ssl')) {
+			$loginUrl = PKPString::regexp_replace('/^http:/', 'https:', $loginUrl);
+		}
+		$templateMgr->assign(
+			array(
+				'loginMessage' => $request->getUserVar('loginMessage'),
+				'username' => $session->getSessionVar('username'),
+				'remember' => $request->getUserVar('remember'),
+				'source' => $request->getUserVar('source'),
+				'showRemember' => Config::getVar('general', 'session_lifetime') > 0,
+				'legacyLogin' => true,
+				'loginUrl' => $loginUrl,
+				'journalName' => $context != null ? $context->getName(AppLocale::getLocale()) : null,
+			)
+		);
 	}
 }

@@ -1,4 +1,3 @@
-
 let returnTo = document.querySelector('.page_oauth #returnTo');
 if (returnTo.value === 'register') {
 	showRegisterForm();

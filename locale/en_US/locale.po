@@ -168,23 +168,14 @@ msgid "plugins.generic.openid.settings.generateAPIKey.desc"
 msgstr "This plugin can generate a key by encrypting the OpenID identifier with <strong>the secret you entered before</strong>. This key will be encrypted again with a secret that must be specified in the OJS settings. This should be adequately secure."
 
 # error messages
-msgid "plugins.generic.openid.error.openid.connect.head"
-msgstr "OpenID authentication error"
-
 msgid "plugins.generic.openid.error.openid.connect.desc.key"
 msgstr "<strong>An error occurred while verifying your data.</strong><br />The service is possibly not available at the moment.<br />Please try again or <a href='mailto:{$supportEmail}'>contact the technical support</a> if the problem still exists."
 
 msgid "plugins.generic.openid.error.openid.connect.desc.data"
 msgstr "<strong>An error occurred while receiving your data from the OpenId provider.</strong><br />The service is possibly not available at the moment.<br />Please try again or <a href='mailto:{$supportEmail}'>contact the technical support</a> if the problem still exists."
 
-msgid "plugins.generic.openid.error.openid.cert.head"
-msgstr "OpenID validation error"
-
 msgid "plugins.generic.openid.error.openid.cert.desc"
 msgstr "<strong>An error occurred while validation and extracting your data.</strong><br />The service is possibly not available at the moment.<br />Please try again or <a href='mailto:{$supportEmail}'>contact the technical support</a> if the problem still exists."
-
-msgid "plugins.generic.openid.error.openid.disabled.head"
-msgstr "Account is disabled!"
 
 msgid "plugins.generic.openid.error.openid.disabled.without"
 msgstr "<strong>This account is disabled without any specific reason.</strong><br />Please <a href='mailto:{$supportEmail}'>contact the technical support</a> to enable this account."
@@ -192,11 +183,14 @@ msgstr "<strong>This account is disabled without any specific reason.</strong><b
 msgid "plugins.generic.openid.error.openid.disabled.with"
 msgstr "<strong>This account is disabled based on the following reason:</strong>"
 
+msgid "plugins.generic.openid.error.legacy.link"
+msgstr "Journal manager or support staff can sign in via this <a href=\"{$legacyLoginUrl}\">link</a> to solve this issue."
+
 #provider page
 msgid "plugins.generic.openid.select.provider"
 msgstr "Sign in or register"
 
-msgid "plugins.generic.openid.select.legacy.help"
+msgid "plugins.generic.openid.select.legacy"
 msgstr "Sign in with your {$journalName} account"
 
 msgid "plugins.generic.openid.select.provider.help"
