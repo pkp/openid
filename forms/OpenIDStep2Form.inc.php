@@ -4,6 +4,28 @@ use Sokil\IsoCodes\IsoCodesFactory;
 
 import('lib.pkp.classes.form.Form');
 
+/**
+ * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
+ *
+ * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenID Authentication Plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ *
+ * @file plugins/generic/openid/forms/OpenIDStep2Form.inc.php
+ * @ingroup plugins_generic_openid
+ * @brief Form class for the second step which is needed if no local user was found with the OpenID identifier
+ */
 class OpenIDStep2Form extends Form
 {
 	private array $credentials;
@@ -29,9 +51,11 @@ class OpenIDStep2Form extends Form
 
 	/**
 	 *
+	 * @copydoc Form::fetch()
+	 *
 	 * @param $request
-	 * @param null $template
-	 * @param false $display
+	 * @param $template
+	 * @param $display
 	 * @return string|null
 	 */
 	function fetch($request, $template = null, $display = false)
@@ -49,7 +73,7 @@ class OpenIDStep2Form extends Form
 	}
 
 	/**
-	 *
+	 * @copydoc Form::initData()
 	 */
 	function initData()
 	{
@@ -74,7 +98,7 @@ class OpenIDStep2Form extends Form
 	}
 
 	/**
-	 *
+	 * @copydoc Form::readInputData()
 	 */
 	function readInputData()
 	{
@@ -100,8 +124,9 @@ class OpenIDStep2Form extends Form
 	}
 
 	/**
+	 * @copydoc Form::validate()
 	 *
-	 * @param bool $callHooks
+	 * @param $callHooks
 	 * @return bool|mixed|null
 	 */
 	function validate($callHooks = true)
@@ -157,6 +182,7 @@ class OpenIDStep2Form extends Form
 	}
 
 	/**
+	 * @copydoc Form::execute()
 	 *
 	 * @param mixed ...$functionArgs
 	 * @return bool|mixed|null
@@ -209,9 +235,8 @@ class OpenIDStep2Form extends Form
 
 
 	/**
-	 * This function creates a new OJS User if no user exists with the given username, email or openid::identifier!
+	 * This function registers a new OJS User if no user exists with the given username, email or openid::{provider_name}!
 	 *
-	 * @param string $oauthId
 	 * @return User|null
 	 */
 	private function _registerUser()
@@ -261,6 +286,8 @@ class OpenIDStep2Form extends Form
 	}
 
 	/**
+	 * If automatic API-KEY is enabled in the setting, this function generates and saves the key and set the key to enabled.
+	 *
 	 * @param $user
 	 * @param $value
 	 * @return bool
@@ -282,6 +309,8 @@ class OpenIDStep2Form extends Form
 	}
 
 	/**
+	 * De-/Encrypt function to hide some important things.
+	 *
 	 * @param string $action
 	 * @param string $string
 	 * @return string|null

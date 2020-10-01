@@ -73,6 +73,9 @@ msgstr "No user was found that matches your credentials."
 msgid "plugins.generic.openid.form.error.invalid.credentials"
 msgstr "The password is incorrect."
 
+msgid "plugins.generic.openid.settings.error"
+msgstr "<strong>Incorrect OpenID plugin configuration!</strong><br />There is no OpenID Provider configured!<br />Please contact the support to repost this."
+
 # settings messages
 msgid "plugins.generic.openid.settings.openid.head"
 msgstr "OpenId Provider:"

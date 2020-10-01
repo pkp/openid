@@ -1,14 +1,38 @@
 <?php
-
 import('classes.handler.Handler');
 
+/**
+ * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
+ *
+ * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenID Authentication Plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ *
+ * @file plugins/generic/openid/handler/OpenIDLoginHandler.inc.php
+ * @ingroup plugins_generic_openid
+ * @brief Handler to overwrite default OJS/OMP/OPS login and registration
+ *
+ */
 class OpenIDLoginHandler extends Handler
 {
-
-
 	/**
-	 * Disables the default login.
-	 * This function redirects to the oauth login page.
+	 * This function overwrites the default login.
+	 * There a 2 different workflows implemented:
+	 * - If only one OpenID provider is configured and legacy login is disabled, the user is automatically redirected to the sign-in page of that provider.
+	 * - If more than one provider is configured, a login page is shown within the OJS/OMP/OPS and the user can select his preferred OpenID provider for login/registration.
+	 *
+	 * In case of an error or a mismatched configuration, the default login page is displayed to prevent a complete login lock of the system.
 	 *
 	 * @param $args
 	 * @param $request
@@ -46,7 +70,10 @@ class OpenIDLoginHandler extends Handler
 								);
 							} else {
 								if ($name == "custom") {
-									$templateMgr->assign('customBtnImg', key_exists('btnImg', $settings) && isset($settings['btnImg']) ? $settings['btnImg'] : null);
+									$templateMgr->assign(
+										'customBtnImg',
+										key_exists('btnImg', $settings) && isset($settings['btnImg']) ? $settings['btnImg'] : null
+									);
 									$templateMgr->assign(
 										'customBtnTxt',
 										key_exists('btnTxt', $settings)
@@ -64,33 +91,30 @@ class OpenIDLoginHandler extends Handler
 					}
 				}
 			}
-		}
-		$loginUrl = $request->url(null, 'login', 'signIn');
-		if (Config::getVar('security', 'force_login_ssl')) {
-			$loginUrl = PKPString::regexp_replace('/^http:/', 'https:', $loginUrl);
-		}
-		if (isset($linkList)) {
-			$templateMgr->assign('linkList', $linkList);
-			if ($legacyLogin) {
-				$templateMgr->assign('legacyLogin', true);
-				$templateMgr->assign('loginUrl', $loginUrl);
-				$templateMgr->assign('journalName', $context->getName(AppLocale::getLocale()));
+			$loginUrl = $request->url(null, 'login', 'signIn');
+			if (Config::getVar('security', 'force_login_ssl')) {
+				$loginUrl = PKPString::regexp_replace('/^http:/', 'https:', $loginUrl);
 			}
-			$templateMgr->display($plugin->getTemplateResource('openidLogin.tpl'));
-		} elseif ($showErrorPage) {
-			$templateMgr->assign('loginMessage', 'plugins.generic.openid.settings.error');
-			$templateMgr->assign('loginUrl', $loginUrl);
-			$templateMgr->display('frontend/pages/userLogin.tpl');
-		} else {
-			$request->redirect(Application::get()->getRequest()->getContext(), 'index');
+			if (isset($linkList)) {
+				$templateMgr->assign('linkList', $linkList);
+				if ($legacyLogin) {
+					$templateMgr->assign('legacyLogin', true);
+					$templateMgr->assign('loginUrl', $loginUrl);
+					$templateMgr->assign('journalName', $context->getName(AppLocale::getLocale()));
+				}
+				$templateMgr->display($plugin->getTemplateResource('openidLogin.tpl'));
+			} elseif ($showErrorPage) {
+				$templateMgr->assign('loginMessage', 'plugins.generic.openid.settings.error');
+				$templateMgr->assign('loginUrl', $loginUrl);
+				$templateMgr->display('frontend/pages/userLogin.tpl');
+			}
 		}
-
-		return true;
+		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 	}
 
 	/**
 	 * Disables the default registration, because it is not needed anymore.
-	 * User registration is done via oauth.
+	 * User registration is done via OpenID provider.
 	 *
 	 * @param $args
 	 * @param $request
@@ -102,7 +126,7 @@ class OpenIDLoginHandler extends Handler
 
 	/**
 	 * Disables default logout.
-	 * Performs OJS logout and redirects to the oauth logout to delete session and tokens.
+	 * Performs OJS logout and if logoutUrl is provided (e.g. Apple doesn't provide this url) it redirects to the oauth logout to delete session and tokens.
 	 *
 	 * @param $args
 	 * @param $request
@@ -131,22 +155,4 @@ class OpenIDLoginHandler extends Handler
 		}
 		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 	}
-
-
-	/**
-	 * Sign a user out.
-	 * This is called after oauth logout via redirect_uri parameter.
-	 *
-	 * @param $args
-	 * @param $request
-	 */
-	function signOutOjs($args, $request)
-	{
-		if (Validation::isLoggedIn()) {
-			Validation::logout();
-		}
-		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
-	}
-
-
 }

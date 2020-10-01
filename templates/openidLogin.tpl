@@ -62,7 +62,12 @@
 		{foreach from=$linkList key=name item=url}
 			{if $name == 'custom'}
 				<li><a id="openid-provider-{$name}" href="{$url}">
-						<div><img src="{$imageURL}{$name}-sign-in.png" alt="{$name}">
+						<div>
+							{if $customBtnImg}
+								<img src="{$customBtnImg}" alt="{$name}">
+							{else}
+								<img src="{$imageURL}{$name}-sign-in.png" alt="{$name}">
+							{/if}
 							<span>
 								{if isset($customBtnTxt)}
 									{$customBtnTxt}
@@ -74,8 +79,9 @@
 					</a>
 				</li>
 			{else}
-				<li><a id="openid-provider-{$name}" href="{$url}">
-						<div><img src="{$imageURL}{$name}-sign-in.png" alt="{$name}">
+				<li class=""><a id="openid-provider-{$name}" href="{$url}">
+						<div>
+							<img src="{$imageURL}{$name}-sign-in.png" alt="{$name}"/>
 							<span>{{translate key="plugins.generic.openid.select.provider.$name"}}</span>
 						</div>
 					</a>

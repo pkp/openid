@@ -1,23 +1,35 @@
 <?php
 
-/**
- * @file plugins/generic/oauth/controllers/grid/form/OauthAppForm.inc.php
- *
- * Copyright (c) 2014-2016 Simon Fraser University Library
- * Copyright (c) 2003-2016 John Willinsky
- * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
- *
- * @class OauthAppForm
- * @ingroup controllers_grid_oauthApp
- *
- * Form for managers to create and modify oauth app
- *
- */
-
 import('lib.pkp.classes.form.Form');
 
+/**
+ * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
+ *
+ * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenID Authentication Plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ *
+ * @file plugins/generic/openid/forms/OpenIDPluginSettingsForm.inc.php
+ * @ingroup plugins_generic_openid
+ * @brief Form class for OpenID Authentication Plugin settings
+ */
 class OpenIDPluginSettingsForm extends Form
 {
+	/**
+	 * List of OpenID provider.
+	 * TODO should be loaded via json in the future
+	 */
 	private const PUBLIC_OPENID_PROVIDER = [
 		"custom" => "",
 		"google" => ["configUrl" => "https://accounts.google.com/.well-known/openid-configuration"],
@@ -28,10 +40,11 @@ class OpenIDPluginSettingsForm extends Form
 	private OpenIDPlugin $plugin;
 
 	/**
-	 * Constructor
-	 * @param OpenIDPlugin $plugin
+	 * OpenIDPluginSettingsForm constructor.
+	 *
+	 * @param $plugin
 	 */
-	public function __construct(OpenIDPlugin $plugin)
+	public function __construct($plugin)
 	{
 		parent::__construct($plugin->getTemplateResource('settings.tpl'));
 		$this->plugin = $plugin;
@@ -77,7 +90,14 @@ class OpenIDPluginSettingsForm extends Form
 		parent::readInputData();
 	}
 
-
+	/**
+	 * @copydoc Form::fetch()
+	 *
+	 * @param $request
+	 * @param null $template
+	 * @param bool $display
+	 * @return string|null
+	 */
 	public function fetch($request, $template = null, $display = false)
 	{
 		$templateMgr = TemplateManager::getManager($request);
@@ -90,6 +110,7 @@ class OpenIDPluginSettingsForm extends Form
 
 	/**
 	 * @copydoc Form::execute()
+	 *
 	 * @param mixed ...$functionArgs
 	 * @return mixed|null
 	 */
@@ -119,8 +140,12 @@ class OpenIDPluginSettingsForm extends Form
 	}
 
 	/**
+	 * Creates a complete list of the provider with all necessary endpoint URL's.
+	 * Therefore this->_loadOpenIdConfig is called, to get the URL's via openid-configuration endpoint.
+	 * This function is called when the settings are executed to refresh the auth, token, cert and logout/revoke URL's.
+	 *
 	 * @param $providerList
-	 * @return array
+	 * @return array complete list of enabled provider including all necessary endpoint URL's
 	 */
 	private function _createProviderList($providerList): array
 	{
@@ -148,6 +173,12 @@ class OpenIDPluginSettingsForm extends Form
 		return $providerListResult;
 	}
 
+	/**
+	 * Calls the .well-known/openid-configuration which is provided in the $configURL and returns the result on success
+	 *
+	 * @param $configUrl
+	 * @return mixed|null
+	 */
 	private function _loadOpenIdConfig($configUrl)
 	{
 		$curl = curl_init();
