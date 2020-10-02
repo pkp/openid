@@ -1,6 +1,6 @@
 <?php
 
-$loader = require('plugins/generic/oauth/vendor/autoload.php');
+$loader = require('plugins/generic/openid/vendor/autoload.php');
 
 use Firebase\JWT\JWT;
 use phpseclib\Crypt\RSA;
