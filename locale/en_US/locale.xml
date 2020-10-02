@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE locale SYSTEM "../../dtd/locale.dtd">
+
+<!--
+  * locale/en_US/admin.xml
+  *
+  * Copyright (c) 2014-2019 Simon Fraser University
+  * Copyright (c) 2000-2019 John Willinsky
+  * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
+  *
+  * Localization strings.
+  -->
+
+<locale name="en_US" full_name="U.S. English">
+	<message key="plugins.generic.openid.name">OpenID Authentication Plugin</message>
+	<message key="plugins.generic.openid.description">This plugin allows the login and registration via OpenID provider (e.g. Keycloak)</message>
+	<message key="plugins.generic.openid.step2.title">Register or Connect Account</message>
+	<message key="plugins.generic.openid.step2.headline">Register or Connect Account</message>
+	<message key="plugins.generic.openid.step2.help"><![CDATA[No account was found which is linked to your OpenID data.<br />Two options are available: <ul><li>If you do not yet have an account for this journal, please provide your details and complete the registration.</li><li>If you already have an account for this journal, please log in with your former user data. Your accounts will be automatically connected and you only need to authenticate via OpenID in the future.</li></ul>]]></message>
+	<message key="plugins.generic.openid.step2.choice"><![CDATA[Please <span id='showRegisterForm' class='step2-choice-links'>complete registration</span> or <span id='showLoginForm' class='step2-choice-links'>log in to your existing Account</span>.]]></message>
+	<message key="plugins.generic.openid.step2.complete">Please verify the transmitted details and add missing</message>
+	<message key="plugins.generic.openid.step2.complete.btn">Complete registration</message>
+	<message key="plugins.generic.openid.step2.connect">Enter former login credentials</message>
+	<message key="plugins.generic.openid.step2.connect.username">Username or email</message>
+	<message key="plugins.generic.openid.step2.connect.btn">Login and connect accounts</message>
+	<message key="plugins.generic.openid.form.error.username.required">A username is required.</message>
+	<message key="plugins.generic.openid.form.error.usernameExists">The selected username is already in use by another user.</message>
+	<message key="plugins.generic.openid.form.error.givenName.required">A given name is required.</message>
+	<message key="plugins.generic.openid.form.error.familyName.required">A family name is required.</message>
+	<message key="plugins.generic.openid.form.error.country.required">A country is required.</message>
+	<message key="plugins.generic.openid.form.error.affiliation.required">An affiliation is required.</message>
+	<message key="plugins.generic.openid.form.error.email.required">An email is required.</message>
+	<message key="plugins.generic.openid.form.error.emailExists">The selected email is already in use. Please try to log in to this account.</message>
+	<message key="plugins.generic.openid.form.error.privacyConsent.required">You must agree to the terms of the privacy statement.</message>
+	<message key="plugins.generic.openid.form.error.usernameOrEmail.required">A username or email is required.</message>
+	<message key="plugins.generic.openid.form.error.password.required">A password is required.</message>
+	<message key="plugins.generic.openid.form.error.user.not.found">No user was found that matches your credentials.</message>
+	<message key="plugins.generic.openid.form.error.invalid.credentials">The password is incorrect.</message>
+	<message key="plugins.generic.openid.settings.error"><![CDATA[<strong>Incorrect OpenID plugin configuration!</strong><br />There is no OpenID Provider configured!<br />Please contact the support to repost this.]]></message>
+	<message key="plugins.generic.openid.settings.openid.head">OpenId Provider:</message>
+	<message key="plugins.generic.openid.settings.openid.desc">Please enter the following information according to your OpenID provider.</message>
+	<message key="plugins.generic.openid.settings.custom.enable">Custom OpenID Provider</message>
+	<message key="plugins.generic.openid.settings.custom.desc">If you want to use a custom OpenID Connect Provider (e.g. a self-hosted Keycloak server), you have to provide the URL to the OpenID configuration endpoint and the client credentials.</message>
+	<message key="plugins.generic.openid.settings.btn.settings">Custom login button settings</message>
+	<message key="plugins.generic.openid.settings.provider.settings">Login credentials</message>
+	<message key="plugins.generic.openid.settings.btnImg.desc">Please enter a URL to an image (size: 46x41) you want to display on the login button , otherwise the OpenID logo is shown</message>
+	<message key="plugins.generic.openid.settings.btnTxt.desc">Please enter a Text you want to display on the login button.</message>
+	<message key="plugins.generic.openid.settings.google.enable">Google OpenID Connect</message>
+	<message key="plugins.generic.openid.settings.google.desc"><![CDATA[You have to to create an OpenID Connect client in the <a href='https://console.developers.google.com/apis/credentials' target='_blank' rel='noopener'>Google Developer Console</a> to use Google as an OpenID Connect provider. A tutorial can be found <a href='https://developers.google.com/identity/protocols/oauth2/openid-connect' target='_blank' rel='noopener'>here</a>. Please use this redirect URL:]]></message>
+	<message key="plugins.generic.openid.settings.microsoft.enable">Microsoft Azure Active Directory</message>
+	<message key="plugins.generic.openid.settings.microsoft.desc"><![CDATA[You have to to configure your App Service in the <a href='https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview' target='_blank' rel='noopener'>Azure portal</a> (go to 'App registrations' after login) to use Azure AD login. A tutorial can be found <a href='https://docs.microsoft.com/en-us/azure/app-service/configure-authentication-provider-aad' target='_blank' rel='noopener'>here</a>. Please use this redirect URL:]]></message>
+	<message key="plugins.generic.openid.settings.apple.enable">Apple ID</message>
+	<message key="plugins.generic.openid.settings.apple.desc"><![CDATA[A tutorial how to configure Apple ID can be found <a href='https://developer.apple.com/documentation/authenticationservices' target='_blank' rel='noopener'>here</a>. Please use this redirect URL:]]></message>
+	<message key="plugins.generic.openid.settings.configUrl">OpenID Provider URL</message>
+	<message key="plugins.generic.openid.settings.configUrl.desc"><![CDATA[Please enter the configuration URL of your OpenID provider.<strong>The URL must end with \".well-known/openid-configuration\" (e.g. \"https://sso.example.com/auth/realms/master/.well-known/openid-configuration\").</strong>]]></message>
+	<message key="plugins.generic.openid.settings.clientId">Client identifier</message>
+	<message key="plugins.generic.openid.settings.clientId.desc">Please enter your clientId.</message>
+	<message key="plugins.generic.openid.settings.clientSecret">Client secret</message>
+	<message key="plugins.generic.openid.settings.clientSecret.desc">Please enter your client secret.</message>
+	<message key="plugins.generic.openid.settings.features.head">Advanced plugin functions</message>
+	<message key="plugins.generic.openid.settings.features.desc">The following inputs are only for advanced plugin functions. They are not important for the connection to the OpenID provider.</message>
+	<message key="plugins.generic.openid.settings.legacyLogin">Legacy Login</message>
+	<message key="plugins.generic.openid.settings.legacyLogin.check">Enable legacy login</message>
+	<message key="plugins.generic.openid.settings.legacyLogin.desc">Enable this option if you want to use the OJS logon in addition to the OpenID logon.</message>
+	<message key="plugins.generic.openid.settings.hashSecret">Encrypt/Decrypt secret</message>
+	<message key="plugins.generic.openid.settings.hashSecret.desc">If you want to encrypt the OpenID information like the OpenID identifier in the HTML code and you want to use the following function for the automated API-KEY generation, you have to enter a secret here. You can choose your secret freely. The more characters, the more secure!</message>
+	<message key="plugins.generic.openid.settings.generateAPIKey">Automated API-Key</message>
+	<message key="plugins.generic.openid.settings.generateAPIKey.check">Enable automatic API key generation</message>
+	<message key="plugins.generic.openid.settings.generateAPIKey.desc"><![CDATA[This plugin can generate a key by encrypting the OpenID identifier with <strong>the secret you entered before</strong>. This key will be encrypted again with a secret that must be specified in the OJS settings. This should be adequately secure.]]></message>
+	<message key="plugins.generic.openid.error.openid.connect.desc.key"><![CDATA[<strong>An error occurred while verifying your data.</strong><br />The service is possibly not available at the moment.<br />Please try again or <a href='mailto:{$supportEmail}'>contact the technical support</a> if the problem still exists.]]></message>
+	<message key="plugins.generic.openid.error.openid.connect.desc.data"><![CDATA[<strong>An error occurred while receiving your data from the OpenId provider.</strong><br />The service is possibly not available at the moment.<br />Please try again or <a href='mailto:{$supportEmail}'>contact the technical support</a> if the problem still exists.]]></message>
+	<message key="plugins.generic.openid.error.openid.cert.desc"><![CDATA[<strong>An error occurred while validation and extracting your data.</strong><br />The service is possibly not available at the moment.<br />Please try again or <a href='mailto:{$supportEmail}'>contact the technical support</a> if the problem still exists.]]></message>
+	<message key="plugins.generic.openid.error.openid.disabled.without"><![CDATA[<strong>This account is disabled without any specific reason.</strong><br />Please <a href='mailto:{$supportEmail}'>contact the technical support</a> to enable this account.]]></message>
+	<message key="plugins.generic.openid.error.openid.disabled.with"><![CDATA[<strong>This account is disabled based on the following reason:</strong>]]></message>
+	<message key="plugins.generic.openid.error.legacy.link"><![CDATA[Journal manager or support staff can sign in via this <a href=\"{$legacyLoginUrl}\">link</a> to solve this issue.]]></message>
+	<message key="plugins.generic.openid.select.provider">Sign in or register</message>
+	<message key="plugins.generic.openid.select.legacy">Sign in with your {$journalName} account</message>
+	<message key="plugins.generic.openid.select.provider.help">Sign in or register with:</message>
+	<message key="plugins.generic.openid.select.provider.custom">Sign in with custom provider</message>
+	<message key="plugins.generic.openid.select.provider.google">Sign in with Google</message>
+	<message key="plugins.generic.openid.select.provider.microsoft">Sign in with Microsoft</message>
+	<message key="plugins.generic.openid.select.provider.apple">Sign in with Apple</message>
+</locale>

@@ -1,6 +1,5 @@
 <?php
 
-use Sokil\IsoCodes\IsoCodesFactory;
 
 import('lib.pkp.classes.form.Form');
 
@@ -40,7 +39,7 @@ class OpenIDStep2Form extends Form
 	 */
 	function __construct(OpenIDPlugin $plugin, array $credentials = array())
 	{
-		$context = Application::get()->getRequest()->getContext();
+		$context = Application::getRequest()->getContext();
 		$this->contextId = ($context == null) ? 0 : $context->getId();
 		$this->plugin = $plugin;
 		$this->credentials = $credentials;
@@ -61,12 +60,8 @@ class OpenIDStep2Form extends Form
 	function fetch($request, $template = null, $display = false)
 	{
 		$templateMgr = TemplateManager::getManager($request);
-		$isoCodes = new IsoCodesFactory();
-		$countries = array();
-		foreach ($isoCodes->getCountries() as $country) {
-			$countries[$country->getAlpha2()] = $country->getLocalName();
-		}
-		asort($countries);
+		$countryDao = DAORegistry::getDAO('CountryDAO');
+		$countries = $countryDao->getCountries();
 		$templateMgr->assign('countries', $countries);
 
 		return parent::fetch($request, $template, $display);
@@ -154,7 +149,7 @@ class OpenIDStep2Form extends Form
 					array(DAORegistry::getDAO('UserDAO'), 'userExistsByEmail'), array(), true
 				)
 			);
-			$context = Application::get()->getRequest()->getContext();
+			$context = Application::getRequest()->getContext();
 			if ($context && $context->getData('privacyStatement')) {
 				$this->addCheck(new FormValidator($this, 'privacyConsent', 'required', 'plugins.generic.openid.form.error.privacyConsent.required'));
 			}
@@ -245,7 +240,7 @@ class OpenIDStep2Form extends Form
 		$user = $userDao->newDataObject();
 		$user->setUsername($this->getData('username'));
 
-		$request = Application::get()->getRequest();
+		$request = Application::getRequest();
 		$site = $request->getSite();
 		$sitePrimaryLocale = $site->getPrimaryLocale();
 		$currentLocale = AppLocale::getLocale();

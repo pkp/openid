@@ -82,7 +82,7 @@ class OpenIDPlugin extends GenericPlugin
 		switch ("$page/$op") {
 			case 'openid/doAuthentication':
 			case 'openid/registerOrConnect':
-				$request = Application::get()->getRequest();
+				$request = Application::getRequest();
 				$templateMgr = TemplateManager::getManager($request);
 				$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
 				$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
@@ -93,7 +93,7 @@ class OpenIDPlugin extends GenericPlugin
 			case 'login/legacyLogin':
 			case 'user/register':
 			case 'login/signOut':
-				$request = Application::get()->getRequest();
+				$request = Application::getRequest();
 				$templateMgr = TemplateManager::getManager($request);
 				$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
 				$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');

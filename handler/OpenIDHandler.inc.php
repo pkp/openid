@@ -101,7 +101,7 @@ class OpenIDHandler extends Handler
 			$ssoErrors['sso_error'] = !isset($publicKey) ? 'connect_key' : 'connect_data';
 		}
 
-		return $request->redirect(Application::get()->getRequest()->getContext(), 'login', null, null, isset($ssoErrors) ? $ssoErrors : null);
+		return $request->redirect(Application::getRequest()->getContext(), 'login', null, null, isset($ssoErrors) ? $ssoErrors : null);
 	}
 
 	/**
@@ -120,7 +120,7 @@ class OpenIDHandler extends Handler
 			$templateMgr->assign('pageTitle', 'user.login.registrationComplete');
 			$templateMgr->display('frontend/pages/userRegisterComplete.tpl');
 		} elseif (!$request->isPost()) {
-			$request->redirect(Application::get()->getRequest()->getContext(), 'login');
+			$request->redirect(Application::getRequest()->getContext(), 'login');
 		} else {
 			$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 			import($plugin->getPluginPath().'/forms/OpenIDStep2Form');
@@ -129,7 +129,7 @@ class OpenIDHandler extends Handler
 			if (!$regForm->validate()) {
 				$regForm->display($request);
 			} elseif ($regForm->execute($generateApiKey)) {
-				$request->redirect(Application::get()->getRequest()->getContext(), 'openid', 'registerOrConnect');
+				$request->redirect(Application::getRequest()->getContext(), 'openid', 'registerOrConnect');
 			} else {
 				$regForm->addError('', '');
 				$regForm->display($request);
@@ -186,7 +186,7 @@ class OpenIDHandler extends Handler
 							'grant_type' => 'authorization_code',
 							'client_id' => $settings['clientId'],
 							'client_secret' => $settings['clientSecret'],
-							'redirect_uri' => Application::get()->getRequest()->url(
+							'redirect_uri' => Application::getRequest()->url(
 								null,
 								'openid',
 								'doAuthentication',

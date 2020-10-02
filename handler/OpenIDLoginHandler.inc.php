@@ -109,7 +109,7 @@ class OpenIDLoginHandler extends Handler
 
 			return $templateMgr->display($plugin->getTemplateResource('openidLogin.tpl'));
 		}
-		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
+		$request->redirect(Application::getRequest()->getContext(), 'index');
 
 		return false;
 	}
@@ -154,7 +154,7 @@ class OpenIDLoginHandler extends Handler
 			$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 			$router = $request->getRouter();
 			$lastProvider = $request->getUser()->getSetting('openid::lastProvider');
-			$context = Application::get()->getRequest()->getContext();
+			$context = Application::getRequest()->getContext();
 			$contextId = ($context == null) ? 0 : $context->getId();
 			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
 			Validation::logout();
@@ -170,7 +170,7 @@ class OpenIDLoginHandler extends Handler
 				}
 			}
 		}
-		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
+		$request->redirect(Application::getRequest()->getContext(), 'index');
 	}
 
 	/**

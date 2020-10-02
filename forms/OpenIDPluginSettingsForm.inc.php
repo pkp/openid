@@ -57,7 +57,7 @@ class OpenIDPluginSettingsForm extends Form
 	 */
 	function initData()
 	{
-		$request = Application::get()->getRequest();
+		$request = Application::getRequest();
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
 		$settingsJson = $this->plugin->getSetting($contextId, 'openIDSettings');
 		$settings = json_decode($settingsJson, true);
@@ -116,7 +116,7 @@ class OpenIDPluginSettingsForm extends Form
 	 */
 	function execute(...$functionArgs)
 	{
-		$request = Application::get()->getRequest();
+		$request = Application::getRequest();
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
 		$providerList = $this->getData('provider');
 		$providerListResult = $this->_createProviderList($providerList);
