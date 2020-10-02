@@ -221,7 +221,7 @@ class OpenIDStep2Form extends Form
 					$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
 					$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, hash('sha256', $oauthId), 'string');
 					$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
-					if ($functionArgs[0] = true) {
+					if ($functionArgs[0] == true && $selectedProvider == 'custom') {
 						$this->_generateApiKey($user, $oauthId);
 					}
 					Validation::registerUserSession($user, $reason, true);

@@ -4,3 +4,4 @@ out
 gen
 /vendor/
 vendor/
+/cypress.env.json
