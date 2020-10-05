@@ -1,12 +1,14 @@
+let pageOauth = document.querySelector('.page_oauth');
 let returnTo = document.querySelector('.page_oauth #returnTo');
-if (returnTo.value === 'register') {
-	showRegisterForm();
-} else if (returnTo.value === 'connect') {
-	showLoginForm();
+if (pageOauth !== undefined && pageOauth != null) {
+	if (returnTo.value === 'register') {
+		showRegisterForm();
+	} else if (returnTo.value === 'connect') {
+		showLoginForm();
+	}
+	document.querySelector('.page_oauth #showRegisterForm').addEventListener('click', showRegisterForm);
+	document.querySelector('.page_oauth #showLoginForm').addEventListener('click', showLoginForm);
 }
-
-document.querySelector('.page_oauth #showRegisterForm').addEventListener('click', showRegisterForm);
-document.querySelector('.page_oauth #showLoginForm').addEventListener('click', showLoginForm);
 
 function showRegisterForm() {
 	document.querySelector("#oauth #register-form").style.display = "block";
