@@ -50,7 +50,7 @@ describe('OpenID plugin tests', function () {
 	});
 
 	it('Check OpenID Authentication Plugin Login Page', function () {
-		cy.visit(Cypress.env("baseUrl") + '/index.php/' + Cypress.env("context") + '/login');
+		cy.visit('/index.php/' + Cypress.env("context") + '/login');
 		cy.get('a[id="openid-provider-custom"]').contains(Cypress.env("openid_custom_txt"));
 	});
 });

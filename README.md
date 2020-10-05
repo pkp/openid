@@ -1,6 +1,6 @@
-# OJS Plugin for OpenID integration
+# OJS Plugin for OpenID integration [![Build Status](https://travis-ci.org/leibniz-psychology/pkp-openid.svg?branch=master)](https://travis-ci.org/leibniz-psychology/pkp-openid)
 
-## Description: 
+## Description:
 Currently, PKP's Open Journal System (OJS) does not offer the possibility of OpenID authentication using single sign-on providers. There are also no fully functional community plugins available, which solve this problem. Actually, there is an [OAuth plugin](https://github.com/ulsdevteam/pkp-oauth) that was created in the [Fredericton Sprint](https://pkp.sfu.ca/2016/11/14/fall-2016-sprint-report-oauth-integration/) in 2016, which was ultimately forked into the [ORCID plugin](https://github.com/pkp/orcidProfile). The OAuth plugin is used as basis for the development of this OpenID plugin, because fundamental functions for an authentication like receiving the authentication code and the JSON Web Token (JWT) were available. When the development of this plugin is completed, it will be made available to the PKP community via PKP's plugin gallery and maintained for future OJS versions.
 
 ## Features:
