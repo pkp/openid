@@ -37,7 +37,7 @@ class OpenIDPluginSettingsForm extends Form
 		"apple" => ["configUrl" => "https://appleid.apple.com/.well-known/openid-configuration"],
 	];
 
-	private OpenIDPlugin $plugin;
+	private $plugin;
 
 	/**
 	 * OpenIDPluginSettingsForm constructor.
@@ -147,7 +147,7 @@ class OpenIDPluginSettingsForm extends Form
 	 * @param $providerList
 	 * @return array complete list of enabled provider including all necessary endpoint URL's
 	 */
-	private function _createProviderList($providerList): array
+	private function _createProviderList($providerList)
 	{
 		$providerListResult = array();
 		if (isset($providerList) && is_array($providerList)) {
