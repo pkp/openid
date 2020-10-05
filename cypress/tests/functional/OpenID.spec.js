@@ -18,8 +18,8 @@ describe('OpenID plugin tests', function () {
 	});
 
 	it('Enable OpenID Authentication Plugin', function () {
-		cy.server();
-		cy.route('POST', Cypress.env("baseUrl") + '/index.php/' + Cypress.env("context") + '/$$$call$$$/grid/settings/plugins/settings-plugin-grid/manage?category=generic&plugin=openidplugin&verb=settings&save=1').as('saveSettings');
+/*		cy.server();
+		cy.route('POST', Cypress.env("baseUrl") + '/index.php/' + Cypress.env("context") + '/$$$call$$$/grid/settings/plugins/settings-plugin-grid/manage?category=generic&plugin=openidplugin&verb=settings&save=1').as('saveSettings');*/
 		cy.login(Cypress.env("ojs_username"), Cypress.env("ojs_password"), Cypress.env("context"));
 		cy.get('ul[id="navigationPrimary"] a:contains("Settings")').click();
 		cy.get('ul[id="navigationPrimary"] a:contains("Website")').click();
@@ -43,8 +43,9 @@ describe('OpenID plugin tests', function () {
 		cy.get('form[id="openIDSettings"] input[name="generateAPIKey"]').check({force: true});
 		// submit settings form
 		cy.get('form[id="openIDSettings"] button[id^="submitFormButton"]').click();
-		cy.wait('@saveSettings');
+		/*cy.wait('@saveSettings');*/
 		cy.waitJQuery();
+		cy.wait(3000);
 		cy.get('div:contains(\'Your changes have been saved.\')');
 	});
 
