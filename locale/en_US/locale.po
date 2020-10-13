@@ -101,6 +101,12 @@ msgstr "Please enter a URL to an image (size: 46x41) you want to display on the 
 msgid "plugins.generic.openid.settings.btnTxt.desc"
 msgstr "Please enter a Text you want to display on the login button."
 
+msgid "plugins.generic.openid.settings.orcid.enable"
+msgstr "Orcid OpenID Connect"
+
+msgid "plugins.generic.openid.settings.orcid.desc"
+msgstr "A tutorial can be found <a href='https://github.com/ORCID/ORCID-Source/blob/master/orcid-web/ORCID_AUTH_WITH_OPENID_CONNECT.md' target='_blank' rel='noopener'>here</a>. Please use this redirect URL:"
+
 msgid "plugins.generic.openid.settings.google.enable"
 msgstr "Google OpenID Connect"
 
@@ -198,6 +204,9 @@ msgstr "Sign in or register with:"
 
 msgid "plugins.generic.openid.select.provider.custom"
 msgstr "Sign in with custom provider"
+
+msgid "plugins.generic.openid.select.provider.orcid"
+msgstr "Sign in with Orcid"
 
 msgid "plugins.generic.openid.select.provider.google"
 msgstr "Sign in with Google"
