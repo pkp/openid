@@ -1,8 +1,8 @@
 ---
 name: Feature request
-about: Suggest a new feature for psychopen-quickArticleImport
+about: 'Suggest a new feature '
 title: ''
-labels: feature request
+labels: ''
 assignees: RBoelter
 
 ---

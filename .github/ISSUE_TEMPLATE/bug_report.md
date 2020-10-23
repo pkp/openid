@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report a bug in psychopen-quickArticleImport
+about: Report a bug
 title: ''
 labels: bug
 assignees: RBoelter
