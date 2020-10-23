@@ -97,7 +97,7 @@ class OpenIDPlugin extends GenericPlugin
 				$templateMgr = TemplateManager::getManager($request);
 				$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
 				$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
-				$templateMgr->assign('imageURL', $request->getBaseUrl().'/'.$this->getPluginPath().'/images/');
+				$templateMgr->assign('openIDImageURL', $request->getBaseUrl().'/'.$this->getPluginPath().'/images/');
 				define('HANDLER_CLASS', 'OpenIDLoginHandler');
 				$args[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
 				break;

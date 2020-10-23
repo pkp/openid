@@ -106,7 +106,7 @@
 								{if $customBtnImg}
 									<img src="{$customBtnImg}" alt="{$name}">
 								{else}
-									<img src="{$imageURL}{$name}-sign-in.png" alt="{$name}">
+									<img src="{$openIDImageURL}{$name}-sign-in.png" alt="{$name}">
 								{/if}
 								<span>
 								{if isset($customBtnTxt)}
@@ -121,7 +121,7 @@
 				{else}
 					<li class=""><a id="openid-provider-{$name}" href="{$url}">
 							<div>
-								<img src="{$imageURL}{$name}-sign-in.png" alt="{$name}"/>
+								<img src="{$openIDImageURL}{$name}-sign-in.png" alt="{$name}"/>
 								<span>{{translate key="plugins.generic.openid.select.provider.$name"}}</span>
 							</div>
 						</a>

@@ -1,9 +1,9 @@
 let pageOauth = document.querySelector('.page_oauth');
 let returnTo = document.querySelector('.page_oauth #returnTo');
 if (pageOauth !== undefined && pageOauth != null) {
-	if (returnTo.value === 'register') {
+	if (returnTo && returnTo.value === 'register') {
 		showRegisterForm();
-	} else if (returnTo.value === 'connect') {
+	} else if (returnTo && returnTo.value === 'connect') {
 		showLoginForm();
 	}
 	document.querySelector('.page_oauth #showRegisterForm').addEventListener('click', showRegisterForm);
