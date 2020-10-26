@@ -201,7 +201,6 @@ class OpenIDStep2Form extends Form
 			$user = $userDao->getBySetting('openid::'.$selectedProvider, hash('sha256', $oauthId));
 			if (!isset($user)) {
 				if ($register) {
-
 					$user = $this->_registerUser();
 					if (isset($user)) {
 						$result = true;
@@ -244,31 +243,24 @@ class OpenIDStep2Form extends Form
 		$userDao = DAORegistry::getDAO('UserDAO');
 		$user = $userDao->newDataObject();
 		$user->setUsername($this->getData('username'));
-
 		$request = Application::get()->getRequest();
 		$site = $request->getSite();
 		$sitePrimaryLocale = $site->getPrimaryLocale();
 		$currentLocale = AppLocale::getLocale();
-
 		$user->setGivenName($this->getData('givenName'), $currentLocale);
 		$user->setFamilyName($this->getData('familyName'), $currentLocale);
 		$user->setEmail($this->getData('email'));
 		$user->setCountry($this->getData('country'));
 		$user->setAffiliation($this->getData('affiliation'), $currentLocale);
-
 		if ($sitePrimaryLocale != $currentLocale) {
 			$user->setGivenName($this->getData('givenName'), $sitePrimaryLocale);
 			$user->setFamilyName($this->getData('familyName'), $sitePrimaryLocale);
 			$user->setAffiliation($this->getData('affiliation'), $sitePrimaryLocale);
 		}
-
 		$user->setDateRegistered(Core::getCurrentDate());
 		$user->setInlineHelp(1);
-
 		$user->setPassword(Validation::encryptCredentials($this->getData('username'), openssl_random_pseudo_bytes(16)));
-
 		$userDao->insertObject($user);
-
 		if ($user->getId()) {
 			if ($request->getContext()) {
 				$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
@@ -280,7 +272,6 @@ class OpenIDStep2Form extends Form
 		} else {
 			$user = null;
 		}
-
 
 		return $user;
 	}
