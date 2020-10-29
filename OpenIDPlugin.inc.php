@@ -101,6 +101,11 @@ class OpenIDPlugin extends GenericPlugin
 				define('HANDLER_CLASS', 'OpenIDLoginHandler');
 				$args[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
 				break;
+			case 'user/profile':
+				$request = Application::get()->getRequest();
+				$templateMgr = TemplateManager::getManager($request);
+
+				break;
 		}
 
 		return false;

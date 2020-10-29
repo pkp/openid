@@ -113,17 +113,21 @@
 	{/fbvFormArea}
 	{fbvFormArea title="plugins.generic.openid.settings.features.head" id="open-id-features"}
 		<p>{translate key="plugins.generic.openid.settings.features.desc"}</p>
-		{fbvFormSection title="plugins.generic.openid.settings.legacyLogin" list=true }
+		{fbvFormSection list=true }
 			{fbvElement type="checkbox" id="legacyLogin" checked=$legacyLogin value=true label="plugins.generic.openid.settings.legacyLogin.check"}
 			<label class="sub_label">{translate key="plugins.generic.openid.settings.legacyLogin.desc"}</label>
 		{/fbvFormSection}
-		{fbvFormSection title="plugins.generic.openid.settings.hashSecret"}
+		{fbvFormSection list=true }
+			{fbvElement type="checkbox" id="disableConnect" checked=$disableConnect value=true label="plugins.generic.openid.settings.step2.connect.check"}
+			<label class="sub_label">{translate key="plugins.generic.openid.settings.step2.connect.desc"}</label>
+		{/fbvFormSection}
+		{fbvFormSection}
 			{fbvElement type="text" id="hashSecret" value=$hashSecret maxlength="50" label="plugins.generic.openid.settings.hashSecret.desc" inline=true size=$fbvStyles.size.LARGE readonly=true}
 			<div class="inline pkp_helpers_fifth">
 				<div class="pkp_button  submitFormButton" id="generateSecret">Generate secret</div>
 			</div>
 		{/fbvFormSection}
-		{fbvFormSection title="plugins.generic.openid.settings.generateAPIKey" list=true }
+		{fbvFormSection list=true }
 			{fbvElement type="checkbox" id="generateAPIKey" checked=$generateAPIKey label="plugins.generic.openid.settings.generateAPIKey.check"}
 			<label class="sub_label">{translate key="plugins.generic.openid.settings.generateAPIKey.desc"}</label>
 		{/fbvFormSection}

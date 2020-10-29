@@ -7,16 +7,19 @@ msgstr "This plugin allows the login and registration via OpenID provider (e.g. 
 
 # step2 messages
 msgid "plugins.generic.openid.step2.title"
-msgstr "Register or Connect Account"
+msgstr "Complete registration"
 
 msgid "plugins.generic.openid.step2.headline"
-msgstr "Register or Connect Account"
+msgstr "Do you already have a {$journalName} account?"
 
 msgid "plugins.generic.openid.step2.help"
-msgstr "No account was found which is linked to your OpenID data.<br />Two options are available: <ul><li>If you do not yet have an account for this journal, please provide your details and complete the registration.</li><li>If you already have an account for this journal, please log in with your former user data. Your accounts will be automatically connected and you only need to authenticate via OpenID in the future.</li></ul>"
+msgstr "To complete the registration/sign-on process we need some additional information:"
 
-msgid "plugins.generic.openid.step2.choice"
-msgstr "Please <span id='showRegisterForm' class='step2-choice-links'>complete registration</span> or <span id='showLoginForm' class='step2-choice-links'>log in to your existing Account</span>."
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "No, I'm new to {$journalName}!"
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "Yes, I already have an account!"
 
 msgid "plugins.generic.openid.step2.complete"
 msgstr "Please verify the transmitted details and add missing"
@@ -25,7 +28,7 @@ msgid "plugins.generic.openid.step2.complete.btn"
 msgstr "Complete registration"
 
 msgid "plugins.generic.openid.step2.connect"
-msgstr "Enter former login credentials"
+msgstr "Please log in to your former {$journalName} account.<br />Your data will then be transferred automatically.<br />After this step you can log in to your {$journalName} account using the Single-Sign-On service."
 
 msgid "plugins.generic.openid.step2.connect.username"
 msgstr "Username or email"
@@ -157,6 +160,15 @@ msgstr "Enable legacy login"
 
 msgid "plugins.generic.openid.settings.legacyLogin.desc"
 msgstr "Enable this option if you want to use the OJS logon in addition to the OpenID logon."
+
+msgid "plugins.generic.openid.settings.step2.connect"
+msgstr "Account Connection"
+
+msgid "plugins.generic.openid.settings.step2.connect.check"
+msgstr "Disable \"Account Connection\""
+
+msgid "plugins.generic.openid.settings.step2.connect.desc"
+msgstr "If this journal is new and has no existing user accounts, you can check this box to disable the account linking function. In this case the user will only see the form for extended (OJS specific) user data when registering an OJS account via an OpenID provider."
 
 msgid "plugins.generic.openid.settings.hashSecret"
 msgstr "Encrypt/Decrypt secret"

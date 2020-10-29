@@ -23,25 +23,29 @@
 {include file="frontend/components/header.tpl" pageTitle="plugins.generic.openid.step2.title"}
 <div class="page page_oauth">
 	{include file="frontend/components/breadcrumbs.tpl" currentTitleKey="plugins.generic.openid.step2.title"}
-	<h1>
-		{translate key="plugins.generic.openid.step2.headline"}
-	</h1>
-	<p>
-		{translate key="plugins.generic.openid.step2.help"}
-	</p>
 	<form class="cmp_form cmp_form oauth" id="oauth" method="post" action="{url page="openid" op="registerOrConnect"}">
 		{csrf}
 		<input type="hidden" name="oauthId" id="oauthId" value="{$oauthId}">
 		<input type="hidden" name="selectedProvider" id="selectedProvider" value="{$selectedProvider}">
 		<input type="hidden" name="returnTo" id="returnTo" value="{$returnTo}">
-		<p>
-			{translate key="plugins.generic.openid.step2.choice"}
-		</p>
-		<div id="register-form">
+		{if empty($disableConnect) || $disableConnect != "1"}
+			<h1>
+				{translate key="plugins.generic.openid.step2.headline" journalName=$siteTitle|escape}
+			</h1>
+			{*<p>
+				{translate key="plugins.generic.openid.step2.help" journalName=$siteTitle|escape}
+			</p>*}
+			<ul id="openid-choice-select">
+				<li><span id='showLoginForm' class='step2-choice-links'>{translate key="plugins.generic.openid.step2.choice.yes"}</span></li>
+				<li><span id='showRegisterForm'
+				          class='step2-choice-links'>{translate key="plugins.generic.openid.step2.choice.no" journalName=$siteTitle|escape}</span></li>
+			</ul>
+		{/if}
+		<div {if empty($disableConnect) || $disableConnect != "1" }id="register-form"{/if}>
 			<fieldset class="register">
-				<legend>
-					{translate key="plugins.generic.openid.step2.complete"}
-				</legend>
+				<p class="cmp_notification warning">
+					{translate key="plugins.generic.openid.step2.help" journalName=$siteTitle|escape}
+				</p>
 				{if $returnTo == 'register'}
 					{include file="common/formErrors.tpl"}
 				{/if}
@@ -156,17 +160,17 @@
 				</button>
 			</div>
 		</div>
-
-		<div id="login-form">
-			<fieldset class="login">
-				<legend>
-					{translate key="plugins.generic.openid.step2.connect"}
-				</legend>
-				{if $returnTo == 'connect'}
-					{include file="common/formErrors.tpl"}
-				{/if}
-				<div class="username">
-					<label>
+		{if empty($disableConnect) || $disableConnect != "1"}
+			<div id="login-form">
+				<fieldset class="login">
+					<p class="cmp_notification warning">
+						{translate key="plugins.generic.openid.step2.connect" journalName=$siteTitle|escape}
+					</p>
+					{if $returnTo == 'connect'}
+						{include file="common/formErrors.tpl"}
+					{/if}
+					<div class="username">
+						<label>
 						<span class="label">
 							{translate key="plugins.generic.openid.step2.connect.username"}
 							<span class="required" aria-hidden="true">*</span>
@@ -174,11 +178,12 @@
 								{translate key="common.required"}
 							</span>
 						</span>
-						<input type="text" name="usernameLogin" id="usernameLogin" value="{$usernameLogin|escape}" maxlength="32" required aria-required="true">
-					</label>
-				</div>
-				<div class="password">
-					<label>
+							<input type="text" name="usernameLogin" id="usernameLogin" value="{$usernameLogin|escape}" maxlength="32" required
+							       aria-required="true">
+						</label>
+					</div>
+					<div class="password">
+						<label>
 						<span class="label">
 							{translate key="user.password"}
 							<span class="required" aria-hidden="true">*</span>
@@ -186,20 +191,21 @@
 								{translate key="common.required"}
 							</span>
 						</span>
-						<input type="password" name="passwordLogin" id="passwordLogin" value="{$passwordLogin|escape}" maxlength="32" required
-						       aria-required="true">
-						<a href="{url page="login" op="lostPassword"}">
-							{translate key="user.login.forgotPassword"}
-						</a>
-					</label>
+							<input type="password" name="passwordLogin" id="passwordLogin" value="{$passwordLogin|escape}" maxlength="32" required
+							       aria-required="true">
+							<a href="{url page="login" op="lostPassword"}">
+								{translate key="user.login.forgotPassword"}
+							</a>
+						</label>
+					</div>
+				</fieldset>
+				<div class="buttons">
+					<button class="submit" type="submit" name="connect">
+						{translate key="plugins.generic.openid.step2.connect.btn"}
+					</button>
 				</div>
-			</fieldset>
-			<div class="buttons">
-				<button class="submit" type="submit" name="connect">
-					{translate key="plugins.generic.openid.step2.connect.btn"}
-				</button>
 			</div>
-		</div>
+		{/if}
 	</form>
 </div><!-- .page -->
 {include file="frontend/components/footer.tpl"}

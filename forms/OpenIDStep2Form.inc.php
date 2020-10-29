@@ -61,12 +61,16 @@ class OpenIDStep2Form extends Form
 	function fetch($request, $template = null, $display = false)
 	{
 		$templateMgr = TemplateManager::getManager($request);
+		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
+		$settingsJson = $this->plugin->getSetting($contextId, 'openIDSettings');
+		$settings = json_decode($settingsJson, true);
 		$isoCodes = new IsoCodesFactory();
 		$countries = array();
 		foreach ($isoCodes->getCountries() as $country) {
 			$countries[$country->getAlpha2()] = $country->getLocalName();
 		}
 		asort($countries);
+		$templateMgr->assign('disableConnect', $settings['disableConnect']);
 		$templateMgr->assign('countries', $countries);
 
 		return parent::fetch($request, $template, $display);

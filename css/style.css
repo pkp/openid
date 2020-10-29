@@ -101,3 +101,18 @@
 	border: 1px solid #bee5eb;
 	color: #0c5460;
 }
+
+#openid-choice-select{
+	margin-bottom: 40px;
+	margin-left: 0;
+	padding-left: 0;
+	list-style: none;
+}
+
+#openid-choice-select li{
+	margin-bottom: 15px;
+}
+
+.page_oauth{
+	min-height: 65vh;
+}
