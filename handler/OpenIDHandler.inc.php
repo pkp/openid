@@ -77,6 +77,8 @@ class OpenIDHandler extends Handler
 					return $regForm->fetch($request, null, true);
 				} elseif (is_a($user, 'User') && !$user->getDisabled()) {
 					Validation::registerUserSession($user, $reason, true);
+					// TODO settings to disable this
+					$this->_updateUserDetails($tokenPayload, $user, $request);
 					$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
 					$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
 					if ($user->hasRole(
@@ -101,7 +103,23 @@ class OpenIDHandler extends Handler
 			$ssoErrors['sso_error'] = !isset($publicKey) ? 'connect_key' : 'connect_data';
 		}
 
-		return $request->redirect(Application::get()->getRequest()->getContext(), 'login', null, null, isset($ssoErrors) ? $ssoErrors : null);
+		return $request->redirect($context, 'login', null, null, isset($ssoErrors) ? $ssoErrors : null);
+	}
+
+
+	private function _updateUserDetails($payload, $user, $request)
+	{
+		$site = $request->getSite();
+		$sitePrimaryLocale = $site->getPrimaryLocale();
+		$currentLocale = AppLocale::getLocale();
+		if (key_exists('given_name', $payload) && !empty($payload['given_name'])) {
+			$user->setGivenName($payload['given_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
+		}
+		if (key_exists('family_name', $payload) && !empty($payload['family_name'])) {
+			$user->setFamilyName($payload['family_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
+		}
+		$userDao = DAORegistry::getDAO('UserDAO');
+		$userDao->updateObject($user);
 	}
 
 	/**

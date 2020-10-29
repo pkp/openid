@@ -60,7 +60,14 @@ class OpenIDPlugin extends GenericPlugin
 	{
 		$success = parent::register($category, $path);
 		if ($success && $this->getEnabled()) {
+			$request = Application::get()->getRequest();
+			$templateMgr = TemplateManager::getManager($request);
+			$settings = json_decode($this->getSetting($request->getContext()->getId(), 'openIDSettings'), true);
+			if (isset($settings) && key_exists('disableFields', $settings)) {
+				$templateMgr->assign('openIdDisableFields', $settings['disableFields']);
+			}
 			HookRegistry::register('LoadHandler', array($this, 'callbackLoadHandler'));
+			HookRegistry::register('TemplateResource::getFilename', array($this, '_overridePluginTemplates'));
 		}
 
 		return $success;
@@ -78,12 +85,12 @@ class OpenIDPlugin extends GenericPlugin
 	{
 		$page = $args[0];
 		$op = $args[1];
+		$request = Application::get()->getRequest();
+		$templateMgr = TemplateManager::getManager($request);
 		define('KEYCLOAK_PLUGIN_NAME', $this->getName());
 		switch ("$page/$op") {
 			case 'openid/doAuthentication':
 			case 'openid/registerOrConnect':
-				$request = Application::get()->getRequest();
-				$templateMgr = TemplateManager::getManager($request);
 				$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
 				$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
 				define('HANDLER_CLASS', 'OpenIDHandler');
@@ -93,18 +100,11 @@ class OpenIDPlugin extends GenericPlugin
 			case 'login/legacyLogin':
 			case 'user/register':
 			case 'login/signOut':
-				$request = Application::get()->getRequest();
-				$templateMgr = TemplateManager::getManager($request);
 				$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
 				$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
 				$templateMgr->assign('openIDImageURL', $request->getBaseUrl().'/'.$this->getPluginPath().'/images/');
 				define('HANDLER_CLASS', 'OpenIDLoginHandler');
 				$args[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
-				break;
-			case 'user/profile':
-				$request = Application::get()->getRequest();
-				$templateMgr = TemplateManager::getManager($request);
-
 				break;
 		}
 

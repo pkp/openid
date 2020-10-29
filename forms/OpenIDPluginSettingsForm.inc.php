@@ -70,6 +70,7 @@ class OpenIDPluginSettingsForm extends Form
 				'disableConnect' => key_exists('disableConnect', $settings) ? $settings['disableConnect'] : false,
 				'hashSecret' => $settings['hashSecret'],
 				'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0,
+				'disableFields' => $settings['disableFields'],
 			);
 		} else {
 			$this->_data = array(
@@ -87,7 +88,7 @@ class OpenIDPluginSettingsForm extends Form
 	function readInputData()
 	{
 		$this->readUserVars(
-			array('provider', 'legacyLogin', 'disableConnect', 'hashSecret', 'generateAPIKey')
+			array('provider', 'legacyLogin', 'disableConnect', 'hashSecret', 'generateAPIKey', 'disableFields')
 		);
 		parent::readInputData();
 	}
@@ -128,6 +129,7 @@ class OpenIDPluginSettingsForm extends Form
 			'disableConnect' => $this->getData('disableConnect'),
 			'hashSecret' => $this->getData('hashSecret'),
 			'generateAPIKey' => $this->getData('generateAPIKey'),
+			'disableFields' => $this->getData('disableFields'),
 		);
 		$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
 		import('classes.notification.NotificationManager');

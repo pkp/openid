@@ -131,6 +131,11 @@
 			{fbvElement type="checkbox" id="generateAPIKey" checked=$generateAPIKey label="plugins.generic.openid.settings.generateAPIKey.check"}
 			<label class="sub_label">{translate key="plugins.generic.openid.settings.generateAPIKey.desc"}</label>
 		{/fbvFormSection}
+		{fbvFormSection list=true title="plugins.generic.openid.settings.features.disable.fields"}
+			{fbvElement type="checkbox" id="disableFields[givenName]" checked=$disableFields['givenName'] value=1 label="plugins.generic.openid.settings.features.disable.given"}
+			{fbvElement type="checkbox" id="disableFields[familyName]" checked=$disableFields['familyName'] value=1 label="plugins.generic.openid.settings.features.disable.family"}
+			{fbvElement type="checkbox" id="disableFields[email]" checked=$disableFields['email'] value=1 label="plugins.generic.openid.settings.features.disable.email"}
+		{/fbvFormSection}
 	{/fbvFormArea}
 	{fbvFormButtons}
 </form>
