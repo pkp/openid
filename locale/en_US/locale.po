@@ -185,6 +185,24 @@ msgstr "Enable automatic API key generation"
 msgid "plugins.generic.openid.settings.generateAPIKey.desc"
 msgstr "This plugin can generate a key by encrypting the OpenID identifier with <strong>the secret you entered before</strong>. This key will be encrypted again with a secret that must be specified in the OJS settings. This should be adequately secure."
 
+msgid "plugins.generic.openid.settings.features.enable.provider.sync"
+msgstr "Enable OpenID provider user data synchronization"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync.desc"
+msgstr "Some user information are transferred from the OpenID Provider to the OJS (e.g. given name, family name, email). If you want to automatically save this user information to the OJS user account, enable this option. (recommended)"
+
+msgid "plugins.generic.openid.settings.features.disable.fields.desc"
+msgstr "If you want to prevent that fields can be modified within OJS/OMP/OPS, then you can set these fields to read-only:"
+
+msgid "plugins.generic.openid.settings.features.disable.given"
+msgstr "<strong>Given name</strong> readonly"
+
+msgid "plugins.generic.openid.settings.features.disable.family"
+msgstr "<strong>Family name</strong> readonly"
+
+msgid "plugins.generic.openid.settings.features.disable.email"
+msgstr "<strong>Email</strong> readonly"
+
 # error messages
 msgid "plugins.generic.openid.error.openid.connect.desc.key"
 msgstr "<strong>An error occurred while verifying your data.</strong><br />The service is possibly not available at the moment.<br />Please try again or <a href='mailto:{$supportEmail}'>contact the technical support</a> if the problem still exists."

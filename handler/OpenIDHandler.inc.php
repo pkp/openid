@@ -78,7 +78,7 @@ class OpenIDHandler extends Handler
 				} elseif (is_a($user, 'User') && !$user->getDisabled()) {
 					Validation::registerUserSession($user, $reason, true);
 					// TODO settings to disable this
-					$this->_updateUserDetails($tokenPayload, $user, $request);
+					$this->_updateUserDetails($tokenPayload, $user, $request, $selectedProvider);
 					$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
 					$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
 					if ($user->hasRole(
@@ -107,18 +107,24 @@ class OpenIDHandler extends Handler
 	}
 
 
-	private function _updateUserDetails($payload, $user, $request)
+	private function _updateUserDetails($payload, $user, $request, $selectedProvider)
 	{
 		$site = $request->getSite();
 		$sitePrimaryLocale = $site->getPrimaryLocale();
 		$currentLocale = AppLocale::getLocale();
+		$userDao = DAORegistry::getDAO('UserDAO');
 		if (key_exists('given_name', $payload) && !empty($payload['given_name'])) {
 			$user->setGivenName($payload['given_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
 		}
 		if (key_exists('family_name', $payload) && !empty($payload['family_name'])) {
 			$user->setFamilyName($payload['family_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
 		}
-		$userDao = DAORegistry::getDAO('UserDAO');
+		if (key_exists('email', $payload) && !empty($payload['email']) && $userDao->getUserByEmail($payload['email']) == null) {
+			$user->setEmail($payload['email']);
+		}
+		if ($selectedProvider == 'orcid') {
+			$user->setOrcid($payload['id']);
+		}
 		$userDao->updateObject($user);
 	}
 
@@ -307,6 +313,7 @@ class OpenIDHandler extends Handler
 				try {
 					if (!empty($t)) {
 						$jwtPayload = JWT::decode($t, $publicKey, array('RS256'));
+
 						if (isset($jwtPayload)) {
 							$credentials = [
 								'id' => property_exists($jwtPayload, 'sub') ? $jwtPayload->sub : null,
@@ -337,8 +344,10 @@ class OpenIDHandler extends Handler
 	 *
 	 * @param $token
 	 * @param $settings
+	 *
+	 * @return bool|string
 	 */
-	private function getClientDetails($token, $settings)
+	private function _getClientDetails($token, $settings)
 	{
 		$curl = curl_init();
 		curl_setopt_array(
@@ -352,6 +361,9 @@ class OpenIDHandler extends Handler
 		);
 		$result = curl_exec($curl);
 		curl_close($curl);
+		error_log($result);
+
+		return $result;
 	}
 
 

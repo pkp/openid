@@ -63,7 +63,7 @@ class OpenIDPlugin extends GenericPlugin
 			$request = Application::get()->getRequest();
 			$templateMgr = TemplateManager::getManager($request);
 			$settings = json_decode($this->getSetting($request->getContext()->getId(), 'openIDSettings'), true);
-			if (isset($settings) && key_exists('disableFields', $settings)) {
+			if (isset($settings) && key_exists('disableFields', $settings) && key_exists('providerSync', $settings) && $settings['providerSync'] == 1) {
 				$templateMgr->assign('openIdDisableFields', $settings['disableFields']);
 			}
 			HookRegistry::register('LoadHandler', array($this, 'callbackLoadHandler'));

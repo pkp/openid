@@ -113,11 +113,11 @@
 	{/fbvFormArea}
 	{fbvFormArea title="plugins.generic.openid.settings.features.head" id="open-id-features"}
 		<p>{translate key="plugins.generic.openid.settings.features.desc"}</p>
-		{fbvFormSection list=true }
+		{fbvFormSection list=true}
 			{fbvElement type="checkbox" id="legacyLogin" checked=$legacyLogin value=true label="plugins.generic.openid.settings.legacyLogin.check"}
 			<label class="sub_label">{translate key="plugins.generic.openid.settings.legacyLogin.desc"}</label>
 		{/fbvFormSection}
-		{fbvFormSection list=true }
+		{fbvFormSection list=true}
 			{fbvElement type="checkbox" id="disableConnect" checked=$disableConnect value=true label="plugins.generic.openid.settings.step2.connect.check"}
 			<label class="sub_label">{translate key="plugins.generic.openid.settings.step2.connect.desc"}</label>
 		{/fbvFormSection}
@@ -127,11 +127,14 @@
 				<div class="pkp_button  submitFormButton" id="generateSecret">Generate secret</div>
 			</div>
 		{/fbvFormSection}
-		{fbvFormSection list=true }
+		{fbvFormSection list=true}
 			{fbvElement type="checkbox" id="generateAPIKey" checked=$generateAPIKey label="plugins.generic.openid.settings.generateAPIKey.check"}
 			<label class="sub_label">{translate key="plugins.generic.openid.settings.generateAPIKey.desc"}</label>
 		{/fbvFormSection}
-		{fbvFormSection list=true title="plugins.generic.openid.settings.features.disable.fields"}
+		{fbvFormSection list=true}
+			{fbvElement type="checkbox" id="providerSync" checked=$providerSync value=1 label="plugins.generic.openid.settings.features.enable.provider.sync"}
+			<label class="sub_label">{translate key="plugins.generic.openid.settings.features.enable.provider.sync.desc"}</label>
+			<label class="sub_label"><strong>{translate key="plugins.generic.openid.settings.features.disable.fields.desc"}</strong></label>
 			{fbvElement type="checkbox" id="disableFields[givenName]" checked=$disableFields['givenName'] value=1 label="plugins.generic.openid.settings.features.disable.given"}
 			{fbvElement type="checkbox" id="disableFields[familyName]" checked=$disableFields['familyName'] value=1 label="plugins.generic.openid.settings.features.disable.family"}
 			{fbvElement type="checkbox" id="disableFields[email]" checked=$disableFields['email'] value=1 label="plugins.generic.openid.settings.features.disable.email"}
