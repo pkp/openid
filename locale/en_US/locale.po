@@ -28,7 +28,7 @@ msgid "plugins.generic.openid.step2.complete.btn"
 msgstr "Complete registration"
 
 msgid "plugins.generic.openid.step2.connect"
-msgstr "Please log in to your former {$journalName} account.<br />Your data will then be transferred automatically.<br />After this step you can log in to your {$journalName} account using the Single-Sign-On service."
+msgstr "Please log in to your former {$journalName} account.<br />Your data will then be transferred automatically."
 
 msgid "plugins.generic.openid.step2.connect.username"
 msgstr "Username or email"
@@ -246,3 +246,7 @@ msgstr "Sign in with Microsoft"
 
 msgid "plugins.generic.openid.select.provider.apple"
 msgstr "Sign in with Apple"
+
+# disabled fields info
+msgid "plugins.generic.openid.disables.fields.info"
+msgstr "Some information are provided by the authentication provider you use for logging in and cannot be edited here.<br /> If you have already changed some information there, please log out and in again to update them here."
