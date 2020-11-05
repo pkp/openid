@@ -155,8 +155,13 @@ class OpenIDLoginHandler extends Handler
 			$router = $request->getRouter();
 			$lastProvider = $request->getUser()->getSetting('openid::lastProvider');
 			$context = Application::get()->getRequest()->getContext();
+			$user = Application::get()->getRequest()->getUser();
 			$contextId = ($context == null) ? 0 : $context->getId();
 			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
+			if (isset($user)) {
+				$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
+				$userSettingsDao->deleteSetting($user->getId(), 'openid::lastProvider');
+			}
 			Validation::logout();
 			if (isset($settingsJson) && isset($lastProvider)) {
 				$providerList = json_decode($settingsJson, true)['provider'];

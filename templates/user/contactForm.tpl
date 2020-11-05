@@ -21,6 +21,7 @@
 	{csrf}
 
 	{if $openIdDisableFields && key_exists('email', $openIdDisableFields) && $openIdDisableFields['email'] == 1}
+		{assign var="openidContactFields" value=true }
 		<p class="cmp_notification">
 			{translate key="plugins.generic.openid.disables.fields.info"}
 		</p>
@@ -29,11 +30,7 @@
 	{include file="controllers/notification/inPlaceNotification.tpl" notificationId="contactFormNotification"}
 
 	{fbvFormSection}
-		{if $openIdDisableFields && key_exists('email', $openIdDisableFields) && $openIdDisableFields['email'] == 1}
-			{fbvElement type="email" label="user.email" id="email" value=$email size=$fbvStyles.size.MEDIUM required=true readonly="true" disabled="true"}
-		{else}
-		    {fbvElement type="email" label="user.email" id="email" value=$email size=$fbvStyles.size.MEDIUM required=true}
-		{/if}
+		{fbvElement type="email" label="user.email" id="email" value=$email size=$fbvStyles.size.MEDIUM required=true readonly=$openidContactFields disabled=$openidContactFields}
 		{fbvElement type="textarea" label="user.signature" multilingual="true" name="signature" id="signature" value=$signature rich=true size=$fbvStyles.size.MEDIUM}
 		{fbvElement type="text" label="user.phone" name="phone" id="phone" value=$phone maxlength="24" size=$fbvStyles.size.SMALL}
 		{fbvElement type="text" label="user.affiliation" multilingual="true" name="affiliation" id="affiliation" value=$affiliation size=$fbvStyles.size.MEDIUM}

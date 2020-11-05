@@ -61,17 +61,17 @@ class OpenIDPlugin extends GenericPlugin
 		$success = parent::register($category, $path);
 		if ($success && $this->getEnabled()) {
 			$request = Application::get()->getRequest();
-			$templateMgr = TemplateManager::getManager($request);
 			$settings = json_decode($this->getSetting($request->getContext()->getId(), 'openIDSettings'), true);
 			$user = $request->getUser();
-			if (isset($settings) && key_exists('disableFields', $settings) && key_exists('providerSync', $settings) && $settings['providerSync'] == 1) {
-				if ($user) {
-					$settings['disableFields']['lastProvider'] = $user->getData('openid::lastProvider');
-				}
+			if ($user && $user->getData('openid::lastProvider') && isset($settings)
+				&& key_exists('disableFields', $settings) && key_exists('providerSync', $settings) && $settings['providerSync'] == 1) {
+				$templateMgr = TemplateManager::getManager($request);
+				$settings['disableFields']['lastProvider'] = $user->getData('openid::lastProvider');
+				$settings['disableFields']['generateAPIKey'] = $settings['generateAPIKey'];
 				$templateMgr->assign('openIdDisableFields', $settings['disableFields']);
+				HookRegistry::register('TemplateResource::getFilename', array($this, '_overridePluginTemplates'));
 			}
 			HookRegistry::register('LoadHandler', array($this, 'callbackLoadHandler'));
-			HookRegistry::register('TemplateResource::getFilename', array($this, '_overridePluginTemplates'));
 		}
 
 		return $success;

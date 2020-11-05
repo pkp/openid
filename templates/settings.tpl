@@ -34,6 +34,10 @@
 			checkbox.addEventListener('click', showHideSettings);
 		{rdelim});
 		document.querySelector('#generateSecret').addEventListener('click', generatePWD);
+		let hashVal = document.querySelector('input[name="hashSecret"]').value;
+		if(hashVal === ''){ldelim}
+			document.querySelector('input[name="hashSecret"]').value = random_password_generate(35,45);
+		{rdelim}
 	{rdelim});
 
 	function showHideSettings(){ldelim}
@@ -121,16 +125,6 @@
 			{fbvElement type="checkbox" id="disableConnect" checked=$disableConnect value=true label="plugins.generic.openid.settings.step2.connect.check"}
 			<label class="sub_label">{translate key="plugins.generic.openid.settings.step2.connect.desc"}</label>
 		{/fbvFormSection}
-		{fbvFormSection}
-			{fbvElement type="text" id="hashSecret" value=$hashSecret maxlength="50" label="plugins.generic.openid.settings.hashSecret.desc" inline=true size=$fbvStyles.size.LARGE readonly=true}
-			<div class="inline pkp_helpers_fifth">
-				<div class="pkp_button  submitFormButton" id="generateSecret">Generate secret</div>
-			</div>
-		{/fbvFormSection}
-		{fbvFormSection list=true}
-			{fbvElement type="checkbox" id="generateAPIKey" checked=$generateAPIKey label="plugins.generic.openid.settings.generateAPIKey.check"}
-			<label class="sub_label">{translate key="plugins.generic.openid.settings.generateAPIKey.desc"}</label>
-		{/fbvFormSection}
 		{fbvFormSection list=true}
 			{fbvElement type="checkbox" id="providerSync" checked=$providerSync value=1 label="plugins.generic.openid.settings.features.enable.provider.sync"}
 			<label class="sub_label">{translate key="plugins.generic.openid.settings.features.enable.provider.sync.desc"}</label>
@@ -138,6 +132,16 @@
 			{fbvElement type="checkbox" id="disableFields[givenName]" checked=$disableFields['givenName'] value=1 label="plugins.generic.openid.settings.features.disable.given"}
 			{fbvElement type="checkbox" id="disableFields[familyName]" checked=$disableFields['familyName'] value=1 label="plugins.generic.openid.settings.features.disable.family"}
 			{fbvElement type="checkbox" id="disableFields[email]" checked=$disableFields['email'] value=1 label="plugins.generic.openid.settings.features.disable.email"}
+		{/fbvFormSection}
+		{fbvFormSection}
+		{fbvElement type="text" id="hashSecret" value=$hashSecret maxlength="50" label="plugins.generic.openid.settings.hashSecret.desc" inline=true size=$fbvStyles.size.LARGE readonly=true}
+			<div class="inline pkp_helpers_fifth">
+				<div class="pkp_button  submitFormButton" id="generateSecret">Generate secret</div>
+			</div>
+		{/fbvFormSection}
+		{fbvFormSection list=true}
+		{fbvElement type="checkbox" id="generateAPIKey" checked=$generateAPIKey value=true label="plugins.generic.openid.settings.generateAPIKey.check"}
+			<label class="sub_label">{translate key="plugins.generic.openid.settings.generateAPIKey.desc"}</label>
 		{/fbvFormSection}
 	{/fbvFormArea}
 	{fbvFormButtons}

@@ -33,6 +33,7 @@
 	{help file="user-profile" class="pkp_help_tab"}
 	{csrf}
 	{if $openIdDisableFields && ((key_exists('givenName', $openIdDisableFields) && $openIdDisableFields['givenName'] == 1) || (key_exists('familyName', $openIdDisableFields) && $openIdDisableFields['familyName'] == 1))}
+		{assign var="openidIdentityFields" value=true }
 		<p class="cmp_notification">
 			{translate key="plugins.generic.openid.disables.fields.info"}
 		</p>
@@ -45,16 +46,8 @@
 	{/fbvFormArea}
 	{fbvFormArea id="userFormCompactLeft"}
 		{fbvFormSection title="user.name"}
-			{if $openIdDisableFields && key_exists('givenName', $openIdDisableFields) && $openIdDisableFields['givenName'] == 1}
-				{fbvElement type="text" label="user.givenName" multilingual="true" required="true" id="givenName" value=$givenName maxlength="255" inline=true size=$fbvStyles.size.MEDIUM readonly="true" disabled="true"}
-			{else}
-				{fbvElement type="text" label="user.givenName" multilingual="true" required="true" id="givenName" value=$givenName maxlength="255" inline=true size=$fbvStyles.size.MEDIUM}
-			{/if}
-			{if $openIdDisableFields && key_exists('familyName', $openIdDisableFields) && $openIdDisableFields['familyName'] == 1}
-				{fbvElement type="text" label="user.familyName" multilingual="true" id="familyName" value=$familyName maxlength="255" inline=true size=$fbvStyles.size.MEDIUM readonly="true" disabled="true"}
-			{else}
-				{fbvElement type="text" label="user.familyName" multilingual="true" id="familyName" value=$familyName maxlength="255" inline=true size=$fbvStyles.size.MEDIUM}
-			{/if}
+			{fbvElement type="text" label="user.givenName" multilingual="true" required="true" id="givenName" value=$givenName maxlength="255" inline=true size=$fbvStyles.size.MEDIUM readonly=$openidIdentityFields disabled=$openidIdentityFields}
+			{fbvElement type="text" label="user.familyName" multilingual="true" id="familyName" value=$familyName maxlength="255" inline=true size=$fbvStyles.size.MEDIUM readonly=$openidIdentityFields disabled=$openidIdentityFields}
 		{/fbvFormSection}
 	{/fbvFormArea}
 

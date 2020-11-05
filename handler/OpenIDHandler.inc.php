@@ -77,10 +77,8 @@ class OpenIDHandler extends Handler
 					return $regForm->fetch($request, null, true);
 				} elseif (is_a($user, 'User') && !$user->getDisabled()) {
 					Validation::registerUserSession($user, $reason, true);
-					// TODO settings to disable this
-					$this->_updateUserDetails($tokenPayload, $user, $request, $selectedProvider);
-					$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
-					$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
+					$syncData = key_exists('providerSync', $settings) && $settings['providerSync'] == 1;
+					$this->_updateUserDetails($tokenPayload, $user, $request, $selectedProvider, $syncData);
 					if ($user->hasRole(
 						[ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR, ROLE_ID_REVIEWER, ROLE_ID_ASSISTANT],
 						$contextId
@@ -107,25 +105,30 @@ class OpenIDHandler extends Handler
 	}
 
 
-	private function _updateUserDetails($payload, $user, $request, $selectedProvider)
+	private function _updateUserDetails($payload, &$user, $request, $selectedProvider, $syncData)
 	{
-		$site = $request->getSite();
-		$sitePrimaryLocale = $site->getPrimaryLocale();
-		$currentLocale = AppLocale::getLocale();
-		$userDao = DAORegistry::getDAO('UserDAO');
-		if (key_exists('given_name', $payload) && !empty($payload['given_name'])) {
-			$user->setGivenName($payload['given_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
+		if ($syncData) {
+			$site = $request->getSite();
+			$sitePrimaryLocale = $site->getPrimaryLocale();
+			$currentLocale = AppLocale::getLocale();
+			$userDao = DAORegistry::getDAO('UserDAO');
+			if (key_exists('given_name', $payload) && !empty($payload['given_name'])) {
+				$user->setGivenName($payload['given_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
+			}
+			if (key_exists('family_name', $payload) && !empty($payload['family_name'])) {
+				$user->setFamilyName($payload['family_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
+			}
+			if (key_exists('email', $payload) && !empty($payload['email']) && $userDao->getUserByEmail($payload['email']) == null) {
+				$user->setEmail($payload['email']);
+			}
+			if ($selectedProvider == 'orcid') {
+				$user->setOrcid($payload['id']);
+			}
+			$userDao->updateObject($user);
 		}
-		if (key_exists('family_name', $payload) && !empty($payload['family_name'])) {
-			$user->setFamilyName($payload['family_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
-		}
-		if (key_exists('email', $payload) && !empty($payload['email']) && $userDao->getUserByEmail($payload['email']) == null) {
-			$user->setEmail($payload['email']);
-		}
-		if ($selectedProvider == 'orcid') {
-			$user->setOrcid($payload['id']);
-		}
-		$userDao->updateObject($user);
+
+		$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
+		$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
 	}
 
 	/**
@@ -137,7 +140,11 @@ class OpenIDHandler extends Handler
 	 */
 	function registerOrConnect($args, $request)
 	{
-		$generateApiKey = true;
+		$context = $request->getContext();
+		$contextId = ($context == null) ? 0 : $context->getId();
+		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
+		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
+		$generateApiKey = isset($settings) && key_exists('generateAPIKey', $settings) ? $settings['generateAPIKey'] : false;
 		if (Validation::isLoggedIn()) {
 			$this->setupTemplate($request);
 			$templateMgr = TemplateManager::getManager($request);
