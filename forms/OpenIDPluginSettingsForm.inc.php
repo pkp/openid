@@ -38,6 +38,8 @@ class OpenIDPluginSettingsForm extends Form
 		"apple" => ["configUrl" => "https://appleid.apple.com/.well-known/openid-configuration"],
 	];
 
+	private const HIDDEN_CHARS = '******';
+
 	private $plugin;
 
 	/**
@@ -62,10 +64,22 @@ class OpenIDPluginSettingsForm extends Form
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
 		$settingsJson = $this->plugin->getSetting($contextId, 'openIDSettings');
 		$settings = json_decode($settingsJson, true);
+		$provider = $settings['provider'];
+		if ($provider && is_array($provider)) {
+			foreach ($provider as &$prov) {
+				error_log(json_encode($prov));
+				if (key_exists('clientId', $prov) && !empty($prov['clientId'])) {
+					$prov['clientId'] = self::HIDDEN_CHARS;
+				}
+				if (key_exists('clientSecret', $prov) && !empty($prov['clientSecret'])) {
+					$prov['clientSecret'] = self::HIDDEN_CHARS;
+				}
+			}
+		}
 		if (isset($settings)) {
 			$this->_data = array(
 				'initProvider' => self::PUBLIC_OPENID_PROVIDER,
-				'provider' => $settings['provider'],
+				'provider' => $provider,
 				'legacyLogin' => key_exists('legacyLogin', $settings) ? $settings['legacyLogin'] : true,
 				'disableConnect' => key_exists('disableConnect', $settings) ? $settings['disableConnect'] : false,
 				'hashSecret' => $settings['hashSecret'],
@@ -122,8 +136,10 @@ class OpenIDPluginSettingsForm extends Form
 	{
 		$request = Application::get()->getRequest();
 		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
+		$settingsJson = $this->plugin->getSetting($contextId, 'openIDSettings');
+		$settingsTMP = json_decode($settingsJson, true);
 		$providerList = $this->getData('provider');
-		$providerListResult = $this->_createProviderList($providerList);
+		$providerListResult = $this->_createProviderList($providerList, $settingsTMP['provider']);
 		$settings = array(
 			'provider' => $providerListResult,
 			'legacyLogin' => $this->getData('legacyLogin'),
@@ -151,14 +167,34 @@ class OpenIDPluginSettingsForm extends Form
 	 * This function is called when the settings are executed to refresh the auth, token, cert and logout/revoke URL's.
 	 *
 	 * @param $providerList
+	 * @param $providerListDB
 	 * @return array complete list of enabled provider including all necessary endpoint URL's
 	 */
-	private function _createProviderList($providerList)
+	private function _createProviderList($providerList, $providerListDB)
 	{
 		$providerListResult = array();
 		if (isset($providerList) && is_array($providerList)) {
 			foreach ($providerList as $name => $provider) {
 				if (key_exists('active', $provider) && $provider['active'] == 1) {
+					if (isset($providerListDB) && is_array($providerListDB) && key_exists($name, $providerListDB)) {
+						$providerDB = $providerListDB[$name];
+						if (key_exists('clientId', $provider) && key_exists('clientId', $providerDB) &&
+							(empty($provider['clientId']) || $provider['clientId'] == self::HIDDEN_CHARS)) {
+							if (!empty($providerDB['clientId'])) {
+								$provider['clientId'] = $providerDB['clientId'];
+							} else {
+								$provider['clientId'] = '';
+							}
+						}
+						if (key_exists('clientSecret', $provider) && key_exists('clientSecret', $providerDB) &&
+							(empty($provider['clientSecret']) || $provider['clientSecret'] == self::HIDDEN_CHARS)) {
+							if (!empty($providerDB['clientSecret'])) {
+								$provider['clientSecret'] = $providerDB['clientSecret'];
+							} else {
+								$provider['clientSecret'] = '';
+							}
+						}
+					}
 					$openIdConfig = $this->_loadOpenIdConfig($provider['configUrl']);
 					if (is_array($openIdConfig)
 						&& key_exists('authorization_endpoint', $openIdConfig)
