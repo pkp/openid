@@ -92,7 +92,7 @@ class OpenIDStep2Form extends Form
 			}
 			$this->_data = array(
 				'selectedProvider' => $this->credentials['selectedProvider'],
-				'oauthId' => $this->_encryptOrDecrypt('encrypt', $this->credentials['id']),
+				'oauthId' => OpenIDHandler::encryptOrDecrypt($this->plugin, $this->contextId, 'encrypt', $this->credentials['id']),
 				'username' => $this->credentials['username'],
 				'givenName' => $this->credentials['given_name'],
 				'familyName' => $this->credentials['family_name'],
@@ -200,7 +200,7 @@ class OpenIDStep2Form extends Form
 		$selectedProvider = $this->getData('selectedProvider');
 		$result = false;
 		if (!empty($oauthId) && !empty($selectedProvider)) {
-			$oauthId = $this->_encryptOrDecrypt('decrypt', $oauthId);
+			$oauthId = OpenIDHandler::encryptOrDecrypt($this->plugin, $this->contextId, 'decrypt', $oauthId);
 			// prevent saving one openid:ident to multiple accounts
 			$user = $userDao->getBySetting('openid::'.$selectedProvider, hash('sha256', $oauthId));
 			if (!isset($user)) {
@@ -210,6 +210,7 @@ class OpenIDStep2Form extends Form
 						$result = true;
 					}
 				} elseif ($connect) {
+					$payload = ['given_name' => $this->getData('givenName'), 'family_name' => $this->getData('familyName')];
 					$username = $this->getData('usernameLogin');
 					$password = $this->getData('passwordLogin');
 					$user = $userDao->getByUsername($username, true);
@@ -221,12 +222,7 @@ class OpenIDStep2Form extends Form
 					}
 				}
 				if ($result && isset($user)) {
-					$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
-					$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, hash('sha256', $oauthId), 'string');
-					$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
-					if ($functionArgs[0] == true && $selectedProvider == 'custom') {
-						$this->_generateApiKey($user, $oauthId);
-					}
+					OpenIDHandler::updateUserDetails(isset($payload) ? $payload : null, $user, Application::get()->getRequest(), $selectedProvider, $oauthId);
 					Validation::registerUserSession($user, $reason, true);
 				}
 			}
@@ -278,54 +274,5 @@ class OpenIDStep2Form extends Form
 		}
 
 		return $user;
-	}
-
-	/**
-	 * If automatic API-KEY is enabled in the setting, this function generates and saves the key and set the key to enabled.
-	 *
-	 * @param $user
-	 * @param $value
-	 * @return bool
-	 */
-	private function _generateApiKey($user, $value)
-	{
-		$secret = Config::getVar('security', 'api_key_secret', '');
-
-		if ($secret) {
-			$userDao = DAORegistry::getDAO('UserDAO');
-			$user->setData('apiKeyEnabled', true);
-			$user->setData('apiKey', $this->_encryptOrDecrypt('encrypt', $value));
-			$userDao->updateObject($user);
-
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * De-/Encrypt function to hide some important things.
-	 *
-	 * @param string $action
-	 * @param string $string
-	 * @return string|null
-	 */
-	private function _encryptOrDecrypt(string $action, string $string): string
-	{
-		$alg = 'AES-256-CBC';
-		$settings = json_decode($this->plugin->getSetting($this->contextId, 'openIDSettings'), true);
-		$result = null;
-		if (key_exists('hashSecret', $settings) && !empty($settings['hashSecret'])) {
-			$pwd = $settings['hashSecret'];
-			if ($action == 'encrypt') {
-				$result = openssl_encrypt($string, $alg, $pwd);
-			} elseif ($action == 'decrypt') {
-				$result = openssl_decrypt($string, $alg, $pwd);
-			}
-		} else {
-			$result = $string;
-		}
-
-		return $result;
 	}
 }

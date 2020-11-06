@@ -64,6 +64,7 @@ class OpenIDHandler extends Handler
 		$selectedProvider = $request->getUserVar('provider');
 		$token = $this->_getTokenViaAuthCode($settings['provider'], $request->getUserVar('code'), $selectedProvider);
 		$publicKey = $this->_getOpenIDAuthenticationCert($settings['provider'], $selectedProvider);
+
 		if (isset($token) && isset($publicKey)) {
 			$tokenPayload = $this->_validateAndExtractToken($token, $publicKey);
 			if (isset($tokenPayload) && is_array($tokenPayload)) {
@@ -77,8 +78,8 @@ class OpenIDHandler extends Handler
 					return $regForm->fetch($request, null, true);
 				} elseif (is_a($user, 'User') && !$user->getDisabled()) {
 					Validation::registerUserSession($user, $reason, true);
-					$syncData = key_exists('providerSync', $settings) && $settings['providerSync'] == 1;
-					$this->_updateUserDetails($tokenPayload, $user, $request, $selectedProvider, $syncData);
+
+					self::updateUserDetails($tokenPayload, $user, $request, $selectedProvider);
 					if ($user->hasRole(
 						[ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR, ROLE_ID_REVIEWER, ROLE_ID_ASSISTANT],
 						$contextId
@@ -105,32 +106,6 @@ class OpenIDHandler extends Handler
 	}
 
 
-	private function _updateUserDetails($payload, &$user, $request, $selectedProvider, $syncData)
-	{
-		if ($syncData) {
-			$site = $request->getSite();
-			$sitePrimaryLocale = $site->getPrimaryLocale();
-			$currentLocale = AppLocale::getLocale();
-			$userDao = DAORegistry::getDAO('UserDAO');
-			if (key_exists('given_name', $payload) && !empty($payload['given_name'])) {
-				$user->setGivenName($payload['given_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
-			}
-			if (key_exists('family_name', $payload) && !empty($payload['family_name'])) {
-				$user->setFamilyName($payload['family_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
-			}
-			if (key_exists('email', $payload) && !empty($payload['email']) && $userDao->getUserByEmail($payload['email']) == null) {
-				$user->setEmail($payload['email']);
-			}
-			if ($selectedProvider == 'orcid') {
-				$user->setOrcid($payload['id']);
-			}
-			$userDao->updateObject($user);
-		}
-
-		$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
-		$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
-	}
-
 	/**
 	 * Step2 POST (Form submit) function.
 	 * OpenIDStep2Form is used to handle form initialization, validation and persistence.
@@ -140,11 +115,6 @@ class OpenIDHandler extends Handler
 	 */
 	function registerOrConnect($args, $request)
 	{
-		$context = $request->getContext();
-		$contextId = ($context == null) ? 0 : $context->getId();
-		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
-		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
-		$generateApiKey = isset($settings) && key_exists('generateAPIKey', $settings) ? $settings['generateAPIKey'] : false;
 		if (Validation::isLoggedIn()) {
 			$this->setupTemplate($request);
 			$templateMgr = TemplateManager::getManager($request);
@@ -159,13 +129,86 @@ class OpenIDHandler extends Handler
 			$regForm->readInputData();
 			if (!$regForm->validate()) {
 				$regForm->display($request);
-			} elseif ($regForm->execute($generateApiKey)) {
+			} elseif ($regForm->execute()) {
 				$request->redirect(Application::get()->getRequest()->getContext(), 'openid', 'registerOrConnect');
 			} else {
 				$regForm->addError('', '');
 				$regForm->display($request);
 			}
 		}
+	}
+
+	public static function updateUserDetails($payload, $user, $request, $selectedProvider, $authId = null)
+	{
+		$userDao = DAORegistry::getDAO('UserDAO');
+		$context = $request->getContext();
+		$contextId = ($context == null) ? 0 : $context->getId();
+		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
+		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
+		if (key_exists('providerSync', $settings) && $settings['providerSync'] == 1) {
+			$site = $request->getSite();
+			$sitePrimaryLocale = $site->getPrimaryLocale();
+			$currentLocale = AppLocale::getLocale();
+			if (is_array($payload) && key_exists('given_name', $payload) && !empty($payload['given_name'])) {
+				$user->setGivenName($payload['given_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
+			}
+			if (is_array($payload) && key_exists('family_name', $payload) && !empty($payload['family_name'])) {
+				$user->setFamilyName($payload['family_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
+			}
+			if (is_array($payload) && key_exists('email', $payload) && !empty($payload['email']) && $userDao->getUserByEmail($payload['email']) == null) {
+				$user->setEmail($payload['email']);
+			}
+			if ($selectedProvider == 'orcid') {
+				if (is_array($payload) && key_exists('id', $payload) && !empty($payload['id'])) {
+					$user->setOrcid($payload['id']);
+				} elseif ($authId) {
+					$user->setOrcid($authId);
+				}
+			}
+			$userDao->updateObject($user);
+		}
+		$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
+		$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
+		if (isset($authId) && !empty($authId)) {
+			$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, hash('sha256', $authId), 'string');
+
+			$generateApiKey = isset($settings) && key_exists('generateAPIKey', $settings) ? $settings['generateAPIKey'] : false;
+			$secret = Config::getVar('security', 'api_key_secret', '');
+			if ($generateApiKey && $selectedProvider == 'custom' && $secret) {
+				$user->setData('apiKeyEnabled', true);
+				$user->setData('apiKey', self::encryptOrDecrypt($plugin, $contextId, 'encrypt', $authId));
+				$userDao->updateObject($user);
+			}
+		}
+	}
+
+
+	/**
+	 * De-/Encrypt function to hide some important things.
+	 *
+	 * @param $plugin
+	 * @param $contextId
+	 * @param $action
+	 * @param $string
+	 * @return string|null
+	 */
+	public static function encryptOrDecrypt($plugin, $contextId, $action, $string)
+	{
+		$alg = 'AES-256-CBC';
+		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
+		$result = null;
+		if (key_exists('hashSecret', $settings) && !empty($settings['hashSecret'])) {
+			$pwd = $settings['hashSecret'];
+			if ($action == 'encrypt') {
+				$result = openssl_encrypt($string, $alg, $pwd);
+			} elseif ($action == 'decrypt') {
+				$result = openssl_decrypt($string, $alg, $pwd);
+			}
+		} else {
+			$result = $string;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -344,7 +387,6 @@ class OpenIDHandler extends Handler
 		return $credentials;
 	}
 
-
 	/**
 	 * This function is unused at the moment.
 	 * It can be unsed to get the user details from an endpoint but usually all user data are provided in the JWT.
@@ -372,7 +414,4 @@ class OpenIDHandler extends Handler
 
 		return $result;
 	}
-
-
 }
-

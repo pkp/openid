@@ -8,6 +8,16 @@ if (pageOauth !== undefined && pageOauth != null) {
 	}
 	document.querySelector('.page_oauth #showRegisterForm').addEventListener('click', showRegisterForm);
 	document.querySelector('.page_oauth #showLoginForm').addEventListener('click', showLoginForm);
+	document.querySelector('form[id="oauth"]').addEventListener('keydown', function(e) {
+		if (e.keyIdentifier === 'U+000A' || e.keyIdentifier === 'Enter' || e.code === 'Enter') {
+			e.preventDefault();
+			if (e.target.nodeName === 'BUTTON' && e.target.type === 'submit') {
+				e.target.click();
+				return false;
+			}
+		}
+	}, true);
+
 }
 
 function showRegisterForm() {
@@ -25,3 +35,4 @@ function showLoginForm() {
 	document.querySelectorAll("#oauth #register-form select").forEach(e => e.required = false);
 	document.querySelectorAll("#oauth #login-form input").forEach(e => e.required = true);
 }
+
