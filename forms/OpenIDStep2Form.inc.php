@@ -28,9 +28,9 @@ import('lib.pkp.classes.form.Form');
  */
 class OpenIDStep2Form extends Form
 {
-	private array $credentials;
-	private OpenIDPlugin $plugin;
-	private ?int $contextId;
+	private $credentials;
+	private $plugin;
+	private $contextId;
 
 	/**
 	 * OpenIDStep2Form constructor.
@@ -38,7 +38,7 @@ class OpenIDStep2Form extends Form
 	 * @param OpenIDPlugin $plugin
 	 * @param array $credentials
 	 */
-	function __construct(OpenIDPlugin $plugin, array $credentials = array())
+	function __construct($plugin, $credentials = array())
 	{
 		$context = Application::get()->getRequest()->getContext();
 		$this->contextId = ($context == null) ? 0 : $context->getId();
