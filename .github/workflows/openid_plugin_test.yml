@@ -49,11 +49,11 @@ jobs:
             CYPRESS_DBPASSWORD: ojs-ci
             CYPRESS_DBHOST: 127.0.0.1
             CYPRESS_FILESDIR: files
-            CYPRESS_OPENID_CUSTOM_ID: ${{ secrets.CYPRESS_OPENID_CUSTOM_ID }}
-            CYPRESS_OPENID_CUSTOM_IMG: ${{ secrets.CYPRESS_OPENID_CUSTOM_IMG }}
-            CYPRESS_OPENID_CUSTOM_SECRET: ${{ secrets.CYPRESS_OPENID_CUSTOM_SECRET }}
-            CYPRESS_OPENID_CUSTOM_TXT: ${{ secrets.CYPRESS_OPENID_CUSTOM_TXT }}
-            CYPRESS_OPENID_CUSTOM_URL: ${{ secrets.CYPRESS_OPENID_CUSTOM_URL }}
+            CYPRESS_OPENIDID: ${{ secrets.CYPRESS_OPENID_CUSTOM_ID }}
+            CYPRESS_OPENIDIMG: ${{ secrets.CYPRESS_OPENID_CUSTOM_IMG }}
+            CYPRESS_OPENIDSECRET: ${{ secrets.CYPRESS_OPENID_CUSTOM_SECRET }}
+            CYPRESS_OPENIDTXT: ${{ secrets.CYPRESS_OPENID_CUSTOM_TXT }}
+            CYPRESS_OPENIDURL: ${{ secrets.CYPRESS_OPENID_CUSTOM_URL }}
         steps:
             -   name: Setup PHP, extensions and composer
                 uses: shivammathur/setup-php@v2
