@@ -1,9 +1,11 @@
 # OJS Plugin for OpenID integration
-[![Build Status](https://travis-ci.org/leibniz-psychology/pkp-openid.svg?branch=master)](https://travis-ci.org/leibniz-psychology/pkp-openid)
+
+![CI Test](https://github.com/leibniz-psychology/pkp-openid/workflows/CI%20Test/badge.svg?branch=master)
+
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/leibniz-psychology/pkp-openid?include_prereleases&label=latest%20release)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/leibniz-psychology/pkp-openid)
 ![GitHub](https://img.shields.io/github/license/leibniz-psychology/pkp-openid)
-[![OJS-Version](https://img.shields.io/badge/pkp--ojs-3.2.1-brightgreen)](https://github.com/pkp/ojs/tree/stable-3_2_1)
+[![OJS-Version](https://img.shields.io/badge/pkp--ojs-3.3-brightgreen)](https://github.com/pkp/ojs/tree/master)
 ![GitHub All Releases](https://img.shields.io/github/downloads/leibniz-psychology/pkp-openid/total)
 
 ## Description:
