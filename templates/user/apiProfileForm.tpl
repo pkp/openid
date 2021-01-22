@@ -39,11 +39,13 @@
 		{if !$apiKey}{assign var=apiKey value="common.none"|translate}{/if}
 		{fbvElement id=apiKey type="text" label="user.apiKey" readonly="true" value=$apiKey size=$fbvStyles.size.MEDIUM}
 	{/fbvFormSection}
-	{if !$openidApiFields}
-		{fbvFormButtons hideCancel=true submitText="common.save"}
-	{/if}
+
 	<p>
 		{capture assign="privacyUrl"}{url router=$smarty.const.ROUTE_PAGE page="about" op="privacy"}{/capture}
 		{translate key="user.privacyLink" privacyUrl=$privacyUrl}
 	</p>
+
+	{if !$openidApiFields}
+		{fbvFormButtons hideCancel=true submitText="common.save"}
+	{/if}
 </form>

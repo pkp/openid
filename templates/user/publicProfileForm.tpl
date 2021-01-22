@@ -71,13 +71,11 @@
 			<p class="cmp_notification">
 				{translate key="plugins.generic.openid.disables.fields.info.orcid"}
 			</p>
-			{fbvElement type="text" label="user.orcid" name="orcid" id="orcid" value=$orcid maxlength="37" readonly="true" disabled="true"}
+			{fbvElement type="text" label="user.orcid" name="orcid" id="orcid" value=$orcid maxlength="37" readonly="true" }
 		{/if}
 	{/fbvFormSection}
 
 	{call_hook name="User::PublicProfile::AdditionalItems"}
-
-	{fbvFormButtons hideCancel=true submitText="common.save"}
 
 	<p>
 		{capture assign="privacyUrl"}{url router=$smarty.const.ROUTE_PAGE page="about" op="privacy"}{/capture}
@@ -85,4 +83,6 @@
 	</p>
 
 	<p><span class="formRequired">{translate key="common.requiredField"}</span></p>
+
+	{fbvFormButtons hideCancel=true submitText="common.save"}
 </form>

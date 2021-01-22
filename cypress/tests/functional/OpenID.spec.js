@@ -2,9 +2,8 @@
 describe('OpenID plugin tests', function () {
 
 	it('Disable OpenID Authentication Plugin', function () {
-		cy.login(Cypress.env("ojs_username"), Cypress.env("ojs_password"), Cypress.env("context"));
-		cy.get('ul[id="navigationPrimary"] a:contains("Settings")').click();
-		cy.get('ul[id="navigationPrimary"] a:contains("Website")').click();
+		cy.login('admin', 'admin', 'publicknowledge');
+		cy.get('nav[class="app__nav"] a:contains("Website")').click();
 		cy.get('button[id="plugins-button"]').click();
 		// disable plugin if enabled
 		cy.get('input[id^="select-cell-openidplugin-enabled"]')
@@ -20,9 +19,8 @@ describe('OpenID plugin tests', function () {
 	it('Enable OpenID Authentication Plugin', function () {
 /*		cy.server();
 		cy.route('POST', Cypress.env("baseUrl") + '/index.php/' + Cypress.env("context") + '/$$$call$$$/grid/settings/plugins/settings-plugin-grid/manage?category=generic&plugin=openidplugin&verb=settings&save=1').as('saveSettings');*/
-		cy.login(Cypress.env("ojs_username"), Cypress.env("ojs_password"), Cypress.env("context"));
-		cy.get('ul[id="navigationPrimary"] a:contains("Settings")').click();
-		cy.get('ul[id="navigationPrimary"] a:contains("Website")').click();
+		cy.login('admin', 'admin', 'publicknowledge');
+		cy.get('nav[class="app__nav"] a:contains("Website")').click();
 		cy.get('button[id="plugins-button"]').click();
 		// Find and enable the plugin
 		cy.get('input[id^="select-cell-openidplugin-enabled"]').click();
@@ -50,7 +48,7 @@ describe('OpenID plugin tests', function () {
 	});
 
 	it('Check OpenID Authentication Plugin Login Page', function () {
-		cy.visit('/index.php/' + Cypress.env("context") + '/login');
+		cy.visit('/index.php/publicknowledge/login');
 		cy.get('a[id="openid-provider-custom"]').contains(Cypress.env("openid_custom_txt"));
 	});
 });

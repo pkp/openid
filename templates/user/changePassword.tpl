@@ -35,13 +35,15 @@
 			{fbvElement type="text" password="true" id="password" value=$oldPassword label=$passwordLengthRestriction subLabelTranslate=false maxLength="32" size=$fbvStyles.size.MEDIUM readonly=$openidPWFields disabled=$openidPWFields}
 			{fbvElement type="text" password="true" id="password2" value=$oldPassword maxLength="32" label="user.profile.repeatNewPassword" size=$fbvStyles.size.MEDIUM readonly=$openidPWFields disabled=$openidPWFields}
 		{/fbvFormSection}
-		{if !$openidPWFields}
-			{fbvFormButtons submitText="common.save" }
-		{/if}
-		{*{fbvFormButtons submitText="common.save" }*}
+
 		<p>
 			{capture assign="privacyUrl"}{url router=$smarty.const.ROUTE_PAGE page="about" op="privacy"}{/capture}
 			{translate key="user.privacyLink" privacyUrl=$privacyUrl}
 		</p>
+
+		{if !$openidPWFields}
+			{fbvFormButtons submitText="common.save" }
+		{/if}
+		{*{fbvFormButtons submitText="common.save" }*}
 	{/fbvFormArea}
 </form>
