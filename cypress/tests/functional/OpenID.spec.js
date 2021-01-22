@@ -31,11 +31,11 @@ describe('OpenID plugin tests', function () {
 		// Fill out settings form
 		cy.get('form[id="openIDSettings"] input[name="provider[custom][active]"]').check({force: true});
 		cy.waitJQuery();
-		cy.get('form[id="openIDSettings"] input[name="provider[custom][configUrl]"]').clear().type(Cypress.env("openid_custom_url"));
-		cy.get('form[id="openIDSettings"] input[name="provider[custom][btnImg]"]').clear().type(Cypress.env("openid_custom_img"));
-		cy.get('form[id="openIDSettings"] input[name="provider[custom][btnTxt][en_US]"]').clear().type(Cypress.env("openid_custom_txt"));
-		cy.get('form[id="openIDSettings"] input[name="provider[custom][clientId]"]').clear().type(Cypress.env("openid_custom_id"));
-		cy.get('form[id="openIDSettings"] input[name="provider[custom][clientSecret]"]').clear().type(Cypress.env("openid_custom_secret"));
+		cy.get('form[id="openIDSettings"] input[name="provider[custom][configUrl]"]').clear().type(Cypress.env("OPENID_CUSTOM_URL"));
+		cy.get('form[id="openIDSettings"] input[name="provider[custom][btnImg]"]').clear().type(Cypress.env("OPENID_CUSTOM_IMG"));
+		cy.get('form[id="openIDSettings"] input[name="provider[custom][btnTxt][en_US]"]').clear().type(Cypress.env("OPENID_CUSTOM_TXT"));
+		cy.get('form[id="openIDSettings"] input[name="provider[custom][clientId]"]').clear().type(Cypress.env("OPENID_CUSTOM_ID"));
+		cy.get('form[id="openIDSettings"] input[name="provider[custom][clientSecret]"]').clear().type(Cypress.env("OPENID_CUSTOM_SECRET"));
 		cy.get('form[id="openIDSettings"] input[name="legacyLogin"]').check({force: true});
 		cy.get('form[id="openIDSettings"] div[id="generateSecret"]').click();
 		cy.get('form[id="openIDSettings"] input[name="generateAPIKey"]').check({force: true});
@@ -49,6 +49,6 @@ describe('OpenID plugin tests', function () {
 
 	it('Check OpenID Authentication Plugin Login Page', function () {
 		cy.visit('/index.php/publicknowledge/login');
-		cy.get('a[id="openid-provider-custom"]').contains(Cypress.env("openid_custom_txt"));
+		cy.get('a[id="openid-provider-custom"]').contains(Cypress.env("OPENID_CUSTOM_TXT"));
 	});
 });
