@@ -7,7 +7,7 @@ on:
         branches:
             - master
     schedule:
-        -   cron: '* * 1 * *'
+        -   cron: '* 1 1 * *'
 
 jobs:
     full_ci:
@@ -18,8 +18,8 @@ jobs:
             matrix:
                 php-versions: [ '7.3', '7.4' ]
                 dbs: [ 'pgsql', 'mysql' ]
-                pkp-application: [ 'ojs' ]
-                pkp-branch: [ 'master' ]
+                pkp-application: [ 'ojs', 'omp', 'ops' ]
+                pkp-branch: [ 'stable-3_3_0', 'master' ]
         services:
             mysql:
                 image: bitnami/mysql:latest
