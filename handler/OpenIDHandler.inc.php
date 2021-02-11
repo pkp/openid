@@ -198,12 +198,13 @@ class OpenIDHandler extends Handler
 		$alg = 'AES-256-CBC';
 		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
 		$result = null;
+		$iv = hex2bin($string);
 		if (key_exists('hashSecret', $settings) && !empty($settings['hashSecret'])) {
 			$pwd = $settings['hashSecret'];
 			if ($action == 'encrypt') {
-				$result = openssl_encrypt($string, $alg, $pwd);
+				$result = openssl_encrypt($string, $alg, $pwd, 0, $iv);
 			} elseif ($action == 'decrypt') {
-				$result = openssl_decrypt($string, $alg, $pwd);
+				$result = openssl_decrypt($string, $alg, $pwd, 0, $iv);
 			}
 		} else {
 			$result = $string;
