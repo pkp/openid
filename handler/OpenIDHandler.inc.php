@@ -3,6 +3,7 @@
 $loader = require('plugins/generic/openid/vendor/autoload.php');
 
 use Firebase\JWT\JWT;
+use GuzzleHttp\Exception\GuzzleException;
 use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 
@@ -246,42 +247,49 @@ class OpenIDHandler extends Handler
 		$token = null;
 		if (isset($providerList) && key_exists($selectedProvider, $providerList)) {
 			$settings = $providerList[$selectedProvider];
-			$curl = curl_init();
-			curl_setopt_array(
-				$curl,
-				array(
-					CURLOPT_URL => $settings['tokenUrl'],
-					CURLOPT_RETURNTRANSFER => true,
-					CURLOPT_HTTPHEADER => array('Accept: application/json'),
-					CURLOPT_POST => true,
-					CURLOPT_POSTFIELDS => http_build_query(
-						array(
-							'code' => $authorizationCode,
-							'grant_type' => 'authorization_code',
-							'client_id' => $settings['clientId'],
-							'client_secret' => $settings['clientSecret'],
-							'redirect_uri' => Application::get()->getRequest()->url(
-								null,
-								'openid',
-								'doAuthentication',
-								null,
-								array('provider' => $selectedProvider)
-							),
-						)
-					),
-				)
-			);
-			$result = curl_exec($curl);
-			curl_close($curl);
-			if (isset($result) && !empty($result)) {
-				$result = json_decode($result, true);
-				if (is_array($result) && !empty($result) && key_exists('access_token', $result)) {
-					$token = [
-						'access_token' => $result['access_token'],
-						'id_token' => key_exists('id_token', $result) ? $result['id_token'] : null,
-						'refresh_token' => key_exists('refresh_token', $result) ? $result['refresh_token'] : null,
-					];
+			$httpClient = Application::get()->getHttpClient();
+			$response = null;
+			try {
+				$response = $httpClient->request(
+					'POST',
+					$settings['tokenUrl'],
+					[
+						'headers' => [
+							'Accept' => 'application/json',
+						],
+						'form_params' =>
+							[
+								'code' => $authorizationCode,
+								'grant_type' => 'authorization_code',
+								'client_id' => $settings['clientId'],
+								'client_secret' => $settings['clientSecret'],
+								'redirect_uri' => Application::get()->getRequest()->url(
+									null,
+									'openid',
+									'doAuthentication',
+									null,
+									array('provider' => $selectedProvider)
+								),
+							],
+					]
+				);
+				if ($response->getStatusCode() != 200) {
+					error_log('Guzzle Response != 200: '.$response->getStatusCode());
+				} else {
+					$result = $response->getBody()->getContents();
+					if (isset($result) && !empty($result)) {
+						$result = json_decode($result, true);
+						if (is_array($result) && !empty($result) && key_exists('access_token', $result)) {
+							$token = [
+								'access_token' => $result['access_token'],
+								'id_token' => key_exists('id_token', $result) ? $result['id_token'] : null,
+								'refresh_token' => key_exists('refresh_token', $result) ? $result['refresh_token'] : null,
+							];
+						}
+					}
 				}
+			} catch (GuzzleException $e) {
+				error_log('Guzzle Exception thrown: '.$e->getMessage());
 			}
 		}
 
@@ -309,38 +317,38 @@ class OpenIDHandler extends Handler
 			$settings = $providerList[$selectedProvider];
 			$beginCert = '-----BEGIN CERTIFICATE-----';
 			$endCert = '-----END CERTIFICATE----- ';
-			$curl = curl_init();
-			curl_setopt_array(
-				$curl,
-				array(
-					CURLOPT_URL => $settings['certUrl'],
-					CURLOPT_RETURNTRANSFER => true,
-					CURLOPT_HTTPHEADER => array('Accept: application/json'),
-					CURLOPT_POST => false,
-				)
-			);
-			$result = curl_exec($curl);
-			curl_close($curl);
-			$arr = json_decode($result, true);
-			if (key_exists('keys', $arr)) {
-				$publicKeys = array();
-				foreach ($arr['keys'] as $key) {
-					if ((key_exists('alg', $key) && $key['alg'] = 'RS256') || (key_exists('kty', $key) && $key['kty'] = 'RSA')) {
-						if (key_exists('x5c', $key) && $key['x5c'] != null && is_array($key['x5c'])) {
-							foreach ($key['x5c'] as $n) {
-								if (!empty($n)) {
-									$publicKeys[] = $beginCert.PHP_EOL.$n.PHP_EOL.$endCert;
+			$httpClient = Application::get()->getHttpClient();
+			$response = null;
+			try {
+				$response = $httpClient->request('GET', $settings['certUrl']);
+				if ($response->getStatusCode() != 200) {
+					error_log('Guzzle Response != 200: '.$response->getStatusCode());
+				} else {
+					$result = $response->getBody()->getContents();
+					$arr = json_decode($result, true);
+					if (key_exists('keys', $arr)) {
+						$publicKeys = array();
+						foreach ($arr['keys'] as $key) {
+							if ((key_exists('alg', $key) && $key['alg'] = 'RS256') || (key_exists('kty', $key) && $key['kty'] = 'RSA')) {
+								if (key_exists('x5c', $key) && $key['x5c'] != null && is_array($key['x5c'])) {
+									foreach ($key['x5c'] as $n) {
+										if (!empty($n)) {
+											$publicKeys[] = $beginCert.PHP_EOL.$n.PHP_EOL.$endCert;
+										}
+									}
+								} elseif (key_exists('n', $key) && key_exists('e', $key)) {
+									$rsa = new RSA();
+									$modulus = new BigInteger(JWT::urlsafeB64Decode($key['n']), 256);
+									$exponent = new BigInteger(JWT::urlsafeB64Decode($key['e']), 256);
+									$rsa->loadKey(array('n' => $modulus, 'e' => $exponent));
+									$publicKeys[] = $rsa->getPublicKey();
 								}
 							}
-						} elseif (key_exists('n', $key) && key_exists('e', $key)) {
-							$rsa = new RSA();
-							$modulus = new BigInteger(JWT::urlsafeB64Decode($key['n']), 256);
-							$exponent = new BigInteger(JWT::urlsafeB64Decode($key['e']), 256);
-							$rsa->loadKey(array('n' => $modulus, 'e' => $exponent));
-							$publicKeys[] = $rsa->getPublicKey();
 						}
 					}
 				}
+			} catch (GuzzleException $e) {
+				error_log('Guzzle Exception thrown: '.$e->getMessage());
 			}
 		}
 
@@ -398,19 +406,28 @@ class OpenIDHandler extends Handler
 	 */
 	private function _getClientDetails($token, $settings)
 	{
-		$curl = curl_init();
-		curl_setopt_array(
-			$curl,
-			array(
-				CURLOPT_URL => $settings['userInfoUrl'],
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_HTTPHEADER => array('Accept: application/json', 'Authorization: Bearer '.$token['access_token']),
-				CURLOPT_POST => false,
-			)
-		);
-		$result = curl_exec($curl);
-		curl_close($curl);
-		error_log($result);
+		$httpClient = Application::get()->getHttpClient();
+		$response = null;
+		$result = null;
+		try {
+			$response = $httpClient->request(
+				'GET',
+				$settings['userInfoUrl'],
+				[
+					'headers' => [
+						'Accept' => 'application/json',
+						'Authorization' => 'Bearer '.$token['access_token'],
+					],
+				]
+			);
+			if ($response->getStatusCode() != 200) {
+				error_log('Guzzle Response != 200: '.$response->getStatusCode());
+			} else {
+				$result = $response->getBody()->getContents();
+			}
+		} catch (GuzzleException $e) {
+			error_log('Guzzle Exception thrown: '.$e->getMessage());
+		}
 
 		return $result;
 	}
