@@ -139,7 +139,7 @@ class OpenIDHandler extends Handler
 		}
 	}
 
-	public static function updateUserDetails($payload, $user, $request, $selectedProvider, $authId = null)
+	public static function updateUserDetails($payload, $user, $request, $selectedProvider, $setProviderId = false)
 	{
 		$userDao = DAORegistry::getDAO('UserDAO');
 		$context = $request->getContext();
@@ -162,22 +162,20 @@ class OpenIDHandler extends Handler
 			if ($selectedProvider == 'orcid') {
 				if (is_array($payload) && key_exists('id', $payload) && !empty($payload['id'])) {
 					$user->setOrcid($payload['id']);
-				} elseif ($authId) {
-					$user->setOrcid($authId);
 				}
 			}
 			$userDao->updateObject($user);
 		}
 		$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
 		$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
-		if (isset($authId) && !empty($authId)) {
-			$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, hash('sha256', $authId), 'string');
-
+		if (is_array($payload) && key_exists('id', $payload) && !empty($payload['id'])) {
+			if($setProviderId)
+				$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, hash('sha256', $payload['id']), 'string');
 			$generateApiKey = isset($settings) && key_exists('generateAPIKey', $settings) ? $settings['generateAPIKey'] : false;
 			$secret = Config::getVar('security', 'api_key_secret', '');
 			if ($generateApiKey && $selectedProvider == 'custom' && $secret) {
 				$user->setData('apiKeyEnabled', true);
-				$user->setData('apiKey', self::encryptOrDecrypt($plugin, $contextId, 'encrypt', $authId));
+				$user->setData('apiKey', self::encryptOrDecrypt($plugin, $contextId, 'encrypt', $payload['id']));
 				$userDao->updateObject($user);
 			}
 		}
@@ -197,10 +195,10 @@ class OpenIDHandler extends Handler
 	{
 		$alg = 'AES-256-CBC';
 		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
-		$result = null;
-		$iv = hex2bin($string);
+		$result = null;;
 		if (key_exists('hashSecret', $settings) && !empty($settings['hashSecret'])) {
 			$pwd = $settings['hashSecret'];
+			$iv = hex2bin(hash('sha256', $settings['hashSecret']));
 			if ($action == 'encrypt') {
 				$result = openssl_encrypt($string, $alg, $pwd, 0, $iv);
 			} elseif ($action == 'decrypt') {

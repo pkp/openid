@@ -35,8 +35,8 @@ class OpenIDStep2Form extends Form
 	/**
 	 * OpenIDStep2Form constructor.
 	 *
-	 * @param OpenIDPlugin $plugin
-	 * @param array $credentials
+	 * @param $plugin
+	 * @param $credentials
 	 */
 	function __construct($plugin, $credentials = array())
 	{
@@ -210,7 +210,7 @@ class OpenIDStep2Form extends Form
 						$result = true;
 					}
 				} elseif ($connect) {
-					$payload = ['given_name' => $this->getData('givenName'), 'family_name' => $this->getData('familyName')];
+					$payload = ['given_name' => $this->getData('givenName'), 'family_name' => $this->getData('familyName'), 'id' => $oauthId];
 					$username = $this->getData('usernameLogin');
 					$password = $this->getData('passwordLogin');
 					$user = $userDao->getByUsername($username, true);
@@ -222,7 +222,7 @@ class OpenIDStep2Form extends Form
 					}
 				}
 				if ($result && isset($user)) {
-					OpenIDHandler::updateUserDetails(isset($payload) ? $payload : null, $user, Application::get()->getRequest(), $selectedProvider, $oauthId);
+					OpenIDHandler::updateUserDetails(isset($payload) ? $payload : null, $user, Application::get()->getRequest(), $selectedProvider, true);
 					Validation::registerUserSession($user, $reason, true);
 				}
 			}
