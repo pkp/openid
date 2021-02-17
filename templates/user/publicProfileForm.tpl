@@ -71,7 +71,7 @@
 			<p class="cmp_notification">
 				{translate key="plugins.generic.openid.disables.fields.info.orcid"}
 			</p>
-			{fbvElement type="text" label="user.orcid" name="orcid" id="orcid" value=$orcid maxlength="37" readonly="true" disabled="true"}
+			{fbvElement type="text" label="user.orcid" name="orcid" id="orcid" value=$orcid maxlength="37" readonly="true" }
 		{/if}
 	{/fbvFormSection}
 

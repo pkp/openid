@@ -28,12 +28,12 @@
 	<p><span class="instruct">{translate key="user.profile.changePasswordInstructions"}</span></p>
 	{fbvFormArea id="changePasswordFormArea"}
 		{fbvFormSection label="user.profile.oldPassword"}
-			{fbvElement type="text" password="true" id="oldPassword" value=$oldPassword maxLength="32" size=$fbvStyles.size.MEDIUM readonly=$openidPWFields disabled=$openidPWFields}
+			{fbvElement type="text" password="true" id="oldPassword" value=$oldPassword maxLength="32" size=$fbvStyles.size.MEDIUM readonly=$openidPWFields }
 		{/fbvFormSection}
 		{fbvFormSection label="user.profile.newPassword"}
 			{capture assign="passwordLengthRestriction"}{translate key="user.register.form.passwordLengthRestriction" length=$minPasswordLength}{/capture}
-			{fbvElement type="text" password="true" id="password" value=$oldPassword label=$passwordLengthRestriction subLabelTranslate=false maxLength="32" size=$fbvStyles.size.MEDIUM readonly=$openidPWFields disabled=$openidPWFields}
-			{fbvElement type="text" password="true" id="password2" value=$oldPassword maxLength="32" label="user.profile.repeatNewPassword" size=$fbvStyles.size.MEDIUM readonly=$openidPWFields disabled=$openidPWFields}
+			{fbvElement type="text" password="true" id="password" value=$oldPassword label=$passwordLengthRestriction subLabelTranslate=false maxLength="32" size=$fbvStyles.size.MEDIUM readonly=$openidPWFields }
+			{fbvElement type="text" password="true" id="password2" value=$oldPassword maxLength="32" label="user.profile.repeatNewPassword" size=$fbvStyles.size.MEDIUM readonly=$openidPWFields }
 		{/fbvFormSection}
 		{if !$openidPWFields}
 			{fbvFormButtons submitText="common.save" }

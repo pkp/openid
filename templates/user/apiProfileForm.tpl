@@ -30,8 +30,8 @@
 	{include file="controllers/notification/inPlaceNotification.tpl" notificationId="apiProfileNotification"}
 
 	{fbvFormSection list=true}
-		{fbvElement id=apiKeyEnabled type="checkbox" label="user.apiKeyEnabled" checked=$apiKeyEnabled value=1 readonly=$openidApiFields disabled=$openidApiFields}
-		{fbvElement id=generateApiKey type="checkbox" label="user.apiKey.generate" value=1 readonly=$openidApiFields disabled=$openidApiFields}
+		{fbvElement id=apiKeyEnabled type="checkbox" label="user.apiKeyEnabled" checked=$apiKeyEnabled value=1 readonly=$openidApiFields }
+		{fbvElement id=generateApiKey type="checkbox" label="user.apiKey.generate" value=1 readonly=$openidApiFields }
 	{/fbvFormSection}
 	<p>{translate key="user.apiKey.generateWarning"}</p>
 
