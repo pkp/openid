@@ -1,2 +1,355 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2021-02-26 10:58+0000\n"
+"Last-Translator: Jiří Dlouhý <jiri.dlouhy@czp.cuni.cz>\n"
+"Language-Team: Czech <http://translate.pkp.sfu.ca/projects/plugins/openid/"
+"cs_CZ/>\n"
+"Language: cs_CZ\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Weblate 3.9.1\n"
+
+msgid "plugins.generic.openid.settings.microsoft.desc"
+msgstr ""
+"Musíte nakonfigurovat svou App Service na <a href='https://portal.azure.com/#"
+"blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview' target='_blank' "
+"rel='noopener'> portálu Azure </a> (po přihlášení přejděte na 'Registrace "
+"aplikací - App registrations' ) a použijte přihlášení Azure AD. Viz tento <a "
+"href='https://docs.microsoft.com/en-us/azure/app-service/configure-"
+"authentication-provider-aad' target='_blank' rel='noopener'> tutorial </a>. "
+"Použijte prosím tuto adresu URL přesměrování:"
+
+msgid "plugins.generic.openid.error.openid.disabled.without"
+msgstr ""
+"<strong>Tento účet je deaktivován bez udání konkrétního důvodu.</strong><br "
+"/>Chcete-li tento účet aktivovat, <a href='mailto:{$supportEmail}'>"
+"kontaktujte technickou podporu</a>."
+
+msgid "plugins.generic.openid.error.openid.cert.desc"
+msgstr ""
+"<strong>Při ověřování a získávání vašich dat došlo k chybě.</strong><br />"
+"Služba nemusí být právě teď k dispozici. <br /> Zkuste to znovu později a <a "
+"href = 'mailto: {$ supportEmail} '> Pokud problém přetrvává, kontaktujte "
+"technickou podporu </a>."
+
+msgid "plugins.generic.openid.error.openid.connect.desc.data"
+msgstr ""
+"<strong>Při načítání vašich údajů od poskytovatele OpenID došlo k "
+"chybě.</strong><br />Služba nemusí být momentálně k dispozici. <br /> Zkuste "
+"to znovu později a <a href = 'mailto: {$ supportEmail} '>> kontaktujte "
+"technickou podporu </a>, pokud problém přetrvává."
+
+# error messages
+msgid "plugins.generic.openid.error.openid.connect.desc.key"
+msgstr ""
+"<strong>Při ověřování vašich údajů došlo k chybě. </strong><br />Služba "
+"nemusí být právě teď k dispozici.<br />Zkuste to, prosím, znovu později a <a "
+"href='mailto:{$supportEmail}'> pokud problém přetrvává, kontaktujte "
+"technickou podporu </a>."
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync.desc"
+msgstr ""
+"Některé informace o uživateli, jako je křestní jméno, příjmení a e-mailová "
+"adresa, se přenášejí od poskytovatele OpenID do této aplikace. Povolením "
+"této možnosti automaticky uložíte informace o tomto uživateli do "
+"uživatelského účtu. (doporučeno)"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.desc"
+msgstr ""
+"Tento plugin může generovat klíč šifrováním identifikátoru OpenID pomocí "
+"<strong> výše zadaného tajného klíče</strong>. Tento klíč bude znovu "
+"zašifrován tajným klíčem, který musí být zadán v nastavení aplikace. Toto "
+"opatření by mělo poskytovat přiměřené zabezpečení."
+
+msgid "plugins.generic.openid.settings.hashSecret.desc"
+msgstr ""
+"Pokud chcete zašifrovat informace OpenID, jako je identifikátor OpenID v "
+"kódu HTML, a chcete použít následující funkci pro automatizované generování "
+"API-KEY, musíte zde zadat tajný klíč. Z důvodu zabezpečení by měl mít tajný "
+"klíč alespoň 24 znaků."
+
+msgid "plugins.generic.openid.settings.configUrl.desc"
+msgstr ""
+"Zadejte adresu URL konfigurace vašeho poskytovatele OpenID. <strong> Adresa "
+"URL musí končit příponou \".well-known/openid-configuration\" (např. "
+"https://sso.example.com/auth/realms/master/.well-known/openid-configuration\""
+"). </strong>"
+
+msgid "plugins.generic.openid.settings.apple.desc"
+msgstr ""
+"Přečtěte si tento <a href='https://developer.apple.com/documentation/"
+"authenticationservices' target='_blank' rel='noopener'> tutorial </a>, jak "
+"konfigurovat Apple ID. Použijte prosím tuto adresu URL přesměrování:"
+
+msgid "plugins.generic.openid.settings.google.desc"
+msgstr ""
+"Musíte si vytvořit klienta OpenID Connect v <a "
+"href='https://console.developers.google.com/apis/credentials' target="
+"'_blank' rel='noopener'> Google Developer Console </a> pokud chcete používat "
+"Google jako poskytovatele OpenID Connect. Přečtěte si tento <a "
+"href='https://developers.google.com/identity/protocols/oauth2/openid-"
+"connect' target='_blank' rel='noopener'> tutorial</a>. Použijte, prosím, "
+"tuto adresu URL přesměrování:"
+
+msgid "plugins.generic.openid.disables.fields.info.password"
+msgstr ""
+"K přihlášení používáte poskytovatele ověřování pomocí jednotného přihlášení, "
+"takže musíte změnit své heslo na stránce účtu poskytovatele."
+
+msgid "plugins.generic.openid.disables.fields.info.api"
+msgstr "Klíč API je automaticky generován pluginem."
+
+msgid "plugins.generic.openid.disables.fields.info.orcid"
+msgstr "ORCID poskytuje automaticky váš ověřený účet ORCID."
+
+# disabled fields info
+msgid "plugins.generic.openid.disables.fields.info"
+msgstr ""
+"Některé informace poskytuje ověřený účet používaný k přihlášení a nelze je "
+"upravovat.<br />Data budou synchronizována, kdykoli se odhlásíte a znovu se "
+"přihlásíte."
+
+msgid "plugins.generic.openid.select.provider.apple"
+msgstr "Přihlaste se pomocí účtu Apple"
+
+msgid "plugins.generic.openid.select.provider.microsoft"
+msgstr "Přihlaste se pomocí účtu Microsoft"
+
+msgid "plugins.generic.openid.select.provider.google"
+msgstr "Přihlaste se pomocí účtu Google"
+
+msgid "plugins.generic.openid.select.provider.orcid"
+msgstr "Přihlaste se pomocí účtu ORCID"
+
+msgid "plugins.generic.openid.select.provider.custom"
+msgstr "Přihlaste se pomocí vlastního poskytovatele"
+
+msgid "plugins.generic.openid.select.provider.help"
+msgstr "Přihlaste se nebo se zaregistrujte pomocí:"
+
+msgid "plugins.generic.openid.select.legacy"
+msgstr "Přihlaste se pomocí svého účtu v časopisu {$ journalName}"
+
+#provider page
+msgid "plugins.generic.openid.select.provider"
+msgstr "Přihlaste se nebo se zaregistrujte"
+
+msgid "plugins.generic.openid.error.legacy.link"
+msgstr ""
+"Správci a pracovníci podpory se mohou k řešení tohoto problému přihlásit "
+"pomocí tohoto <a href=\"{$legacyLoginUrl}\">odkazu</a>."
+
+msgid "plugins.generic.openid.error.openid.disabled.with"
+msgstr "<strong>Tento účet je deaktivován z následujícího důvodu: </strong>"
+
+msgid "plugins.generic.openid.settings.features.disable.email"
+msgstr "<strong>Email</strong> pouze pro čtení"
+
+msgid "plugins.generic.openid.settings.features.disable.family"
+msgstr "<strong>Příjmení</strong> pouze pro čtení"
+
+msgid "plugins.generic.openid.settings.features.disable.given"
+msgstr "<strong>Křestní jméno</strong> pouze pro čtení"
+
+msgid "plugins.generic.openid.settings.features.disable.fields.desc"
+msgstr "Zabraňte úpravám následujících polí v této aplikaci:"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync"
+msgstr "Povolte synchronizaci uživatelských dat poskytovatele OpenID"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.check"
+msgstr "Povolit automatické generování klíče API"
+
+msgid "plugins.generic.openid.settings.generateAPIKey"
+msgstr "Automatizovaný klíč API"
+
+msgid "plugins.generic.openid.settings.hashSecret"
+msgstr "Šifrovací/dešifrovací tajemství (Encrypt/Decrypt secret)"
+
+msgid "plugins.generic.openid.settings.step2.connect.desc"
+msgstr ""
+"Pokud je tento časopis nový a nemá žádné stávající uživatelské účty, můžete "
+"zaškrtnutím tohoto políčka deaktivovat funkci propojení účtů. V takovém "
+"případě bude uživatel při registraci účtu prostřednictvím poskytovatele "
+"OpenID požádán pouze o další podrobnosti požadované touto aplikací."
+
+msgid "plugins.generic.openid.settings.step2.connect.check"
+msgstr "Zakázat \"Připojení k účtu\""
+
+msgid "plugins.generic.openid.settings.step2.connect"
+msgstr "Připojení k účtu"
+
+msgid "plugins.generic.openid.settings.legacyLogin.desc"
+msgstr ""
+"Tuto možnost povolte, pokud chcete, aby se uživatelé kromě přihlášení OpenID "
+"mohli registrovat a přihlásit i pomocí přihlašovacího formuláře aplikace."
+
+msgid "plugins.generic.openid.settings.legacyLogin.check"
+msgstr "Dovolit starší způsob přihlášení"
+
+msgid "plugins.generic.openid.settings.legacyLogin"
+msgstr "Starší přihlášení"
+
+msgid "plugins.generic.openid.settings.features.desc"
+msgstr ""
+"Následující pole jsou volitelná. Nejsou požadována, pro připojení k "
+"poskytovateli OpenID."
+
+msgid "plugins.generic.openid.settings.features.head"
+msgstr "Pokročilé funkce pluginu"
+
+msgid "plugins.generic.openid.settings.clientSecret.desc"
+msgstr "Vložte, prosím, váš \"client secret\"."
+
+msgid "plugins.generic.openid.settings.clientSecret"
+msgstr "Client secret"
+
+msgid "plugins.generic.openid.settings.clientId.desc"
+msgstr "Vložte, prosím, vaše clientId."
+
+msgid "plugins.generic.openid.settings.clientId"
+msgstr "Identifikátor klienta"
+
+msgid "plugins.generic.openid.settings.configUrl"
+msgstr "URL poskytovatele OpenID"
+
+msgid "plugins.generic.openid.settings.apple.enable"
+msgstr "Apple ID"
+
+msgid "plugins.generic.openid.settings.microsoft.enable"
+msgstr "Microsoft Azure Active Directory"
+
+msgid "plugins.generic.openid.settings.google.enable"
+msgstr "Google OpenID připojení"
+
+msgid "plugins.generic.openid.settings.orcid.desc"
+msgstr ""
+"Použijte, prosím, toto  URL přesměrování (viz <a href='https://github.com/"
+"ORCID/ORCID-Source/blob/master/orcid-web/ORCID_AUTH_WITH_OPENID_CONNECT.md' "
+"target='_blank' rel='noopener'>tutorial</a>):"
+
+msgid "plugins.generic.openid.settings.orcid.enable"
+msgstr "ORCID OpenID přihlášení"
+
+msgid "plugins.generic.openid.settings.btnTxt.desc"
+msgstr "Zadejte, prosím, popis přihlašovacího tlačítka."
+
+msgid "plugins.generic.openid.settings.btnImg.desc"
+msgstr ""
+"Zadejte adresu URL obrázku (46x41), který se zobrazí na přihlašovacím "
+"tlačítku. Pokud není uveden žádný obrázek, zobrazí se logo OpenID."
+
+msgid "plugins.generic.openid.settings.provider.settings"
+msgstr "Přihlašovací údaje"
+
+msgid "plugins.generic.openid.settings.btn.settings"
+msgstr "Vlastní nastavení tlačítka pro přihlášení"
+
+msgid "plugins.generic.openid.settings.custom.desc"
+msgstr ""
+"Pokud chcete použít vlastního poskytovatele OpenID Connect (např. vlastní "
+"server Keycloak), musíte zadat adresu URL koncového bodu konfigurace OpenID "
+"a přihlašovací údaje klienta."
+
+msgid "plugins.generic.openid.settings.custom.enable"
+msgstr "Vlastní poskytovatel OpenID"
+
+msgid "plugins.generic.openid.settings.openid.desc"
+msgstr "Zadejte prosím následující informace podle svého poskytovatele OpenID."
+
+# settings messages
+msgid "plugins.generic.openid.settings.openid.head"
+msgstr "Poskytovatel OpenID:"
+
+msgid "plugins.generic.openid.settings.error"
+msgstr ""
+"<strong> Nesprávná konfigurace pluginu OpenID! </strong><br /> Není "
+"nakonfigurován žádný poskytovatel OpenID!<br />Nahlaste,  prosím, tento "
+"problém technické podpoře."
+
+msgid "plugins.generic.openid.form.error.invalid.credentials"
+msgstr "Heslo je nesprávné."
+
+msgid "plugins.generic.openid.form.error.user.not.found"
+msgstr ""
+"Nebyl nalezen žádný uživatel, který by odpovídal vašim přihlašovacím údajům."
+
+msgid "plugins.generic.openid.form.error.password.required"
+msgstr "Je vyžadováno heslo."
+
+msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
+msgstr "Je vyžadováno uživatelské jméno nebo email."
+
+msgid "plugins.generic.openid.form.error.privacyConsent.required"
+msgstr "Musíte souhlasit s podmínkami prohlášení o ochraně osobních údajů."
+
+msgid "plugins.generic.openid.form.error.emailExists"
+msgstr ""
+"Zadaná e-mailová adresa již existuje. Zkuste se přihlásit k existujícímu "
+"účtu."
+
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "Je vyžadován email."
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
+msgstr "Je vyžadována vaše afiliace."
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "Je požadováno uvedení země."
+
+msgid "plugins.generic.openid.form.error.familyName.required"
+msgstr "Příjmení je povinné."
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "Křestní jméno je povinné."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "Zadané uživatelské jméno již existuje."
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "Je požadováno uživatelské jméno."
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "Přihlaste se a připojte účty"
+
+msgid "plugins.generic.openid.step2.connect.username"
+msgstr "Uživatelské jméno či email"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr ""
+"Přihlaste se prosím ke svému účtu u {$journalName}. <br /> Vaše údaje budou "
+"automaticky aktualizovány."
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "Dokončit registraci"
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr "Zkontrolujte prosím své údaje a přidejte všechny chybějící informace"
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "Ano, již mám účet."
+
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "Ne, jsem v {$ journalName} nový."
+
+msgid "plugins.generic.openid.step2.help"
+msgstr "K registraci jsou vyžadovány další informace:"
+
+msgid "plugins.generic.openid.step2.headline"
+msgstr "Máte již účet u {$journalName}?"
+
+# step2 messages
+msgid "plugins.generic.openid.step2.title"
+msgstr "Dokončit registraci"
+
+msgid "plugins.generic.openid.description"
+msgstr ""
+"Tento plugin umožňuje uživatelům registrovat se a přihlásit se u "
+"poskytovatelů OpenID, jako je Keycloak."
+
+# general messages
+msgid "plugins.generic.openid.name"
+msgstr "Plugin ověření OpenID"
