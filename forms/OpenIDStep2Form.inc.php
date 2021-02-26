@@ -202,7 +202,10 @@ class OpenIDStep2Form extends Form
 		if (!empty($oauthId) && !empty($selectedProvider)) {
 			$oauthId = OpenIDHandler::encryptOrDecrypt($this->plugin, $this->contextId, 'decrypt', $oauthId);
 			// prevent saving one openid:ident to multiple accounts
-			$user = $userDao->getBySetting('openid::'.$selectedProvider, hash('sha256', $oauthId));
+			$user = $userDao->getBySetting('openid::'.$selectedProvider, $oauthId);
+			if (!isset($user)) {
+				$user = $userDao->getBySetting('openid::'.$selectedProvider, hash('sha256', $oauthId));
+			}
 			if (!isset($user)) {
 				if ($register) {
 					$user = $this->_registerUser();

@@ -65,7 +65,6 @@ class OpenIDHandler extends Handler
 		$selectedProvider = $request->getUserVar('provider');
 		$token = $this->_getTokenViaAuthCode($settings['provider'], $request->getUserVar('code'), $selectedProvider);
 		$publicKey = $this->_getOpenIDAuthenticationCert($settings['provider'], $selectedProvider);
-
 		if (isset($token) && isset($publicKey)) {
 			$tokenPayload = $this->_validateAndExtractToken($token, $publicKey);
 			if (isset($tokenPayload) && is_array($tokenPayload)) {
@@ -169,8 +168,9 @@ class OpenIDHandler extends Handler
 		$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
 		$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
 		if (is_array($payload) && key_exists('id', $payload) && !empty($payload['id'])) {
-			if($setProviderId)
-				$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, hash('sha256', $payload['id']), 'string');
+			if ($setProviderId) {
+				$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, $payload['id'], 'string');
+			}
 			$generateApiKey = isset($settings) && key_exists('generateAPIKey', $settings) ? $settings['generateAPIKey'] : false;
 			$secret = Config::getVar('security', 'api_key_secret', '');
 			if ($generateApiKey && $selectedProvider == 'custom' && $secret) {
@@ -222,6 +222,11 @@ class OpenIDHandler extends Handler
 	private function _getUserViaKeycloakId(array $credentials)
 	{
 		$userDao = DAORegistry::getDAO('UserDAO');
+		$user = $userDao->getBySetting('openid::'.$credentials['selectedProvider'], $credentials['id']);
+		if (isset($user) && is_a($user, 'User')) {
+			return $user;
+		}
+		// prior versions of this plugin used hash for saving the openid identifier, but this is not recommended.
 		$user = $userDao->getBySetting('openid::'.$credentials['selectedProvider'], hash('sha256', $credentials['id']));
 		if (isset($user) && is_a($user, 'User')) {
 			return $user;
