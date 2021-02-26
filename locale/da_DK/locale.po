@@ -1,2 +1,354 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2021-02-26 10:58+0000\n"
+"Last-Translator: Niels Erik Frederiksen <nef@kb.dk>\n"
+"Language-Team: Danish <http://translate.pkp.sfu.ca/projects/plugins/openid/"
+"da_DK/>\n"
+"Language: da_DK\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.9.1\n"
+
+msgid "plugins.generic.openid.disables.fields.info.password"
+msgstr ""
+"Du bruger en enkelt login-godkendelsesudbyder til at logge ind, så du skal "
+"ændre din adgangskode på udbyderens kontoside."
+
+msgid "plugins.generic.openid.disables.fields.info.api"
+msgstr "API-nøglen genereres automatisk af et plugin."
+
+msgid "plugins.generic.openid.disables.fields.info.orcid"
+msgstr "ORCID leveres automatisk af din godkendte ORCID-konto."
+
+# disabled fields info
+msgid "plugins.generic.openid.disables.fields.info"
+msgstr ""
+"Nogle oplysninger leveres af en godkendt konto, der bruges til login og kan "
+"ikke redigeres.<br />Dataene synkroniseres, hver gang du logger ud og logger "
+"ind igen."
+
+msgid "plugins.generic.openid.select.provider.apple"
+msgstr "Log ind med Apple"
+
+msgid "plugins.generic.openid.select.provider.microsoft"
+msgstr "Log ind med Microsoft"
+
+msgid "plugins.generic.openid.select.provider.google"
+msgstr "Log ind med Google"
+
+msgid "plugins.generic.openid.select.provider.orcid"
+msgstr "Log ind med Orcid"
+
+msgid "plugins.generic.openid.select.provider.custom"
+msgstr "Log ind med brugerdefineret udbyder"
+
+msgid "plugins.generic.openid.select.provider.help"
+msgstr "Log ind eller registrer med:"
+
+msgid "plugins.generic.openid.select.legacy"
+msgstr "Log ind med din konto på {$journalName}"
+
+#provider page
+msgid "plugins.generic.openid.select.provider"
+msgstr "Log ind eller registrer"
+
+msgid "plugins.generic.openid.error.legacy.link"
+msgstr ""
+"Ledere og supportmedarbejdere kan logge ind via dette <a href=\""
+"{$legacyLoginUrl}\"> link </a> for at løse dette problem."
+
+msgid "plugins.generic.openid.error.openid.disabled.with"
+msgstr "<strong>Denne konto er deaktiveret af følgende årsag:</strong>"
+
+msgid "plugins.generic.openid.error.openid.disabled.without"
+msgstr ""
+"<strong>Denne konto er deaktiveret uden nogen specifik grund.</strong><br /> "
+"<a href='mailto:{$supportEmail}'>Kontakt teknisk support</a> for at aktivere "
+"denne konto."
+
+msgid "plugins.generic.openid.error.openid.cert.desc"
+msgstr ""
+"<strong>Der opstod en fejl under validering og udpakning af dine "
+"data.</strong><br />Tjenesten er muligvis ikke tilgængelig lige nu.<br />"
+"Prøv igen senere og <a href = 'mailto: {$supportEmail} '>kontakt teknisk "
+"support</a>, hvis problemet fortsætter."
+
+msgid "plugins.generic.openid.error.openid.connect.desc.data"
+msgstr ""
+"<strong>Der opstod en fejl under modtagelse af dine data fra OpenId-"
+"udbyderen.</strong><br />Tjenesten er muligvis ikke tilgængelig lige nu.<br "
+"/>Prøv igen senere og <a href = 'mailto: {$supportEmail} '>kontakt teknisk "
+"support</a>, hvis problemet fortsætter."
+
+# error messages
+msgid "plugins.generic.openid.error.openid.connect.desc.key"
+msgstr ""
+"<strong>Der opstod en fejl under verificering af dine data.</strong><br />"
+"Tjenesten er muligvis ikke tilgængelig lige nu.<br />Prøv igen senere og <a "
+"href='mailto:{$supportEmail}'>kontakt teknisk support</a>, hvis problemet "
+"fortsætter."
+
+msgid "plugins.generic.openid.settings.features.disable.email"
+msgstr "<strong>E-mail</strong> readonly"
+
+msgid "plugins.generic.openid.settings.features.disable.family"
+msgstr "<strong>Efternavn</strong> readonly"
+
+msgid "plugins.generic.openid.settings.features.disable.given"
+msgstr "<strong>Fornavn</strong> readonly"
+
+msgid "plugins.generic.openid.settings.features.disable.fields.desc"
+msgstr "Undgå, at følgende felter kan ændres i denne applikation:"
+
+msgid "plugins.generic.openid.settings.apple.desc"
+msgstr ""
+"Se denne <a href='https://developer.apple.com/documentation/"
+"authenticationservices' target='_blank' rel='noopener'>vejledning</a> om, "
+"hvordan du konfigurerer Apple-ID. Brug denne redirect-URL:"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync.desc"
+msgstr ""
+"Visse brugeroplysninger, såsom for navn, familienavn og e-mail-adresse, "
+"overføres fra OpenID-udbyderen til denne applikation. Aktivér denne "
+"indstilling for automatisk at gemme denne brugerinformation på "
+"brugerkontoen. (anbefales)"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync"
+msgstr "Aktivér synkronisering af brugerID for OpenID-udbyder"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.desc"
+msgstr ""
+"Dette plugin kan generere en nøgle ved at kryptere OpenID-identifikatoren "
+"med <strong>den hemmelige nøgle indtastet ovenfor</strong>. Denne nøgle "
+"krypteres igen med en hemmelig nøgle, der skal specificeres i "
+"applikationsindstillingerne. Dette bør være en tilstrækkelig sikkerhed."
+
+msgid "plugins.generic.openid.settings.generateAPIKey.check"
+msgstr "Aktivér automatisk generering af API-nøgler"
+
+msgid "plugins.generic.openid.settings.generateAPIKey"
+msgstr "Automatiseret API-nøgle"
+
+msgid "plugins.generic.openid.settings.hashSecret.desc"
+msgstr ""
+"Hvis du vil kryptere OpenID-oplysningerne som f.eks. OpenID-identifikatoren "
+"i HTML-koden, og du vil bruge følgende funktion til den automatiserede "
+"generering af API-Nøgle, skal du indtaste en hemmelig nøgle her. For at være "
+"sikker skal den hemmelige nøgle bestå af mindst 24 tegn."
+
+msgid "plugins.generic.openid.settings.hashSecret"
+msgstr "Krypter/dekrypter 'secret'"
+
+msgid "plugins.generic.openid.settings.step2.connect.desc"
+msgstr ""
+"Hvis dette tidsskrift er nyt og ikke har nogen eksisterende brugerkonti, kan "
+"du markere dette felt for at deaktivere kontoforbindelsesfunktionen. I dette "
+"tilfælde bliver brugeren kun bedt om yderligere oplysninger påkrævet af "
+"denne applikation, når han registrerer en konto via en OpenID-udbyder."
+
+msgid "plugins.generic.openid.settings.step2.connect.check"
+msgstr "Deaktiver \"Kontoforbindelse\""
+
+msgid "plugins.generic.openid.settings.step2.connect"
+msgstr "Kontoforbindelse"
+
+msgid "plugins.generic.openid.settings.legacyLogin.desc"
+msgstr ""
+"Aktivér denne mulighed, hvis du vil have, at brugerne skal kunne registrere "
+"og logge ind med applikationens loginformular ud over OpenID-login."
+
+msgid "plugins.generic.openid.settings.legacyLogin.check"
+msgstr "Aktivér ældre login"
+
+msgid "plugins.generic.openid.settings.legacyLogin"
+msgstr "Ældre login"
+
+msgid "plugins.generic.openid.settings.features.desc"
+msgstr ""
+"De følgende felter er valgfri. De er ikke påkrævet for at oprette "
+"forbindelse til en OpenID-udbyder."
+
+msgid "plugins.generic.openid.settings.features.head"
+msgstr "Avancerede plugin-funktioner"
+
+msgid "plugins.generic.openid.settings.clientSecret.desc"
+msgstr "Indtast din hemmelige klient-nøgle."
+
+msgid "plugins.generic.openid.settings.clientSecret"
+msgstr "Hemmelig klient-nøgle"
+
+msgid "plugins.generic.openid.settings.clientId.desc"
+msgstr "Indtast din klient-id."
+
+msgid "plugins.generic.openid.settings.clientId"
+msgstr "Klient-id"
+
+msgid "plugins.generic.openid.settings.configUrl.desc"
+msgstr ""
+"Indtast konfigurations-URL'en til din OpenID-udbyder.<strong>URL'en skal "
+"slutte med  \".well-known/openid-configuration\" (f.eks. \""
+"https://sso.example.com/auth/realms/master/.well-known/openid-configuration\""
+").</strong>"
+
+msgid "plugins.generic.openid.settings.configUrl"
+msgstr "OpenID-udbyders URL"
+
+msgid "plugins.generic.openid.settings.apple.enable"
+msgstr "Apple-ID"
+
+msgid "plugins.generic.openid.settings.microsoft.desc"
+msgstr ""
+"Du skal konfigurere din App-tjeneste i <a href='https://portal.azure.com/#"
+"blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview' target='_blank' "
+"rel='noopener'>Azure portalen</a> (gå til 'App registrations' efter login) "
+"for at bruge Azure AD login. Se denne <a href='https://docs.microsoft.com/"
+"en-us/azure/app-service/configure-authentication-provider-aad' target="
+"'_blank' rel='noopener'>vejledning</a>. Brug denne redirect-URL:"
+
+msgid "plugins.generic.openid.settings.microsoft.enable"
+msgstr "Microsoft Azure Active Directory"
+
+msgid "plugins.generic.openid.settings.orcid.desc"
+msgstr ""
+"Brug denne redirect-URL (se <a href='https://github.com/ORCID/ORCID-Source/"
+"blob/master/orcid-web/ORCID_AUTH_WITH_OPENID_CONNECT.md' target='_blank' "
+"rel='noopener'>vejledning</a>):"
+
+msgid "plugins.generic.openid.settings.google.desc"
+msgstr ""
+"Du skal oprette en OpenID Connect-klient i <a "
+"href='https://console.developers.google.com/apis/credentials' target="
+"'_blank' rel='noopener'>Google Developer Console</a> for at bruge Google som "
+"en OpenID Connect-udbyder. Se denne <a href='https://developers.google.com/"
+"identity/protocols/oauth2/openid-connect' target='_blank' "
+"rel='noopener'>vejledning</a>. Brug denne redirect-URL:"
+
+msgid "plugins.generic.openid.settings.google.enable"
+msgstr "Google OpenID Connect"
+
+msgid "plugins.generic.openid.settings.orcid.enable"
+msgstr "ORCID OpenID Connect"
+
+msgid "plugins.generic.openid.settings.btnTxt.desc"
+msgstr "Indtast etiketten på login-knappen."
+
+msgid "plugins.generic.openid.settings.btnImg.desc"
+msgstr ""
+"Indtast en URL til et billede (46x41), der skal vises på login-knappen. Hvis "
+"der ikke er noget billede, vises OpenID-logoet."
+
+msgid "plugins.generic.openid.settings.provider.settings"
+msgstr "Loginoplysninger"
+
+msgid "plugins.generic.openid.settings.btn.settings"
+msgstr "Indstillinger for brugerdefineret login-knap"
+
+msgid "plugins.generic.openid.settings.custom.desc"
+msgstr ""
+"Hvis du vil bruge en brugerdefineret OpenID Connect-udbyder (f.eks. en "
+"selvhostet Keycloak-server), skal du angive URL'en til OpenID-"
+"konfigurationsendepunktet og klientens legitimationsoplysninger."
+
+msgid "plugins.generic.openid.settings.custom.enable"
+msgstr "Brugerdefineret OpenID-udbyder"
+
+msgid "plugins.generic.openid.settings.openid.desc"
+msgstr "Indtast følgende oplysninger fra din OpenID-udbyder."
+
+# settings messages
+msgid "plugins.generic.openid.settings.openid.head"
+msgstr "OpenId-udbyder:"
+
+msgid "plugins.generic.openid.settings.error"
+msgstr ""
+"<strong>Forkert OpenID-plugin-konfiguration!</strong> <br />Der er ikke "
+"konfigureret en OpenID-udbyder!<br /> Rapportér dette til din tekniske "
+"support."
+
+msgid "plugins.generic.openid.form.error.invalid.credentials"
+msgstr "Password er forkert."
+
+msgid "plugins.generic.openid.form.error.user.not.found"
+msgstr "Der blev ikke fundet en bruger, der matcher dine brugeroplysninger."
+
+msgid "plugins.generic.openid.form.error.password.required"
+msgstr "Et password er påkrævet."
+
+msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
+msgstr "Der kræves et brugernavn eller en e-mail."
+
+msgid "plugins.generic.openid.form.error.privacyConsent.required"
+msgstr ""
+"Du skal acceptere vilkårene i forbindelse med erklæring om beskyttelse af "
+"personlige oplysninger."
+
+msgid "plugins.generic.openid.form.error.emailExists"
+msgstr ""
+"Den e-mail-adresse, du har angivet, findes allerede. Prøv at logge ind på "
+"den eksisterende konto."
+
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "Der kræves en e-mail."
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
+msgstr "En tilknytning er påkrævet."
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "Et land er påkrævet."
+
+msgid "plugins.generic.openid.form.error.familyName.required"
+msgstr "Der kræves et efternavn."
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "Et fornavn er påkrævet."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "Det brugernavn, du har angivet, findes allerede."
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "Et brugernavn er påkrævet"
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "Log ind og tilslut konti"
+
+msgid "plugins.generic.openid.step2.connect.username"
+msgstr "Brugernavn eller e-mail"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr ""
+"Log ind på din konto hos {$journalName}.<br />Dine oplysninger opdateres "
+"automatisk."
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "Fuldfør registrering"
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr "Bekræft dine oplysninger, og tilføj eventuelle manglende oplysninger"
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "Ja, jeg har allerede en konto."
+
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "Nej, jeg er ny hos {$journalName}."
+
+msgid "plugins.generic.openid.step2.help"
+msgstr "Yderligere oplysninger er påkrævet for at registrere:"
+
+msgid "plugins.generic.openid.step2.headline"
+msgstr "Har du allerede en konto hos {$journalName}?"
+
+# step2 messages
+msgid "plugins.generic.openid.step2.title"
+msgstr "Fuldfør registrering"
+
+msgid "plugins.generic.openid.description"
+msgstr ""
+"Dette plugin giver brugerne mulighed for at registrere og logge ind med en "
+"OpenID-udbyder som f.eks. Keycloak."
+
+# general messages
+msgid "plugins.generic.openid.name"
+msgstr "OpenID-godkendelsesplugin"
