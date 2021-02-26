@@ -1,2 +1,116 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2021-02-26 10:59+0000\n"
+"Last-Translator: Pavel Pisklakov <ppv1979@mail.ru>\n"
+"Language-Team: Russian <http://translate.pkp.sfu.ca/projects/plugins/openid/"
+"ru_RU/>\n"
+"Language: ru_RU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
+"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 3.9.1\n"
+
+msgid "plugins.generic.openid.settings.custom.enable"
+msgstr "Пользовательский провайдер OpenID"
+
+msgid "plugins.generic.openid.settings.openid.desc"
+msgstr ""
+"Пожалуйста, введите следующую информацию в соответствии с данными вашего "
+"провайдера OpenID."
+
+# settings messages
+msgid "plugins.generic.openid.settings.openid.head"
+msgstr "Провайдер OpenID:"
+
+msgid "plugins.generic.openid.settings.error"
+msgstr ""
+"<strong>Неправильная конфигурация плагина OpenID!</strong><br />Нет "
+"настроенного провайдера OpenID!<br />Пожалуйста, сообщите об этом своей "
+"технической поддержке."
+
+msgid "plugins.generic.openid.form.error.invalid.credentials"
+msgstr "Неправильный пароль."
+
+msgid "plugins.generic.openid.form.error.user.not.found"
+msgstr "Пользователь с такими данными для входа не найден."
+
+msgid "plugins.generic.openid.form.error.password.required"
+msgstr "Пароль обязателен."
+
+msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
+msgstr "Имя пользователя или адрес почты обязателен."
+
+msgid "plugins.generic.openid.form.error.privacyConsent.required"
+msgstr "Вы должны согласиться с Условиями конфиденциальности."
+
+msgid "plugins.generic.openid.form.error.emailExists"
+msgstr ""
+"Адрес электронной почты, указанный Вами, уже существует. Пожалуйста, "
+"попробуйте войти в систему с существующей учётной записью."
+
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "Адрес электронной почты обязателен."
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
+msgstr "Аффилиация обязательна."
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "Страна обязательна."
+
+msgid "plugins.generic.openid.form.error.familyName.required"
+msgstr "Фамилия обязательна."
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "Имя обязательно."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "Имя пользователя, указанное Вами, уже существует."
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "Имя пользователя обязательно."
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "Войти в систему и связать учётные записи"
+
+msgid "plugins.generic.openid.step2.connect.username"
+msgstr "Имя пользователя или адрес почты"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr ""
+"Пожалуйста, войдите в свою учётную запись в «{$journalName}».<br />Ваша "
+"информация будет автоматически обновлена."
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "Завершить регистрацию"
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr ""
+"Пожалуйста, проверьте данные и внесите ту информацию, которая отсутствует"
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "Да, у меня уже есть учётная запись."
+
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "Нет, я впервые регистрируюсь в «{$journalName}»."
+
+msgid "plugins.generic.openid.step2.help"
+msgstr "Для регистрации необходима дополнительная информация:"
+
+msgid "plugins.generic.openid.step2.headline"
+msgstr "У Вас уже есть учётная запись в «{$journalName}»?"
+
+# step2 messages
+msgid "plugins.generic.openid.step2.title"
+msgstr "Завершить регистрацию"
+
+msgid "plugins.generic.openid.description"
+msgstr ""
+"Этот плагин позволяет пользователям регистрироваться и входить в систему с "
+"помощью таких провайдеров OpenID как Keycloak."
+
+# general messages
+msgid "plugins.generic.openid.name"
+msgstr "Плагин «Авторизация OpenID»"

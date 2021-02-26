@@ -1,2 +1,76 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2021-02-26 10:58+0000\n"
+"Last-Translator: Marc Bria <marc.bria@gmail.com>\n"
+"Language-Team: Spanish <http://translate.pkp.sfu.ca/projects/plugins/openid/"
+"es_ES/>\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.9.1\n"
+
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "Se requiere un correo electrónico."
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
+msgstr "Se requiere una afiliación."
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "Se requiere un país."
+
+msgid "plugins.generic.openid.form.error.familyName.required"
+msgstr "Se requiere un apellido."
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "Se requiere un nombre de pila."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "El nombre de usuario que has proporcionado ya existe."
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "Se requiere un nombre de usuario/a."
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "Iniciar sesión y conectar cuentas"
+
+msgid "plugins.generic.openid.step2.connect.username"
+msgstr "Nombre de usuario/a o correo electrónico"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr ""
+"Por favor, accede a tu cuenta en {$journalName}.<br />Tu información se "
+"actualizará automáticamente."
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "Registro completado"
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr "Por favor, verifica tus datos y añade cualquier información que falte"
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "Sí, ya tengo una cuenta."
+
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "No, soy nuevo/a en {$journalName}."
+
+msgid "plugins.generic.openid.step2.help"
+msgstr "Se requiere información adicional para registrarse:"
+
+msgid "plugins.generic.openid.step2.headline"
+msgstr "¿Ya tienes una cuenta en {$journalName}?"
+
+# step2 messages
+msgid "plugins.generic.openid.step2.title"
+msgstr "Registro completado"
+
+msgid "plugins.generic.openid.description"
+msgstr ""
+"Este plugin permite a los usuarios/as registrarse e iniciar sesión con un "
+"proveedor de OpenID como Keycloak."
+
+# general messages
+msgid "plugins.generic.openid.name"
+msgstr "Módulo de autenticación OpenID"
