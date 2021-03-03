@@ -159,7 +159,13 @@ msgid "plugins.generic.openid.settings.legacyLogin.check"
 msgstr "Enable legacy login"
 
 msgid "plugins.generic.openid.settings.legacyLogin.desc"
-msgstr "Enable this option if you want users to be able to register and login with the application's login form in addition to the OpenID logon."
+msgstr "Enable this option if you want users to be able to login with the application's login form in addition to the OpenID logon."
+
+msgid "plugins.generic.openid.settings.legacyRegister.check"
+msgstr "Enable legacy registration"
+
+msgid "plugins.generic.openid.settings.legacyRegister.desc"
+msgstr "Enable this option if you want users to be able to register with the application's register form in addition to the OpenID logon."
 
 msgid "plugins.generic.openid.settings.step2.connect"
 msgstr "Account Connection"
@@ -246,6 +252,9 @@ msgstr "Sign in with Microsoft"
 
 msgid "plugins.generic.openid.select.provider.apple"
 msgstr "Sign in with Apple"
+
+msgid "plugins.generic.openid.select.provider.legacyRegister"
+msgstr "Register Account (without Oauth)"
 
 # disabled fields info
 msgid "plugins.generic.openid.disables.fields.info"

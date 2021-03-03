@@ -122,6 +122,10 @@
 			<label class="sub_label">{translate key="plugins.generic.openid.settings.legacyLogin.desc"}</label>
 		{/fbvFormSection}
 		{fbvFormSection list=true}
+		{fbvElement type="checkbox" id="legacyRegister" checked=$legacyRegister value=true label="plugins.generic.openid.settings.legacyRegister.check"}
+			<label class="sub_label">{translate key="plugins.generic.openid.settings.legacyRegister.desc"}</label>
+		{/fbvFormSection}
+		{fbvFormSection list=true}
 			{fbvElement type="checkbox" id="disableConnect" checked=$disableConnect value=true label="plugins.generic.openid.settings.step2.connect.check"}
 			<label class="sub_label">{translate key="plugins.generic.openid.settings.step2.connect.desc"}</label>
 		{/fbvFormSection}

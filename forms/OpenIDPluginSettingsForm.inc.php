@@ -81,6 +81,7 @@ class OpenIDPluginSettingsForm extends Form
 				'initProvider' => self::PUBLIC_OPENID_PROVIDER,
 				'provider' => $provider,
 				'legacyLogin' => key_exists('legacyLogin', $settings) ? $settings['legacyLogin'] : true,
+				'legacyRegister' => key_exists('legacyRegister', $settings) ? $settings['legacyRegister'] : true,
 				'disableConnect' => key_exists('disableConnect', $settings) ? $settings['disableConnect'] : false,
 				'hashSecret' => $settings['hashSecret'],
 				'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0,
@@ -91,6 +92,7 @@ class OpenIDPluginSettingsForm extends Form
 			$this->_data = array(
 				'initProvider' => self::PUBLIC_OPENID_PROVIDER,
 				'legacyLogin' => true,
+				'legacyRegister' => false,
 				'generateAPIKey' => false,
 			);
 		}
@@ -103,7 +105,7 @@ class OpenIDPluginSettingsForm extends Form
 	function readInputData()
 	{
 		$this->readUserVars(
-			array('provider', 'legacyLogin', 'disableConnect', 'hashSecret', 'generateAPIKey', 'providerSync', 'disableFields')
+			array('provider', 'legacyLogin', 'legacyRegister', 'disableConnect', 'hashSecret', 'generateAPIKey', 'providerSync', 'disableFields')
 		);
 		parent::readInputData();
 	}
@@ -143,6 +145,7 @@ class OpenIDPluginSettingsForm extends Form
 		$settings = array(
 			'provider' => $providerListResult,
 			'legacyLogin' => $this->getData('legacyLogin'),
+			'legacyRegister' => $this->getData('legacyRegister'),
 			'disableConnect' => $this->getData('disableConnect'),
 			'hashSecret' => $this->getData('hashSecret'),
 			'generateAPIKey' => $this->getData('generateAPIKey'),
