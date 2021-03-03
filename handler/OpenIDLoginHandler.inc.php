@@ -56,12 +56,13 @@ class OpenIDLoginHandler extends Handler
 			if ($settingsJson != null) {
 				$settings = json_decode($settingsJson, true);
 				$legacyLogin = key_exists('legacyLogin', $settings) && isset($settings['legacyLogin']) ? $settings['legacyLogin'] : false;
+				$legacyRegister = key_exists('legacyRegister', $settings) && isset($settings['legacyRegister']) ? $settings['legacyRegister'] : false;
 				$providerList = key_exists('provider', $settings) ? $settings['provider'] : null;
 				if (isset($providerList)) {
 					foreach ($providerList as $name => $settings) {
 						if (key_exists('authUrl', $settings) && !empty($settings['authUrl'])
 							&& key_exists('clientId', $settings) && !empty($settings['clientId'])) {
-							if (sizeof($providerList) == 1 && !$legacyLogin) {
+							if (sizeof($providerList) == 1 && !$legacyLogin && !$legacyRegister) {
 								$request->redirectUrl(
 									$settings['authUrl'].
 									'?client_id='.$settings['clientId'].
@@ -91,6 +92,9 @@ class OpenIDLoginHandler extends Handler
 							}
 						}
 					}
+				}
+				if ($legacyRegister) {
+					$linkList['legacyRegister'] = $router->url($request, null, "user", "registerUser");
 				}
 			}
 			if (isset($linkList) && is_array($linkList) && sizeof($linkList) > 0) {

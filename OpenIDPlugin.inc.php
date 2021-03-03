@@ -102,13 +102,13 @@ class OpenIDPlugin extends GenericPlugin
 				break;
 			case 'login/index':
 			case 'login/legacyLogin':
-			case 'user/register':
 			case 'login/signOut':
-				$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
-				$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
-				$templateMgr->assign('openIDImageURL', $request->getBaseUrl().'/'.$this->getPluginPath().'/images/');
-				define('HANDLER_CLASS', 'OpenIDLoginHandler');
-				$args[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
+				$this->_addScriptsAndHandler($templateMgr, $request, $args);
+			break;
+			case 'user/register':
+				if(!$request->isPost()) {
+					$this->_addScriptsAndHandler($templateMgr, $request, $args);
+				}
 				break;
 		}
 
@@ -182,6 +182,20 @@ class OpenIDPlugin extends GenericPlugin
 		}
 
 		return parent::manage($args, $request);
+	}
+
+	/**
+	 * @param $templateMgr
+	 * @param $request
+	 * @param $args
+	 */
+	private function _addScriptsAndHandler($templateMgr, $request, $args): void
+	{
+		$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
+		$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
+		$templateMgr->assign('openIDImageURL', $request->getBaseUrl().'/'.$this->getPluginPath().'/images/');
+		define('HANDLER_CLASS', 'OpenIDLoginHandler');
+		$args[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
 	}
 }
 
