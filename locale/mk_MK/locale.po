@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-03-07 12:54+0000\n"
-"Last-Translator: Mirko Spiroski <mspiroski@id-press.eu>\n"
+"PO-Revision-Date: 2021-03-09 08:02+0000\n"
+"Last-Translator: Teodora Fildishevska <t.fildishevska@gmail.com>\n"
 "Language-Team: Macedonian <http://translate.pkp.sfu.ca/projects/plugins/"
 "openid/mk_MK/>\n"
 "Language: mk_MK\n"
@@ -94,3 +94,21 @@ msgstr ""
 # general messages
 msgid "plugins.generic.openid.name"
 msgstr "Плагин за автентификација на ОпенИД"
+
+msgid "plugins.generic.openid.settings.custom.enable"
+msgstr "Сопствен ОпенИД провајдер"
+
+msgid "plugins.generic.openid.settings.openid.desc"
+msgstr ""
+"Ве молиме да ги внесете следните информации согласно со вашиот ОпенИД "
+"провајдер."
+
+# settings messages
+msgid "plugins.generic.openid.settings.openid.head"
+msgstr "ОпенИД провајдер:"
+
+msgid "plugins.generic.openid.settings.error"
+msgstr ""
+"<strong>Неточна конфигурација на ОпенИД!</strong><br />Нема кофигуриран "
+"ОпенИД провајдер!<br />Ве молиме да го известите вашиот тим за техничка "
+"поддршка."
