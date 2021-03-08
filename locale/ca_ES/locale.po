@@ -1,2 +1,235 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2021-03-09 08:02+0000\n"
+"Last-Translator: Jordi LC <jordi.lacruz@uab.cat>\n"
+"Language-Team: Catalan <http://translate.pkp.sfu.ca/projects/plugins/openid/"
+"ca_ES/>\n"
+"Language: ca_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.9.1\n"
+
+msgid "plugins.generic.openid.settings.hashSecret"
+msgstr "Encriptar/Desencriptar la contrasenya"
+
+msgid "plugins.generic.openid.settings.step2.connect.desc"
+msgstr ""
+"Si aquesta revista és nova i no té comptes d'usuaris/àries, podeu marcar "
+"aquesta casella per desactivar la funció d'enllaç de comptes. En aquest cas, "
+"a l'usuari/ària només se li demanaran els detalls addicionals que necessita "
+"aquesta aplicació quan registri un compte a través del proveidor d'OpenID."
+
+msgid "plugins.generic.openid.settings.step2.connect.check"
+msgstr "Desactivar la \"connexió del compte\""
+
+msgid "plugins.generic.openid.settings.step2.connect"
+msgstr "Connexió del compte"
+
+msgid "plugins.generic.openid.settings.legacyLogin.desc"
+msgstr ""
+"Activeu aquesta opció si voleu que els usuaris/àries puguin registrar-se i "
+"iniciar sessió amb el formulari d'accés de l'aplicació a més de l'accés amb "
+"OpenID."
+
+msgid "plugins.generic.openid.settings.legacyLogin.check"
+msgstr "Activar l'inici de sessió heretat"
+
+msgid "plugins.generic.openid.settings.legacyLogin"
+msgstr "Inici de sessió heretat"
+
+msgid "plugins.generic.openid.settings.features.desc"
+msgstr ""
+"Els camps següents són opcionals. No són obligatoris per connectar amb un "
+"proveïdor OpenID."
+
+msgid "plugins.generic.openid.settings.features.head"
+msgstr "Funcions avançades del mòdul"
+
+msgid "plugins.generic.openid.settings.clientSecret.desc"
+msgstr "Introduïu la contrasenya del vostre client."
+
+msgid "plugins.generic.openid.settings.clientSecret"
+msgstr "Contrasenya del client"
+
+msgid "plugins.generic.openid.settings.clientId.desc"
+msgstr "Introduïu el vostre identificador de client."
+
+msgid "plugins.generic.openid.settings.clientId"
+msgstr "Identificador del client"
+
+msgid "plugins.generic.openid.settings.configUrl.desc"
+msgstr ""
+"Introduïu la configuració URL del vostre proveïdor OpenID.<strong>L'URL ha "
+"d'acabar en \".well-known/openid-configuration\" (p.ex.: \""
+"https://sso.example.com/auth/realms/master/.well-known/openid-configuration\""
+").</strong>"
+
+msgid "plugins.generic.openid.settings.configUrl"
+msgstr "URL del proveïdor OpenID"
+
+msgid "plugins.generic.openid.settings.apple.desc"
+msgstr ""
+"Consulteu aquest <a href='https://developer.apple.com/documentation/"
+"authenticationservices' target='_blank' rel='noopener'>tutorial</a> per "
+"configurar l'ID Apple. Utilitzeu aquest URL de redireccionament:"
+
+msgid "plugins.generic.openid.settings.apple.enable"
+msgstr "ID Apple"
+
+msgid "plugins.generic.openid.settings.microsoft.desc"
+msgstr ""
+"Heu de configurar la vostra App de servei en el <a "
+"href='https://portal.azure.com/#blade/Microsoft_AAD_IAM/"
+"ActiveDirectoryMenuBlade/Overview' target='_blank' rel='noopener'>portal "
+"Azure</a> (aneu a 'registres App' després d'iniciar sessió) per fer servir "
+"l'accés Azure AD. Consulteu aquest <a href='https://docs.microsoft.com/en-us/"
+"azure/app-service/configure-authentication-provider-aad' target='_blank' "
+"rel='noopener'>tutorial</a>. Utilitzeu aquesta URL de redireccionament:"
+
+msgid "plugins.generic.openid.settings.microsoft.enable"
+msgstr "Directori actiu de Microsoft Azure"
+
+msgid "plugins.generic.openid.settings.google.desc"
+msgstr ""
+"Heu de crear un client de connexió OpenID a la <a "
+"href='https://console.developers.google.com/apis/credentials' target="
+"'_blank' rel='noopener'>consola de desenvolupador de Google</a> per fer "
+"servir Google com a proveïdor de connexió OpenID. Consulteu aquest <a "
+"href='https://developers.google.com/identity/protocols/oauth2/openid-"
+"connect' target='_blank' rel='noopener'>tutorial</a>. Utilitzeu aquesta URL "
+"de redireccionament:"
+
+msgid "plugins.generic.openid.settings.google.enable"
+msgstr "Connector OpenID Google"
+
+msgid "plugins.generic.openid.settings.orcid.desc"
+msgstr ""
+"Feu servir aquesta URL de redireccionament (consulteu el <a "
+"href='https://github.com/ORCID/ORCID-Source/blob/master/orcid-web/"
+"ORCID_AUTH_WITH_OPENID_CONNECT.md' target='_blank' "
+"rel='noopener'>tutorial</a>):"
+
+msgid "plugins.generic.openid.settings.orcid.enable"
+msgstr "Connector OpenID ORCID"
+
+msgid "plugins.generic.openid.settings.btnTxt.desc"
+msgstr "Introduïu l'etiqueta del botó d'inici de sessió."
+
+msgid "plugins.generic.openid.settings.btnImg.desc"
+msgstr ""
+"Introduïu l'URL a la imatge (46x41) que s'ha de mostrar en el botó d'inici "
+"de sessió. Si no se'n proporciona cap, apareixerà el logo d'OpenID."
+
+msgid "plugins.generic.openid.settings.provider.settings"
+msgstr "Credencials d'accés"
+
+msgid "plugins.generic.openid.settings.btn.settings"
+msgstr "Configuració personalitzada de botó d'inici de sessió"
+
+msgid "plugins.generic.openid.settings.custom.desc"
+msgstr ""
+"Si voleu utilitzar un proveïdor de connexió OpenID personalitzat (p. ex.: un "
+"servidor Keycloak autoallotjat), haureu de proporcionar l'URL al terminal de "
+"configuració d'OpenID i les credencials del client."
+
+msgid "plugins.generic.openid.settings.custom.enable"
+msgstr "Proveïdor OpenID personalitzat"
+
+msgid "plugins.generic.openid.settings.openid.desc"
+msgstr "Introduïu la informació següent d'acord amb el vostre proveïdor OpenID."
+
+# settings messages
+msgid "plugins.generic.openid.settings.openid.head"
+msgstr "Proveïdor OpenID:"
+
+msgid "plugins.generic.openid.settings.error"
+msgstr ""
+"<strong>Configuració del mòdul OpenID incorrecta!</strong><br />No hi ha cap "
+"proveïdor OpenID configurat!<br />Informeu d'això al vostre suport tècnic."
+
+msgid "plugins.generic.openid.form.error.invalid.credentials"
+msgstr "La contrasenya és incorrecta."
+
+msgid "plugins.generic.openid.form.error.user.not.found"
+msgstr ""
+"No s'ha trobat cap usuari/ària que coincideixi amb les vostres credencials."
+
+msgid "plugins.generic.openid.form.error.password.required"
+msgstr "És obligatòria una contrasenya."
+
+msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
+msgstr "Són obligatoris un nom d'usuari/ària o una adreça electrònica."
+
+msgid "plugins.generic.openid.form.error.privacyConsent.required"
+msgstr "Heu d'acceptar les condicions de la declaració de privacitat."
+
+msgid "plugins.generic.openid.form.error.emailExists"
+msgstr ""
+"L'adreça electrònica que heu introduït ja existeix. Proveu d'iniciar sessió "
+"en el compte existent."
+
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "És obligatòria una adreça electrònica."
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
+msgstr "És obligatòria una afiliació."
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "És obligatori un país."
+
+msgid "plugins.generic.openid.form.error.familyName.required"
+msgstr "És obligatori un cognom."
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "És obligatori un nom de pila."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "El nom d'usuari/ària que heu introduït ja existeix."
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "És obligatori un nom d'usuari/ària."
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "Iniciar sessió i connectar comptes"
+
+msgid "plugins.generic.openid.step2.connect.username"
+msgstr "Nom d'usuari/ària o adreça electrònica"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr ""
+"Inicieu sessió a {$journalName}.<br />La vostra informació s'actualitzarà "
+"automàticament."
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "Registre finalitzat"
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr "Verifiqueu els vostres detalls i afegiu la informació que falti"
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "Sí, ja tinc un compte."
+
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "No, sóc nou a {$journalName}."
+
+msgid "plugins.generic.openid.step2.help"
+msgstr "Es necessita informació addicional per registrar-vos:"
+
+msgid "plugins.generic.openid.step2.headline"
+msgstr "Teniu ja un compte a {$journalName}?"
+
+# step2 messages
+msgid "plugins.generic.openid.step2.title"
+msgstr "Registre finalitzat"
+
+msgid "plugins.generic.openid.description"
+msgstr ""
+"Aquest mòdul permet que els usuaris/àries es registrin i iniciïn la sessió "
+"amb proveïdors d'OpenID  com Keycloak."
+
+# general messages
+msgid "plugins.generic.openid.name"
+msgstr "Mòdul d'autenticació OpenID"
