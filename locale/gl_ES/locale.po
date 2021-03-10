@@ -1,2 +1,354 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2021-03-14 06:54+0000\n"
+"Last-Translator: Real Academia Galega <reacagal@gmail.com>\n"
+"Language-Team: Galician <http://translate.pkp.sfu.ca/projects/plugins/openid/"
+"gl_ES/>\n"
+"Language: gl_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.9.1\n"
+
+msgid "plugins.generic.openid.disables.fields.info.password"
+msgstr ""
+"Está a usar un provedor de autenticación de inicio de sesión único para "
+"iniciar sesión, polo que debe cambiar o seu contrasinal na páxina da conta "
+"do provedor."
+
+msgid "plugins.generic.openid.disables.fields.info.api"
+msgstr "A clave API xérase automaticamente por un complemento."
+
+msgid "plugins.generic.openid.disables.fields.info.orcid"
+msgstr "A súa conta ORCID autenticada fornécelle automaticamente o ORCID."
+
+# disabled fields info
+msgid "plugins.generic.openid.disables.fields.info"
+msgstr ""
+"Algunha información fornécea unha conta autenticada usada para iniciar "
+"sesión e non se pode editar.<br />Os datos sincronizaranse cada vez que saia "
+"e inicie sesión de novo."
+
+msgid "plugins.generic.openid.select.provider.apple"
+msgstr "Inicia sesión con Apple"
+
+msgid "plugins.generic.openid.select.provider.microsoft"
+msgstr "Inicia sesión con Microsoft"
+
+msgid "plugins.generic.openid.select.provider.google"
+msgstr "Inicia sesión con Google"
+
+msgid "plugins.generic.openid.select.provider.orcid"
+msgstr "Inicia sesión con Orcid"
+
+msgid "plugins.generic.openid.select.provider.custom"
+msgstr "Inicia sesión cun provedor personalizado"
+
+msgid "plugins.generic.openid.select.provider.help"
+msgstr "Inicia sesión ou rexístrate con:"
+
+msgid "plugins.generic.openid.select.legacy"
+msgstr "Inicia sesión coa túa conta en {$journalName}"
+
+#provider page
+msgid "plugins.generic.openid.select.provider"
+msgstr "Inicia sesión ou rexístrate"
+
+msgid "plugins.generic.openid.error.legacy.link"
+msgstr ""
+"Os xestores/as e o persoal de asistencia poden iniciar sesión a través desta "
+"<a href=\"{$legacyLoginUrl}\">ligazón</a> para resolver este problema."
+
+msgid "plugins.generic.openid.error.openid.disabled.with"
+msgstr "<strong>Esta conta está deshabilitada polo seguinte motivo:</strong>"
+
+msgid "plugins.generic.openid.error.openid.disabled.without"
+msgstr ""
+"<strong>Esta conta está deshabilitada sen ningún motivo específico.</strong><"
+"br /><a href='mailto:{$supportEmail}'>Contacte co soporte técnico</a> para "
+"habilitar esta conta."
+
+msgid "plugins.generic.openid.error.openid.cert.desc"
+msgstr ""
+"<strong>Produciuse un erro ao validar e extraer os teus datos.</strong><br />"
+"É posible que o servizo non estea dispoñible neste momento.<br />Téntao de "
+"novo máis tarde e <a href = 'mailto:{$supportEmail}'>Póñase en contacto co "
+"soporte técnico</a> se o problema persiste."
+
+msgid "plugins.generic.openid.error.openid.connect.desc.data"
+msgstr ""
+"<strong>Produciuse un erro ao recibir os teus datos do fornecedor de "
+"OpenId.</strong><br />É posible que o servizo non estea dispoñible neste "
+"momento.<br />Téntao de novo máis tarde e <a href = 'mailto:{$supportEmail}'>"
+"póñase en contacto co soporte técnico</a> se o problema persiste."
+
+# error messages
+msgid "plugins.generic.openid.error.openid.connect.desc.key"
+msgstr ""
+"<strong>Produciuse un erro ao verificar os teus datos.</strong><br />É "
+"posible que o servizo non estea dispoñible neste momento.<br />Téntao de "
+"novo máis tarde e <a href='mailto:{$supportEmail}'>ponte en contacto co "
+"soporte técnico</a> se o problema persiste."
+
+msgid "plugins.generic.openid.settings.features.disable.email"
+msgstr "<strong>Correo electrónico</strong>  só lectura"
+
+msgid "plugins.generic.openid.settings.features.disable.family"
+msgstr "<strong>Apelidos</strong> só lectura"
+
+msgid "plugins.generic.openid.settings.features.disable.given"
+msgstr "<strong>Nome</strong> só lectura"
+
+msgid "plugins.generic.openid.settings.features.disable.fields.desc"
+msgstr "Evita que se modifiquen os seguintes campos nesta aplicación:"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync.desc"
+msgstr ""
+"Algunha información do usuario, como o nome, apelidos e o enderezo de correo "
+"electrónico, transfírese desde o fornecedor de OpenID a esta aplicación. "
+"Active esta opción para gardar automaticamente esta información do usuario "
+"na conta de usuario. (recomendado)"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync"
+msgstr "Activar a sincronización de datos do usuario co provedor OpenID"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.desc"
+msgstr ""
+"Este complemento pode xerar unha clave cifrando o identificador OpenID co "
+"<strong>contrasinal introducido arriba</strong>. Esta clave volverá cifrarse "
+"cun contrasinal que debe especificarse na configuración da aplicación. Isto "
+"debería ser adecuadamente seguro."
+
+msgid "plugins.generic.openid.settings.generateAPIKey.check"
+msgstr "Activa a xeración automática de claves API"
+
+msgid "plugins.generic.openid.settings.generateAPIKey"
+msgstr "Clave API automatizada"
+
+msgid "plugins.generic.openid.settings.hashSecret.desc"
+msgstr ""
+"Se desexa cifrar a información de OpenID como o identificador de OpenID no "
+"código HTML e desexa empregar a seguinte función para a xeración automática "
+"de API-KEY, ten que escribir un contrasinal aquí. Para estar seguro, a clave "
+"secreta debería ter como mínimo 24 caracteres."
+
+msgid "plugins.generic.openid.settings.hashSecret"
+msgstr "Encriptar/Desencriptar o contrasinal"
+
+msgid "plugins.generic.openid.settings.step2.connect.desc"
+msgstr ""
+"Se esta publicación é nova e non ten contas de usuario/a existentes, pode "
+"marcar esta caixa para desactivar a función de vinculación de contas. Neste "
+"caso, ao usuario/a só se lle solicitarán detalles adicionais requiridos por "
+"esta aplicación cando rexistre unha conta a través dun provedor de OpenID."
+
+msgid "plugins.generic.openid.settings.step2.connect.check"
+msgstr "Deshabilitar \"Conexión á conta\""
+
+msgid "plugins.generic.openid.settings.step2.connect"
+msgstr "Conexión á conta"
+
+msgid "plugins.generic.openid.settings.legacyLogin.desc"
+msgstr ""
+"Habilite esta opción se quere que os usuarios/as poidan rexistrarse e "
+"iniciar sesión co formulario de inicio de sesión da aplicación ademais do "
+"inicio de sesión de OpenID."
+
+msgid "plugins.generic.openid.settings.legacyLogin.check"
+msgstr "Habilitar o inicio de sesión herdado"
+
+msgid "plugins.generic.openid.settings.legacyLogin"
+msgstr "Inicio de sesión herdado"
+
+msgid "plugins.generic.openid.settings.features.desc"
+msgstr ""
+"Os seguintes campos son opcionais. Non están obrigados a conectarse a un "
+"provedor OpenID."
+
+msgid "plugins.generic.openid.settings.features.head"
+msgstr "Funcións avanzadas do complemento"
+
+msgid "plugins.generic.openid.settings.clientSecret.desc"
+msgstr "Insira o contrasinal do seu cliente."
+
+msgid "plugins.generic.openid.settings.clientSecret"
+msgstr "Contrasinal do cliente"
+
+msgid "plugins.generic.openid.settings.clientId.desc"
+msgstr "Insira o seu clientID (identificador de cliente)."
+
+msgid "plugins.generic.openid.settings.clientId"
+msgstr "Identificador do cliente"
+
+msgid "plugins.generic.openid.settings.configUrl.desc"
+msgstr ""
+"Insira o URL de configuración do seu fornecedor de OpenID. <strong>O URL "
+"debe rematar con \".well-known/openid-configuration\" (por exemplo, \""
+"https://sso.example.com/auth/realms/master/.well-known/openid-configuration\""
+").</strong>"
+
+msgid "plugins.generic.openid.settings.configUrl"
+msgstr "URL do provedor OpenID"
+
+msgid "plugins.generic.openid.settings.google.desc"
+msgstr ""
+"Ten que crear un cliente de conexión OpenID na <a "
+"href='https://console.developers.google.com/apis/credentials' target="
+"'_blank' rel='noopener'>Google Developer Console</a> para usar Google como "
+"provedor de conexión OpenID. Vexa este <a href='https://developers.google."
+"com/identity/protocols/oauth2/openid-connect' target='_blank' "
+"rel='noopener'>titorial</a>. Utilice este URL de redirección:"
+
+msgid "plugins.generic.openid.settings.apple.desc"
+msgstr ""
+"Consulte este <a href='https://developer.apple.com/documentation/"
+"authenticationservices' target='_blank' rel='noopener'>titorial</a> sobre "
+"como configurar o ID de Apple. Utilice este URL de redirección:"
+
+msgid "plugins.generic.openid.settings.apple.enable"
+msgstr "Apple ID"
+
+msgid "plugins.generic.openid.settings.microsoft.desc"
+msgstr ""
+"Ten que configurar á súa App de servicio no <a href='https://portal.azure."
+"com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview' target="
+"'_blank' rel='noopener'>portal de Azure</a> (vaia a \"Rexistros de "
+"aplicacións\" despois do inicio de sesión) para usar o inicio de sesión de "
+"Azure AD. Vexa este <a href='https://docs.microsoft.com/en-us/azure/"
+"app-service/configure-authentication-provider-aad' target='_blank' "
+"rel='noopener'>titorial</a>. Utilice este URL de redirección:"
+
+msgid "plugins.generic.openid.settings.microsoft.enable"
+msgstr "Directorio activo de Microsoft Azure"
+
+msgid "plugins.generic.openid.settings.google.enable"
+msgstr "Conector OpenID Google"
+
+msgid "plugins.generic.openid.settings.orcid.desc"
+msgstr ""
+"Utilice este URL de redirección (consulte o <a href='https://github.com/"
+"ORCID/ORCID-Source/blob/master/orcid-web/ORCID_AUTH_WITH_OPENID_CONNECT.md' "
+"target='_blank' rel='noopener'>titorial</a>):"
+
+msgid "plugins.generic.openid.settings.orcid.enable"
+msgstr "Conector OpenID ORCID"
+
+msgid "plugins.generic.openid.settings.btnTxt.desc"
+msgstr "Insira a etiqueta do botón de inicio de sesión."
+
+msgid "plugins.generic.openid.settings.btnImg.desc"
+msgstr ""
+"Insira un URL para unha imaxe (46x41) que se amosará no botón de inicio de "
+"sesión. Se non se fornece ningunha imaxe, mostrarase o logotipo de OpenID."
+
+msgid "plugins.generic.openid.settings.provider.settings"
+msgstr "Credenciais de inicio de sesión"
+
+msgid "plugins.generic.openid.settings.btn.settings"
+msgstr "Configuración do botón de inicio de sesión personalizado"
+
+msgid "plugins.generic.openid.settings.custom.desc"
+msgstr ""
+"Se desexa usar un provedor de conexión OpenID personalizado (por exemplo, un "
+"servidor Keycloak autoaloxado), ten que fornecer o URL ao terminal de "
+"configuración de OpenID e as credenciais do cliente."
+
+msgid "plugins.generic.openid.settings.custom.enable"
+msgstr "Provedor OpenID personalizado"
+
+msgid "plugins.generic.openid.settings.openid.desc"
+msgstr "Insira a seguinte información segundo o seu fornecedor de OpenID."
+
+# settings messages
+msgid "plugins.generic.openid.settings.openid.head"
+msgstr "Provedor OpenId:"
+
+msgid "plugins.generic.openid.settings.error"
+msgstr ""
+"<strong>Configuración incorrecta do complemento OpenID!</strong><br />Non "
+"hai ningún provedor OpenID configurado.<br />Informe ao seu soporte técnico."
+
+msgid "plugins.generic.openid.form.error.invalid.credentials"
+msgstr "O contrasinal é incorrecto."
+
+msgid "plugins.generic.openid.form.error.user.not.found"
+msgstr "Non se atopou ningún usuario/a que coincida coas súas credenciais."
+
+msgid "plugins.generic.openid.form.error.password.required"
+msgstr "É necesario un contrasinal."
+
+msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
+msgstr "É necesario un nome de usuario/a ou correo electrónico."
+
+msgid "plugins.generic.openid.form.error.privacyConsent.required"
+msgstr "Debe aceptar os termos da declaración de privacidade."
+
+msgid "plugins.generic.openid.form.error.emailExists"
+msgstr ""
+"O enderezo de correo electrónico que proporcionou xa existe. Tenta iniciar "
+"sesión na conta existente."
+
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "É necesario un correo electrónico."
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
+msgstr "É necesaria unha afiliación."
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "É necesario un país."
+
+msgid "plugins.generic.openid.form.error.familyName.required"
+msgstr "É necesario un apelido."
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "É necesario un nome."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "O nome de usuario que proporcionaches xa existe."
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "É necesario un nome de usuario/a."
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "Iniciar sesión e conectar contas"
+
+msgid "plugins.generic.openid.step2.connect.username"
+msgstr "Nome de usuario/a ou correo electrónico"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr ""
+"Inicia sesión na túa conta en {$journalName}.<br />A túa información "
+"actualizarase automaticamente."
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "Rexistro completado"
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr "Verifique os seus datos e engada a información que falte"
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "Si, xa teño unha conta."
+
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "Non, son novo en {$journalName}."
+
+msgid "plugins.generic.openid.step2.help"
+msgstr "É necesaria información adicional para rexistrarse:"
+
+msgid "plugins.generic.openid.step2.headline"
+msgstr "Xa tes unha conta con {$journalName}?"
+
+# step2 messages
+msgid "plugins.generic.openid.step2.title"
+msgstr "Rexistro completado"
+
+msgid "plugins.generic.openid.description"
+msgstr ""
+"Este complemento permite aos usuarios/as rexistrarse e iniciar sesión cun "
+"provedor OpenID como Keycloak."
+
+# general messages
+msgid "plugins.generic.openid.name"
+msgstr "Complemento de autenticación OpenID"
