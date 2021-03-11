@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "PO-Revision-Date: 2021-03-12 12:06+0000\n"
-"Last-Translator: Teodora Fildishevska <t.fildishevska@gmail.com>\n"
+"Last-Translator: Mirko Spiroski <mspiroski@id-press.eu>\n"
 "Language-Team: Macedonian <http://translate.pkp.sfu.ca/projects/plugins/"
 "openid/mk_MK/>\n"
 "Language: mk_MK\n"
@@ -236,3 +236,98 @@ msgstr ""
 "Доколку сакате да користите сопствен провајдер за конекција до ОпенИД (на "
 "пр. сопствен Keycloak сервер), мора да доставите УРЛ до крајната точка на "
 "кофигурацијата на ОпенИД и акредитивите на клиентот."
+
+msgid "plugins.generic.openid.disables.fields.info.api"
+msgstr "АПИ клучот автоматски се создава од плагин."
+
+msgid "plugins.generic.openid.select.provider.apple"
+msgstr "Запиши се со Apple"
+
+msgid "plugins.generic.openid.select.provider.google"
+msgstr "Запиши се со Google"
+
+msgid "plugins.generic.openid.select.provider.microsoft"
+msgstr "Запиши се со Microsoft"
+
+msgid "plugins.generic.openid.select.provider.orcid"
+msgstr "Запиши се со Orcid"
+
+msgid "plugins.generic.openid.select.provider.custom"
+msgstr "Запиши се со избран обезбедувач"
+
+msgid "plugins.generic.openid.select.provider.help"
+msgstr "Запиши се или регистрирај се со:"
+
+msgid "plugins.generic.openid.select.legacy"
+msgstr "Запиши се со твојот акаунт на {$journalName}"
+
+#provider page
+msgid "plugins.generic.openid.select.provider"
+msgstr "Запиши се или регистрирај се"
+
+msgid "plugins.generic.openid.error.openid.disabled.with"
+msgstr "<strong>Овој акаунт е онеспособен поради следни причини:</strong>"
+
+msgid "plugins.generic.openid.settings.features.disable.email"
+msgstr "<strong>Имејл</strong> само за читање"
+
+msgid "plugins.generic.openid.settings.features.disable.family"
+msgstr "<strong>Презиме</strong> само за читање"
+
+msgid "plugins.generic.openid.settings.features.disable.given"
+msgstr "<strong>Лично име</strong> само за читање"
+
+msgid "plugins.generic.openid.settings.features.disable.fields.desc"
+msgstr "Ги заштитува следните полиња од модифицирање во оваа апликација:"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync"
+msgstr "Овозможува синхронизација на податоци од ОпенИД обезбедувачот"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.check"
+msgstr "Овозможува создавање АПИ клуч"
+
+msgid "plugins.generic.openid.settings.generateAPIKey"
+msgstr "Автоматски АПИ клуч"
+
+msgid "plugins.generic.openid.settings.hashSecret"
+msgstr "Енкриптирана/декриптирана тајна"
+
+msgid "plugins.generic.openid.settings.step2.connect.desc"
+msgstr ""
+"Ако е ова списание ново и нема постоечки кориснички акаунт, може да ја "
+"означите оваа коцка за да се оневозможи функцијата поврзување на акаунти. Во "
+"тој случај корисникот само ќе биде запрашан за дополнителни детали потребни "
+"за оваа апликација кога ќе се регистрира акаунт преку ОпнИД обезбедувачот."
+
+msgid "plugins.generic.openid.settings.step2.connect.check"
+msgstr "Оневозможи „поврзување на акаунти“"
+
+msgid "plugins.generic.openid.settings.step2.connect"
+msgstr "Поврзување на акаунти"
+
+msgid "plugins.generic.openid.settings.legacyLogin.check"
+msgstr "Овозможи легано логирање"
+
+msgid "plugins.generic.openid.settings.legacyLogin"
+msgstr "Легално логирање"
+
+msgid "plugins.generic.openid.settings.clientSecret.desc"
+msgstr "Молам внесете ја тајната на вашиот клиент."
+
+msgid "plugins.generic.openid.settings.clientSecret"
+msgstr "Тајна на клиентот"
+
+msgid "plugins.generic.openid.settings.microsoft.enable"
+msgstr "Активен директориум на Microsoft Azure"
+
+msgid "plugins.generic.openid.settings.google.enable"
+msgstr "Поврзување со Google ОпенИД"
+
+msgid "plugins.generic.openid.settings.orcid.desc"
+msgstr ""
+"Молам користи ја оваа пренасочена УРЛ (see <a href='https://github.com/ORCID/"
+"ORCID-Source/blob/master/orcid-web/ORCID_AUTH_WITH_OPENID_CONNECT.md' target="
+"'_blank' rel='noopener'>tutorial</a>):"
+
+msgid "plugins.generic.openid.settings.orcid.enable"
+msgstr "Поврзување со ОРЦИД ОпенИД"
