@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-03-12 12:06+0000\n"
-"Last-Translator: Mirko Spiroski <mspiroski@id-press.eu>\n"
+"PO-Revision-Date: 2021-03-14 06:54+0000\n"
+"Last-Translator: Teodora Fildishevska <t.fildishevska@gmail.com>\n"
 "Language-Team: Macedonian <http://translate.pkp.sfu.ca/projects/plugins/"
 "openid/mk_MK/>\n"
 "Language: mk_MK\n"
@@ -331,3 +331,32 @@ msgstr ""
 
 msgid "plugins.generic.openid.settings.orcid.enable"
 msgstr "Поврзување со ОРЦИД ОпенИД"
+
+#, fuzzy
+msgid "plugins.generic.openid.settings.generateAPIKey.desc"
+msgstr ""
+"This plugin can generate a key by encrypting the OpenID identifier with "
+"<strong>the secret entered above</strong>. This key will be encrypted again "
+"with a secret that must be specified in the application settings. This "
+"should be adequately secure."
+
+msgid "plugins.generic.openid.disables.fields.info.password"
+msgstr ""
+"Користите провајдер со проверка за единечна пријава како би се најавиле, "
+"затоа мора да ја промените вашата лозинка на корисничката страница на "
+"провајдерот."
+
+msgid "plugins.generic.openid.disables.fields.info.orcid"
+msgstr "ОРЦИД е автоматски обезбеден преку вашиот проверен ОРЦИД акаунт."
+
+# disabled fields info
+msgid "plugins.generic.openid.disables.fields.info"
+msgstr ""
+"Некои од информациите се обезбедени преку проверен акаунт искористен за "
+"најава и не можат да се менуваат. <br /> Податоците ќе се синхронизираат "
+"кога ќе се одјавите и повторно најавите."
+
+msgid "plugins.generic.openid.error.legacy.link"
+msgstr ""
+"Менаџери и персонал за поддршка може да се пријават преку овој <a href=\""
+"{$legacyLoginUrl}\">линк</a> за да го решат овој проблем."
