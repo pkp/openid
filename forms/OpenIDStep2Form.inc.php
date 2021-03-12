@@ -72,6 +72,9 @@ class OpenIDStep2Form extends Form
 		asort($countries);
 		$templateMgr->assign('disableConnect', $settings['disableConnect']);
 		$templateMgr->assign('countries', $countries);
+		import('lib.pkp.classes.user.form.UserFormHelper');
+		$userFormHelper = new UserFormHelper();
+		$userFormHelper->assignRoleContent($templateMgr, $request);
 
 		return parent::fetch($request, $template, $display);
 	}
@@ -123,6 +126,7 @@ class OpenIDStep2Form extends Form
 				'connect',
 				'usernameLogin',
 				'passwordLogin',
+				'reviewerGroup',
 			)
 		);
 	}
@@ -265,12 +269,18 @@ class OpenIDStep2Form extends Form
 		$user->setPassword(Validation::encryptCredentials($this->getData('username'), openssl_random_pseudo_bytes(16)));
 		$userDao->insertObject($user);
 		if ($user->getId()) {
-			if ($request->getContext()) {
+			// Save the selected roles or assign the Reader role if none selected
+			if ($request->getContext() && !$this->getData('reviewerGroup')) {
 				$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
+				/* @var $userGroupDao UserGroupDAO */
 				$defaultReaderGroup = $userGroupDao->getDefaultByRoleId($request->getContext()->getId(), ROLE_ID_READER);
 				if ($defaultReaderGroup) {
 					$userGroupDao->assignUserToGroup($user->getId(), $defaultReaderGroup->getId());
 				}
+			} else {
+				import('lib.pkp.classes.user.form.UserFormHelper');
+				$userFormHelper = new UserFormHelper();
+				$userFormHelper->saveRoleContent($this, $user);
 			}
 		} else {
 			$user = null;

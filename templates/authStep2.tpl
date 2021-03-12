@@ -153,6 +153,34 @@
 						</label>
 					</div>
 				</div>
+				{* Allow the user to sign up as a reviewer *}
+				{assign var=contextId value=$currentContext->getId()}
+				{assign var=userCanRegisterReviewer value=0}
+				{foreach from=$reviewerUserGroups[$contextId] item=userGroup}
+					{if $userGroup->getPermitSelfRegistration()}
+						{assign var=userCanRegisterReviewer value=$userCanRegisterReviewer+1}
+					{/if}
+				{/foreach}
+				{if $userCanRegisterReviewer}
+					<div class="card mb-3">
+						<div class="card-header font-weight-bold bg-white">
+							{translate key="user.reviewerPrompt"}
+						</div>
+						<div class="card-body">
+							<div id="reviewerOptinGroup" class="form-group optin">
+								{foreach from=$reviewerUserGroups[$contextId] item=userGroup}
+									{if $userGroup->getPermitSelfRegistration()}
+										<label>
+											{assign var="userGroupId" value=$userGroup->getId()}
+											<input type="checkbox" name="reviewerGroup[{$userGroupId}]" value="1"{if in_array($userGroupId, $userGroupIds)} checked="checked"{/if}>
+											{translate key="user.reviewerPrompt.userGroup" userGroup=$userGroup->getLocalizedName()}
+										</label>
+									{/if}
+								{/foreach}
+							</div>
+						</div>
+					</div>
+				{/if}
 			</fieldset>
 			<div class="buttons">
 				<button class="submit" type="submit" name="register">
