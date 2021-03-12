@@ -198,7 +198,7 @@ class OpenIDHandler extends Handler
 		$result = null;;
 		if (key_exists('hashSecret', $settings) && !empty($settings['hashSecret'])) {
 			$pwd = $settings['hashSecret'];
-			$iv = hex2bin(hash('sha256', $settings['hashSecret']));
+			$iv = substr($settings['hashSecret'], 0, 16);
 			if ($action == 'encrypt') {
 				$result = openssl_encrypt($string, $alg, $pwd, 0, $iv);
 			} elseif ($action == 'decrypt') {
