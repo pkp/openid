@@ -100,6 +100,7 @@ class OpenIDStep2Form extends Form
 				'givenName' => $this->credentials['given_name'],
 				'familyName' => $this->credentials['family_name'],
 				'email' => $this->credentials['email'],
+				'userGroupIds' => array(),
 			);
 		}
 	}
@@ -126,7 +127,17 @@ class OpenIDStep2Form extends Form
 				'connect',
 				'usernameLogin',
 				'passwordLogin',
+				'readerGroup',
 				'reviewerGroup',
+				'interests',
+			)
+		);
+		// Collect the specified user group IDs into a single piece of data
+		$this->setData(
+			'userGroupIds',
+			array_merge(
+				array_keys((array)$this->getData('readerGroup')),
+				array_keys((array)$this->getData('reviewerGroup'))
 			)
 		);
 	}
@@ -269,6 +280,12 @@ class OpenIDStep2Form extends Form
 		$user->setPassword(Validation::encryptCredentials($this->getData('username'), openssl_random_pseudo_bytes(16)));
 		$userDao->insertObject($user);
 		if ($user->getId()) {
+
+			// Insert the user interests
+			import('lib.pkp.classes.user.InterestManager');
+			$interestManager = new InterestManager();
+			$interestManager->setInterestsForUser($user, $this->getData('interests'));
+
 			// Save the selected roles or assign the Reader role if none selected
 			if ($request->getContext() && !$this->getData('reviewerGroup')) {
 				$userGroupDao = DAORegistry::getDAO('UserGroupDAO');

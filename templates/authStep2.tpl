@@ -41,7 +41,7 @@
 				          class='step2-choice-links'>{translate key="plugins.generic.openid.step2.choice.no" journalName=$siteTitle|escape}</span></li>
 			</ul>
 		{/if}
-		<div {if empty($disableConnect) || $disableConnect != "1" }id="register-form"{/if}>
+		<div {if empty($disableConnect) || $disableConnect != "1" }id="register-form"{/if} class="page_register">
 			<fieldset class="register">
 				<p class="cmp_notification warning">
 					{translate key="plugins.generic.openid.step2.help" journalName=$siteTitle|escape}
@@ -153,35 +153,49 @@
 						</label>
 					</div>
 				</div>
-				{* Allow the user to sign up as a reviewer *}
-				{assign var=contextId value=$currentContext->getId()}
-				{assign var=userCanRegisterReviewer value=0}
-				{foreach from=$reviewerUserGroups[$contextId] item=userGroup}
-					{if $userGroup->getPermitSelfRegistration()}
-						{assign var=userCanRegisterReviewer value=$userCanRegisterReviewer+1}
-					{/if}
-				{/foreach}
-				{if $userCanRegisterReviewer}
-					<div class="card mb-3">
-						<div class="card-header font-weight-bold bg-white">
+			</fieldset>
+			{* Allow the user to sign up as a reviewer *}
+			{assign var=contextId value=$currentContext->getId()}
+			{assign var=userCanRegisterReviewer value=0}
+			{foreach from=$reviewerUserGroups[$contextId] item=userGroup}
+				{if $userGroup->getPermitSelfRegistration()}
+					{assign var=userCanRegisterReviewer value=$userCanRegisterReviewer+1}
+				{/if}
+			{/foreach}
+			{if $userCanRegisterReviewer}
+				<fieldset class="reviewer">
+					{if $userCanRegisterReviewer > 1}
+						<legend>
 							{translate key="user.reviewerPrompt"}
+						</legend>
+						{capture assign="checkboxLocaleKey"}user.reviewerPrompt.userGroup{/capture}
+					{else}
+						{capture assign="checkboxLocaleKey"}user.reviewerPrompt.optin{/capture}
+					{/if}
+					<div class="fields">
+						<div id="reviewerOptinGroup" class="optin">
+							{foreach from=$reviewerUserGroups[$contextId] item=userGroup}
+								{if $userGroup->getPermitSelfRegistration()}
+									<label>
+										{assign var="userGroupId" value=$userGroup->getId()}
+										<input type="checkbox" name="reviewerGroup[{$userGroupId}]"
+										       value="1"{if in_array($userGroupId, $userGroupIds)} checked="checked"{/if}>
+										{translate key=$checkboxLocaleKey userGroup=$userGroup->getLocalizedName()}
+									</label>
+								{/if}
+							{/foreach}
 						</div>
-						<div class="card-body">
-							<div id="reviewerOptinGroup" class="form-group optin">
-								{foreach from=$reviewerUserGroups[$contextId] item=userGroup}
-									{if $userGroup->getPermitSelfRegistration()}
-										<label>
-											{assign var="userGroupId" value=$userGroup->getId()}
-											<input type="checkbox" name="reviewerGroup[{$userGroupId}]" value="1"{if in_array($userGroupId, $userGroupIds)} checked="checked"{/if}>
-											{translate key="user.reviewerPrompt.userGroup" userGroup=$userGroup->getLocalizedName()}
-										</label>
-									{/if}
-								{/foreach}
-							</div>
+						<div id="reviewerInterests" class="reviewer_interests">
+							<label>
+								<span class="label">
+									{translate key="user.interests"}
+								</span>
+								<input type="text" name="interests" id="interests" value="{$interests|escape}">
+							</label>
 						</div>
 					</div>
-				{/if}
-			</fieldset>
+				</fieldset>
+			{/if}
 			<div class="buttons">
 				<button class="submit" type="submit" name="register">
 					{translate key="plugins.generic.openid.step2.complete.btn"}
