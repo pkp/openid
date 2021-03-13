@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-02-26 10:59+0000\n"
+"PO-Revision-Date: 2021-03-14 06:54+0000\n"
 "Last-Translator: Pavel Pisklakov <ppv1979@mail.ru>\n"
 "Language-Team: Russian <http://translate.pkp.sfu.ca/projects/plugins/openid/"
 "ru_RU/>\n"
@@ -114,3 +114,101 @@ msgstr ""
 # general messages
 msgid "plugins.generic.openid.name"
 msgstr "Плагин «Авторизация OpenID»"
+
+msgid "plugins.generic.openid.settings.features.desc"
+msgstr ""
+"Следующие поля являются необязательными, они не требуются для подключения к "
+"провайдеру OpenID."
+
+msgid "plugins.generic.openid.settings.features.head"
+msgstr "Дополнительные функции плагина"
+
+msgid "plugins.generic.openid.settings.clientSecret.desc"
+msgstr "Пожалуйста введите ваш секретный ключ клиента (client secret)."
+
+msgid "plugins.generic.openid.settings.clientSecret"
+msgstr "Секретный ключ клиента"
+
+msgid "plugins.generic.openid.settings.clientId.desc"
+msgstr "Пожалуйста, введите ваш clientId."
+
+msgid "plugins.generic.openid.settings.clientId"
+msgstr "Идентификатор клиента"
+
+msgid "plugins.generic.openid.settings.configUrl.desc"
+msgstr ""
+"Пожалуйста, введите URL конфигурации вашего провайдера OpenID.<strong>URL "
+"должен заканчиваться на «.well-known/openid-configuration» (например, "
+"«https://sso.example.com/auth/realms/master/.well-known/openid-"
+"configuration»).</strong>"
+
+msgid "plugins.generic.openid.settings.configUrl"
+msgstr "URL провайдера OpenID"
+
+msgid "plugins.generic.openid.settings.apple.desc"
+msgstr ""
+"Прочтите это <a href='https://developer.apple.com/documentation/"
+"authenticationservices' target='_blank' rel='noopener'>руководство</a>, "
+"чтобы узнать как настроить Apple ID. Пожалуйста, используйте этот URL "
+"перенаправления:"
+
+msgid "plugins.generic.openid.settings.apple.enable"
+msgstr "Apple ID"
+
+msgid "plugins.generic.openid.settings.google.desc"
+msgstr ""
+"Вам необходимо создать клиента OpenID Connect в <a "
+"href='https://console.developers.google.com/apis/credentials' target="
+"'_blank' rel='noopener'>Google Developer Console</a> , чтобы использовать "
+"Google как провайдера  OpenID Connect. Подробности — в этом  <a "
+"href='https://developers.google.com/identity/protocols/oauth2/openid-"
+"connect' target='_blank' rel='noopener'>руководстве</a>. Пожалуйста, "
+"используйте этот URL перенаправления:"
+
+msgid "plugins.generic.openid.settings.microsoft.desc"
+msgstr ""
+"Вам необходимо настроить вашу Службу приложений в <a "
+"href='https://portal.azure.com/#blade/Microsoft_AAD_IAM/"
+"ActiveDirectoryMenuBlade/Overview' target='_blank' rel='noopener'>портале "
+"Azure</a> (перейдите в «Регистрация приложений» после входа), чтобы "
+"использовать вход через Azure AD. Подробности — в этом <a "
+"href='https://docs.microsoft.com/en-us/azure/app-service/configure-"
+"authentication-provider-aad' target='_blank' rel='noopener'>руководстве</a>. "
+"Пожалуйста, используйте этот URL перенаправления:"
+
+msgid "plugins.generic.openid.settings.microsoft.enable"
+msgstr "Microsoft Azure Active Directory"
+
+msgid "plugins.generic.openid.settings.google.enable"
+msgstr "Google OpenID Connect"
+
+msgid "plugins.generic.openid.settings.orcid.enable"
+msgstr "ORCID OpenID Connect"
+
+msgid "plugins.generic.openid.settings.orcid.desc"
+msgstr ""
+"Пожалуйста, используйте этот URL перенаправления (см. <a "
+"href='https://github.com/ORCID/ORCID-Source/blob/master/orcid-web/"
+"ORCID_AUTH_WITH_OPENID_CONNECT.md' target='_blank' "
+"rel='noopener'>руководство</a>):"
+
+msgid "plugins.generic.openid.settings.btnTxt.desc"
+msgstr "Пожалуйста, введите текст для кнопки входа."
+
+msgid "plugins.generic.openid.settings.btnImg.desc"
+msgstr ""
+"Пожалуйста, введите URL к изображению (46x41), которое должно отображаться "
+"на кнопке входа. Если изображение не будет указано, на кнопке будет показан "
+"логотип OpenID."
+
+msgid "plugins.generic.openid.settings.provider.settings"
+msgstr "Параметры входа"
+
+msgid "plugins.generic.openid.settings.btn.settings"
+msgstr "Настройки пользовательской кнопки входа"
+
+msgid "plugins.generic.openid.settings.custom.desc"
+msgstr ""
+"Если вы хотите использовать пользовательский провайдер соединения с OpenID ("
+"например, серевер Keycloak на собственном хостинге), вы должны указать URL к "
+"конечной точке конфигурации OpenID и данные клиента для авторизации."
