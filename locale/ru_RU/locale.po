@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-03-14 06:54+0000\n"
+"PO-Revision-Date: 2021-03-15 18:10+0000\n"
 "Last-Translator: Pavel Pisklakov <ppv1979@mail.ru>\n"
 "Language-Team: Russian <http://translate.pkp.sfu.ca/projects/plugins/openid/"
 "ru_RU/>\n"
@@ -212,3 +212,157 @@ msgstr ""
 "Если вы хотите использовать пользовательский провайдер соединения с OpenID ("
 "например, серевер Keycloak на собственном хостинге), вы должны указать URL к "
 "конечной точке конфигурации OpenID и данные клиента для авторизации."
+
+msgid "plugins.generic.openid.disables.fields.info.password"
+msgstr ""
+"Вы используете для входа в систему провайдера, обеспечивающего единый вход "
+"(SSO), поэтому Вы должны изменить свой пароль на странице учётной записи "
+"этого провайдера."
+
+msgid "plugins.generic.openid.disables.fields.info.api"
+msgstr "Ключ API автоматически сгенерирован плагином."
+
+msgid "plugins.generic.openid.disables.fields.info.orcid"
+msgstr ""
+"ORCID автоматически предоставлен Вашей авторизованной учётной записью ORCID."
+
+# disabled fields info
+msgid "plugins.generic.openid.disables.fields.info"
+msgstr ""
+"Часть информации, предоставленной авторизованной учётной записью, "
+"используется для входа в систему и не может быть отредактирована.<br /> "
+"Данные будут синхронизироваться каждый раз, когда Вы выходите из системы и "
+"снова входите в неё."
+
+msgid "plugins.generic.openid.select.provider.apple"
+msgstr "Войти в систему с помощью Apple"
+
+msgid "plugins.generic.openid.select.provider.microsoft"
+msgstr "Войти в систему с помощью Microsoft"
+
+msgid "plugins.generic.openid.select.provider.google"
+msgstr "Войти в систему с помощью Google"
+
+msgid "plugins.generic.openid.select.provider.orcid"
+msgstr "Войти в систему с помощью Orcid"
+
+msgid "plugins.generic.openid.select.provider.custom"
+msgstr "Войти в систему с помощью пользовательского провайдера"
+
+msgid "plugins.generic.openid.select.provider.help"
+msgstr "Войти в систему или зарегистрироваться с помощью:"
+
+msgid "plugins.generic.openid.select.legacy"
+msgstr "Войти в систему с Вашей учётной записью в « {$journalName}»"
+
+#provider page
+msgid "plugins.generic.openid.select.provider"
+msgstr "Войти в систему или зарегистрироваться"
+
+msgid "plugins.generic.openid.error.legacy.link"
+msgstr ""
+"Менеджеры и сотрудники службы поддержки могут войти в систему  по этой <a "
+"href=\"{$legacyLoginUrl}\">ссылке</a>, чтобы решить возникшую проблему."
+
+msgid "plugins.generic.openid.error.openid.disabled.with"
+msgstr "<strong>Эта учётная запись отключена по следующей причине:</strong>"
+
+msgid "plugins.generic.openid.error.openid.disabled.without"
+msgstr ""
+"<strong>Эта учётная запись отключена без указания конкретной "
+"причины.</strong><br />Пожалуйста, <a href='mailto:{$supportEmail}'>"
+"свяжитесь с технической поддержкой</a>, чтобы включить данную учётную запись."
+
+msgid "plugins.generic.openid.error.openid.cert.desc"
+msgstr ""
+"<strong>Произошла ошибка при проверке и извлечении Ваших данных.</strong><br "
+"/>Служба может быть недоступна в данный момент.<br />Пожалуйста, попробуйте "
+"ещё раз позже и <a href='mailto:{$supportEmail}'>свяжитесь с технической "
+"поддержкой</a>, если проблема по-прежнему сохраняется."
+
+msgid "plugins.generic.openid.error.openid.connect.desc.data"
+msgstr ""
+"<strong>Произошла ошибка при получении Ваших данных от провайдера "
+"OpenId.</strong><br />Служба может быть недоступна в данный момент.<br />"
+"Пожалуйста, попробуйте ещё раз позже и <a href='mailto:{$supportEmail}'>"
+"свяжитесь с технической поддержкой</a>, если проблема по-прежнему "
+"сохраняется."
+
+# error messages
+msgid "plugins.generic.openid.error.openid.connect.desc.key"
+msgstr ""
+"<strong>Произошла ошибка при проверке Ваших данных.</strong><br />Служба "
+"может быть недоступна в данный момент.<br />Пожалуйста, попробуйте ещё раз "
+"позже и <a href='mailto:{$supportEmail}'>свяжитесь с технической "
+"поддержкой</a>, если проблема по-прежнему сохраняется."
+
+msgid "plugins.generic.openid.settings.features.disable.email"
+msgstr "<strong>Адрес электронной почты</strong> (только чтение)"
+
+msgid "plugins.generic.openid.settings.features.disable.family"
+msgstr "<strong>Фамилия</strong> (только чтение)"
+
+msgid "plugins.generic.openid.settings.features.disable.given"
+msgstr "<strong>Имя</strong> (только чтение)"
+
+msgid "plugins.generic.openid.settings.features.disable.fields.desc"
+msgstr "Запретить модификацию следующих полей внутри данного приложения:"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync.desc"
+msgstr ""
+"Некоторая информация о пользователе, такая как имя, фамилия и адрес "
+"электронной почты, передаётся от провайдера OpenID этому приложению. "
+"Включите этот параметр, чтобы автоматически сохранять эту информацию о "
+"пользователе в его учётной записи. (рекомендуется)"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync"
+msgstr "Включить синхронизацию данных пользователя с провайдером OpenID"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.desc"
+msgstr ""
+"Этот плагин может генерировать ключ путем шифрования идентификатора OpenID с "
+"помощью <strong>секретного ключа, указанного выше</strong>. Этот ключ будет "
+"снова зашифрован с помощью секретного ключа, который должен быть указан в "
+"настройках приложения. Это должно быть достаточно безопасно."
+
+msgid "plugins.generic.openid.settings.generateAPIKey.check"
+msgstr "Включить автоматическую генерацию ключа API"
+
+msgid "plugins.generic.openid.settings.generateAPIKey"
+msgstr "Автоматизированный ключ API"
+
+msgid "plugins.generic.openid.settings.hashSecret.desc"
+msgstr ""
+"Если Вы хотите шифровать информацию OpenID, например, идентификатор OpenID в "
+"HTML-коде и хотите использовать следующую функцию для автоматической "
+"генерации ключа API, Вам необходимо ввести здесь секретный ключ. Чтобы быть "
+"надёжным, ключ должен содержать не менее 24 символов."
+
+msgid "plugins.generic.openid.settings.hashSecret"
+msgstr "Секретный ключ для шифрования/дешифрования"
+
+msgid "plugins.generic.openid.settings.step2.connect.desc"
+msgstr ""
+"Если этот журнал новый и не содержит ранее созданных учётных записей "
+"пользователей, Вы можете включить этот параметр, чтобы отключить функцию "
+"связывания учётных записей. В этом случае при регистрации учётной записи "
+"через провайдера OpenID пользователя спросят только о дополнительной "
+"информации, необходимой этому приложению."
+
+msgid "plugins.generic.openid.settings.step2.connect.check"
+msgstr "Отключить «Соединение учётных записей»"
+
+msgid "plugins.generic.openid.settings.step2.connect"
+msgstr "Соединение учётных записей"
+
+msgid "plugins.generic.openid.settings.legacyLogin.desc"
+msgstr ""
+"Включите этот параметр, если хотите чтобы пользователи могли "
+"регистрироваться и входить в систему, используя форму входа приложения, "
+"помимо входа через OpenID."
+
+msgid "plugins.generic.openid.settings.legacyLogin.check"
+msgstr "Включить «старый» способ входа"
+
+msgid "plugins.generic.openid.settings.legacyLogin"
+msgstr "«Старый» способ входа"
