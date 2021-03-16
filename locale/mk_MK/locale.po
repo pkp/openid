@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-03-15 18:10+0000\n"
+"PO-Revision-Date: 2021-03-17 06:54+0000\n"
 "Last-Translator: Mirko Spiroski <mspiroski@id-press.eu>\n"
 "Language-Team: Macedonian <http://translate.pkp.sfu.ca/projects/plugins/"
 "openid/mk_MK/>\n"
@@ -71,10 +71,10 @@ msgid "plugins.generic.openid.step2.complete"
 msgstr "Молам потврди ги твоите детали и додади информација која недостасува."
 
 msgid "plugins.generic.openid.step2.choice.yes"
-msgstr "Да, јас вече имам акаунт."
+msgstr "Да, јас веќе имам акаунт."
 
 msgid "plugins.generic.openid.step2.choice.no"
-msgstr "Не, јас сум нов во  {$journalName}."
+msgstr "Не, јас сум нов во {$journalName}."
 
 msgid "plugins.generic.openid.step2.help"
 msgstr "Потребни се дополнителни информации за регистрација:"
