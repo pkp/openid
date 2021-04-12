@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-04-01 10:55+0000\n"
+"PO-Revision-Date: 2021-04-13 07:55+0000\n"
 "Last-Translator: Dimitri Gogelia <dimitri.gogelia@iliauni.edu.ge>\n"
 "Language-Team: Georgian <http://translate.pkp.sfu.ca/projects/plugins/openid/"
 "ka_GE/>\n"
@@ -13,3 +13,345 @@ msgstr ""
 
 msgid "plugins.generic.openid.step2.connect.username"
 msgstr "სახელი, ან ელფოსტა"
+
+msgid "plugins.generic.openid.settings.microsoft.enable"
+msgstr "Microsoft Azure Active Directory"
+
+msgid "plugins.generic.openid.select.provider.apple"
+msgstr "Sign in with Apple"
+
+msgid "plugins.generic.openid.settings.google.enable"
+msgstr "Google OpenID Connect"
+
+msgid "plugins.generic.openid.select.provider.orcid"
+msgstr "Sign in with Orcid"
+
+msgid "plugins.generic.openid.select.provider.custom"
+msgstr "Sign in with custom provider"
+
+msgid "plugins.generic.openid.settings.apple.enable"
+msgstr "Apple ID"
+
+# general messages
+msgid "plugins.generic.openid.name"
+msgstr "OpenID ავთენტიფიკაციის პლაგინი"
+
+msgid "plugins.generic.openid.description"
+msgstr ""
+"ეს პლაგინი მომხმარებლებს საშუალებას აძლევს დარეგისტრირდნენ და შევიდნენ "
+"OpenID პროვაიდერებთან, როგორიცაა Keycloak."
+
+# step2 messages
+msgid "plugins.generic.openid.step2.title"
+msgstr "რეგისტრაციის დასრულება"
+
+msgid "plugins.generic.openid.step2.headline"
+msgstr "უკვე გაქვთ ანგარიში {$journalName}?"
+
+msgid "plugins.generic.openid.step2.help"
+msgstr "რეგისტრაციისთვის საჭიროა დამატებითი ინფორმაცია:"
+
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "არა, მე ახალი ვარ {$journalName}."
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "დიახ, ანგარიში უკვე მაქვს."
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr ""
+"გთხოვთ, გადაამოწმოთ თქვენი მონაცემები და დაამატოთ გამოტოვებული ინფორმაცია"
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "რეგისტრაციის დასრულება"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr ""
+"გთხოვთ, შეხვიდეთ თქვენს ანგარიშზე მისამართზე: {$journalName}.<br /> თქვენი "
+"ინფორმაცია ავტომატურად განახლდება."
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "შედით და დააკავშირეთ ანგარიშები"
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "მომხმარებლის სახელი სავალდებულოა."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "თქვენს მიერ მითითებული მომხმარებლის სახელი უკვე არსებობს."
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "სახელი სავალდებულოა."
+
+msgid "plugins.generic.openid.form.error.familyName.required"
+msgstr "გვარი სავალდებულოა."
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "ქვეყანა სავალდებულოა."
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
+msgstr "წევრობა სავალდებულოა."
+
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "ელფოსტა სავალდებულოა."
+
+msgid "plugins.generic.openid.form.error.emailExists"
+msgstr ""
+"თქვენს მიერ მითითებული ელფოსტის მისამართი უკვე არსებობს. გთხოვთ, შეხვიდეთ "
+"არსებულ ანგარიშში."
+
+msgid "plugins.generic.openid.form.error.privacyConsent.required"
+msgstr "თქვენ უნდა დაეთანხმოთ კონფიდენციალურობის დებულების პირობებს."
+
+msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
+msgstr "მომხმარებლის სახელი ან ელფოსტა სავალდებულოა."
+
+msgid "plugins.generic.openid.form.error.password.required"
+msgstr "პაროლი სავალდებულოა."
+
+msgid "plugins.generic.openid.form.error.user.not.found"
+msgstr "ვერ მოიძებნა მომხმარებელი, რომელიც შეესატყვისება თქვენს სერთიფიკატებს."
+
+msgid "plugins.generic.openid.form.error.invalid.credentials"
+msgstr "პაროლი არასწორია."
+
+msgid "plugins.generic.openid.settings.error"
+msgstr ""
+"<strong>OpenID მოდულის არასწორი კონფიგურაცია!</strong><br /> არ არის "
+"კონფიგურირებული OpenID პროვაიდერი!<br /> გთხოვთ, ამის შესახებ შეატყობინოთ "
+"თქვენს ტექნიკურ დახმარებას."
+
+# settings messages
+msgid "plugins.generic.openid.settings.openid.head"
+msgstr "OpenID პროვაიდერი:"
+
+msgid "plugins.generic.openid.settings.openid.desc"
+msgstr ""
+"გთხოვთ, შეიყვანოთ შემდეგი ინფორმაცია თქვენი OpenID პროვაიდერის შესაბამისად."
+
+msgid "plugins.generic.openid.settings.custom.enable"
+msgstr "მორგებული OpenID პროვაიდერი"
+
+msgid "plugins.generic.openid.settings.custom.desc"
+msgstr ""
+"თუ გსურთ გამოიყენოთ OpenID დაკავშირების პერსონალური პროვაიდერი (მაგ. "
+"Keycloak სერვერი, რომელიც მასპინძლობს), თქვენ უნდა მიუთითოთ URL OpenID "
+"კონფიგურაციის ბოლო წერტილზე და კლიენტის სერთიფიკატებზე."
+
+msgid "plugins.generic.openid.settings.btn.settings"
+msgstr "შესვლის ღილაკის მორგებული პარამეტრები"
+
+msgid "plugins.generic.openid.settings.provider.settings"
+msgstr "შესვლის სერთიფიკატები"
+
+msgid "plugins.generic.openid.settings.btnImg.desc"
+msgstr ""
+"გთხოვთ, შეიყვანოთ URL სურათზე (46x41), რომლითაც გამოჩნდება შესვლის ღილაკი. "
+"თუ სურათი არ არის მოწოდებული, გამოჩნდება OpenID ლოგო."
+
+msgid "plugins.generic.openid.settings.btnTxt.desc"
+msgstr "გთხოვთ, შეიყვანოთ შესვლის ღილაკის ეტიკეტი."
+
+msgid "plugins.generic.openid.settings.orcid.enable"
+msgstr "ORCID OpenID დაკავშირება"
+
+msgid "plugins.generic.openid.settings.orcid.desc"
+msgstr ""
+"გთხოვთ გამოიყენოთ ეს გადამისამართების URL (იხილეთ <a href='https://github."
+"com/ORCID/ORCID-Source/blob/master/orcid-web/"
+"ORCID_AUTH_WITH_OPENID_CONNECT.md' target='_blank' "
+"rel='noopener'>სახელმძღვანელო</a> ):"
+
+msgid "plugins.generic.openid.settings.google.desc"
+msgstr ""
+"თქვენ უნდა შექმნათ OpenID Connect კლიენტი <a "
+"href='https://console.developers.google.com/apis/credentials' target="
+"'_blank' rel='noopener'>Google Developer Console</a>-ში, Google-ის, როგორც "
+"OpenID Connect პროვაიდერად გამოსაყენებლად. იხილეთ <a "
+"href='https://developers.google.com/identity/protocols/oauth2/openid-"
+"connect' target='_blank' rel='noopener'>სახელმძღვანელო</a>. გთხოვთ "
+"გამოიყენოთ ეს გადამისამართების URL:"
+
+msgid "plugins.generic.openid.settings.microsoft.desc"
+msgstr ""
+"თქვენ უნდა დააკონფიგურიროთ თქვენი აპლიკაციის სერვისი <a "
+"href='https://portal.azure.com/#blade/Microsoft_AAD_IAM/"
+"ActiveDirectoryMenuBlade/Overview' target='_blank' rel='noopener'>Azure "
+"პორტალზე</a> (შესვლის შემდეგ გადადით “აპლიკაციების რეგისტრაციაში”) Azure AD "
+"შესვლის გამოსაყენებლად. იხილეთ <a href='https://docs.microsoft.com/en-us/"
+"azure/app-service/configure-authentication-provider-aad' target='_blank' "
+"rel='noopener'>სახელმძღვანელო</a>. გთხოვთ გამოიყენოთ ეს გადამისამართების URL:"
+
+msgid "plugins.generic.openid.settings.apple.desc"
+msgstr ""
+"იხილეთ ეს <a href='https://developer.apple.com/documentation/"
+"authenticationservices' target='_blank' rel='noopener'>სახელმძღვანელო</a> , "
+"თუ როგორ უნდა დააყენოთ Apple ID. გთხოვთ გამოიყენოთ ეს გადამისამართების URL:"
+
+msgid "plugins.generic.openid.settings.configUrl"
+msgstr "OpenID პროვაიდერის URL"
+
+msgid "plugins.generic.openid.settings.configUrl.desc"
+msgstr ""
+"გთხოვთ, შეიყვანოთ თქვენი OpenID პროვაიდერის კონფიგურაციის URL. <strong>URL "
+"უნდა დასრულდეს “.well-known/openid-configuration” (მაგ. “https://sso.example."
+"com/auth/realms/master/.well-known/openid-configuration\").</strong>"
+
+msgid "plugins.generic.openid.settings.clientId"
+msgstr "კლიენტის იდენტიფიკატორი"
+
+msgid "plugins.generic.openid.settings.clientId.desc"
+msgstr "გთხოვთ, შეიყვანოთ თქვენი clientId."
+
+msgid "plugins.generic.openid.settings.clientSecret"
+msgstr "კლიენტის საიდუმლო"
+
+msgid "plugins.generic.openid.settings.clientSecret.desc"
+msgstr "გთხოვთ, შეიყვანოთ თქვენი კლიენტის საიდუმლო."
+
+msgid "plugins.generic.openid.settings.features.head"
+msgstr "პლაგინის დამატებითი ფუნქციები"
+
+msgid "plugins.generic.openid.settings.features.desc"
+msgstr ""
+"შემდეგი ველები არასავალდებულოა. მათ არ მოეთხოვებათ OpenID პროვაიდერთან "
+"დაკავშირება."
+
+msgid "plugins.generic.openid.settings.legacyLogin"
+msgstr "მოძველებული შესვლა"
+
+msgid "plugins.generic.openid.settings.legacyLogin.check"
+msgstr "მოძველებული შესვლის ჩართვა"
+
+msgid "plugins.generic.openid.settings.legacyLogin.desc"
+msgstr ""
+"ჩართეთ ეს პარამეტრი, თუ გსურთ მომხმარებლებს შეეძლოთ დარეგისტრირდნენ და "
+"შევიდნენ აპლიკაციის შესვლის ფორმაში, OpenID-ის შესვლის გარდა."
+
+msgid "plugins.generic.openid.settings.step2.connect"
+msgstr "ანგარიშის კავშირი"
+
+msgid "plugins.generic.openid.settings.step2.connect.check"
+msgstr "\"ანგარიშთან კავშირი\" გამორთულია"
+
+msgid "plugins.generic.openid.settings.step2.connect.desc"
+msgstr ""
+"თუ ეს ჟურნალი ახალია და არ აქვს მომხმარებლის ანგარიშები, შეგიძლიათ მონიშნოთ "
+"ეს ველი, რომ გათიშოთ ანგარიშის დამაკავშირებელი ფუნქცია. ამ შემთხვევაში "
+"მომხმარებელს მხოლოდ OpenID პროვაიდერის საშუალებით ანგარიშის "
+"დარეგისტრირებისას შეეკითხება მხოლოდ დამატებითი ინფორმაცია, რომელიც საჭიროა "
+"ამ პროგრამის მიერ."
+
+msgid "plugins.generic.openid.settings.hashSecret"
+msgstr "საიდუმლოს დაშიფვრა/გაშიფვრა"
+
+msgid "plugins.generic.openid.settings.hashSecret.desc"
+msgstr ""
+"თუ გსურთ OpenID ინფორმაციის დაშიფვრა, როგორიცაა OpenID იდენტიფიკატორი HTML "
+"კოდში და გსურთ გამოიყენოთ შემდეგი ფუნქცია ავტომატიზირებული API-KEY "
+"გენერაციისათვის, აქ უნდა შეიყვანოთ საიდუმლო. უსაფრთხოებისთვის საიდუმლო "
+"გასაღები უნდა იყოს მინიმუმ 24 სიმბოლო."
+
+msgid "plugins.generic.openid.settings.generateAPIKey"
+msgstr "ავტომატიზირებული API გასაღები"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.check"
+msgstr "ავტომატური API გასაღების გენერაციის ჩართვა"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.desc"
+msgstr ""
+"ამ მოდულს შეუძლია გასაღების გენერირება OpenID იდენტიფიკატორის დაშიფვრით "
+"<strong>ზემოთ შეყვანილი საიდუმლოთი</strong> . ეს გასაღები კვლავ დაშიფრული "
+"იქნება საიდუმლოებით, რომელიც უნდა იყოს მითითებული პროგრამის პარამეტრებში. ეს "
+"უნდა იყოს ადეკვატურად დაცული."
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync"
+msgstr "OpenID პროვაიდერის მომხმარებლის მონაცემთა სინქრონიზაციის ჩართვა"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync.desc"
+msgstr ""
+"მომხმარებლის ზოგიერთი ინფორმაცია, როგორიცაა სახელი, გვარი და ელფოსტის "
+"მისამართი, OpenID პროვაიდერიდან გადაეცემა ამ აპლიკაციას. ჩართეთ ეს "
+"პარამეტრი, რომ ამ მომხმარებლის ინფორმაცია ავტომატურად შეინახოს მომხმარებლის "
+"ანგარიშში. (რეკომენდებულია)"
+
+msgid "plugins.generic.openid.settings.features.disable.fields.desc"
+msgstr "აღკვეთეთ შემდეგი ველების შეცვლა ამ პროგრამაში:"
+
+msgid "plugins.generic.openid.settings.features.disable.given"
+msgstr "<strong>სახელი</strong> მხოლოდ წაკითხვა"
+
+msgid "plugins.generic.openid.settings.features.disable.family"
+msgstr "<strong>გვარი</strong> მხოლოდ წაკითხვა"
+
+msgid "plugins.generic.openid.settings.features.disable.email"
+msgstr "<strong>ელფოსტით</strong> მხოლოდ წაკითხვა"
+
+# error messages
+msgid "plugins.generic.openid.error.openid.connect.desc.key"
+msgstr ""
+"<strong>თქვენი მონაცემების გადამოწმებისას მოხდა შეცდომა.</strong><br /> "
+"სერვისი შეიძლება ახლა არ იყოს ხელმისაწვდომი.<br /> გთხოვთ, სცადოთ "
+"მოგვიანებით და <a href='mailto:{$supportEmail}'>დაუკავშირდეთ ტექნიკურ "
+"დახმარებას,</a> თუ პრობლემა კვლავ არსებობს."
+
+msgid "plugins.generic.openid.error.openid.connect.desc.data"
+msgstr ""
+"<strong>თქვენი მონაცემების OpenId პროვაიდერისაგან მიღებისას მოხდა "
+"შეცდომა.</strong><br /> სერვისი შეიძლება ახლა არ იყოს ხელმისაწვდომი.<br /> "
+"გთხოვთ, სცადოთ მოგვიანებით და <a href='mailto:{$supportEmail}'>დაუკავშირდეთ "
+"ტექნიკურ დახმარებას,</a> თუ პრობლემა კვლავ არსებობს."
+
+msgid "plugins.generic.openid.error.openid.cert.desc"
+msgstr ""
+"<strong>თქვენი მონაცემების ვალიდაციისა და მოპოვებისას მოხდა "
+"შეცდომა.</strong><br /> სერვისი შეიძლება ახლა არ იყოს ხელმისაწვდომი.<br /> "
+"გთხოვთ, სცადოთ მოგვიანებით და <a href='mailto:{$supportEmail}'>დაუკავშირდეთ "
+"ტექნიკურ დახმარებას,</a> თუ პრობლემა კვლავ არსებობს."
+
+msgid "plugins.generic.openid.error.openid.disabled.without"
+msgstr ""
+"<strong>ეს ანგარიში გათიშულია რაიმე კონკრეტული მიზეზის გარეშე.</strong><br />"
+" გთხოვთ, <a href='mailto:{$supportEmail}'>დაუკავშირდეთ ტექნიკურ "
+"მხარდაჭერას</a> ამ ანგარიშის ჩასართავად."
+
+msgid "plugins.generic.openid.error.openid.disabled.with"
+msgstr "<strong>ეს ანგარიში გათიშულია შემდეგი მიზეზით:</strong>"
+
+msgid "plugins.generic.openid.error.legacy.link"
+msgstr ""
+"მმართველებსა და დამხმარე პერსონალს შეუძლიათ შევიდნენ ამ <a href=\""
+"{$legacyLoginUrl}\">ბმულის</a> საშუალებით ამ საკითხის გადასაჭრელად."
+
+#provider page
+msgid "plugins.generic.openid.select.provider"
+msgstr "შესვლა, ან რეგისტრაცია"
+
+msgid "plugins.generic.openid.select.legacy"
+msgstr "შესვლა ანგარიშში: {$journalName}"
+
+msgid "plugins.generic.openid.select.provider.help"
+msgstr "შესვლა, ან რეგისტრაცია:"
+
+msgid "plugins.generic.openid.select.provider.google"
+msgstr "Sign in with Google"
+
+msgid "plugins.generic.openid.select.provider.microsoft"
+msgstr "Sign in with Microsoft"
+
+# disabled fields info
+msgid "plugins.generic.openid.disables.fields.info"
+msgstr ""
+"ზოგიერთი ინფორმაცია მოწოდებულია ავტორიზებული ანგარიშით, რომელიც შესვლისას "
+"გამოიყენება და მისი ჩასწორება შეუძლებელია.<br /> მონაცემთა სინქრონიზაცია "
+"მოხდება, როდესაც გამოხვალთ სისტემიდან და კვლავ შეხვალთ."
+
+msgid "plugins.generic.openid.disables.fields.info.orcid"
+msgstr "ORCID ავტომატურად უზრუნველყოფს თქვენს ავტორიზებულ ORCID ანგარიშს."
+
+msgid "plugins.generic.openid.disables.fields.info.api"
+msgstr "API გასაღები ავტომატურად გენერირდება პლაგინის საშუალებით."
+
+msgid "plugins.generic.openid.disables.fields.info.password"
+msgstr ""
+"სისტემაში შესასვლელად იყენებთ სისტემაში შესვლის ავთენტიფიკაციის ერთ "
+"პროვაიდერს, ამიტომ უნდა შეცვალოთ თქვენი პაროლი პროვაიდერის ანგარიშის გვერდზე."
