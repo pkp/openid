@@ -67,7 +67,6 @@ class OpenIDPluginSettingsForm extends Form
 		$provider = $settings['provider'];
 		if ($provider && is_array($provider)) {
 			foreach ($provider as &$prov) {
-				error_log(json_encode($prov));
 				if (key_exists('clientId', $prov) && !empty($prov['clientId'])) {
 					$prov['clientId'] = self::HIDDEN_CHARS;
 				}
