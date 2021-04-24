@@ -1,2 +1,178 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2021-04-25 13:56+0000\n"
+"Last-Translator: Primož Svetek <primoz.svetek@gmail.com>\n"
+"Language-Team: Slovenian <http://translate.pkp.sfu.ca/projects/plugins/"
+"openid/sl_SI/>\n"
+"Language: sl_SI\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
+"n%100==4 ? 2 : 3;\n"
+"X-Generator: Weblate 3.9.1\n"
+
+msgid "plugins.generic.openid.settings.configUrl"
+msgstr "URL OpenID ponudnika"
+
+msgid "plugins.generic.openid.settings.apple.desc"
+msgstr ""
+"Kako nastavite Apple ID lahko vidite v teh <a href='https://developer.apple."
+"com/documentation/authenticationservices' target='_blank' "
+"rel='noopener'>navodilih</a>. Prosimo uporabite ta URL:"
+
+msgid "plugins.generic.openid.settings.apple.enable"
+msgstr "Apple ID"
+
+msgid "plugins.generic.openid.settings.microsoft.desc"
+msgstr ""
+"Za uporabo Azure AD prijave morate skonfigurirati App service v <a "
+"href='https://portal.azure.com/#blade/Microsoft_AAD_IAM/"
+"ActiveDirectoryMenuBlade/Overview' target='_blank' rel='noopener'>Azure "
+"portalu</a> (po prijavi pojdite na 'App registrations'). Več v <a "
+"href='https://docs.microsoft.com/en-us/azure/app-service/configure-"
+"authentication-provider-aad' target='_blank' rel='noopener'>navodilih</a>. "
+"Prosimo uporabite ta URL:"
+
+msgid "plugins.generic.openid.settings.microsoft.enable"
+msgstr "Microsoft Azure Active Directory"
+
+msgid "plugins.generic.openid.settings.google.desc"
+msgstr ""
+"Za uporabo Googla kot OpenID ponudnika morate kreirati OpenID Connect "
+"klienta v <a href='https://console.developers.google.com/apis/credentials' "
+"target='_blank' rel='noopener'>Google Developer Console</a>. Poglejte ta <a "
+"href='https://developers.google.com/identity/protocols/oauth2/openid-"
+"connect' target='_blank' rel='noopener'>navodila</a>. Prosimo uporabite ta "
+"URL:"
+
+msgid "plugins.generic.openid.settings.google.enable"
+msgstr "Poveži Google OpenID"
+
+msgid "plugins.generic.openid.settings.orcid.desc"
+msgstr ""
+"Prosimo uporabite ta povezovalni URL (glej <a href='https://github.com/ORCID/"
+"ORCID-Source/blob/master/orcid-web/ORCID_AUTH_WITH_OPENID_CONNECT.md' target="
+"'_blank' rel='noopener'>navodila</a>):"
+
+msgid "plugins.generic.openid.settings.orcid.enable"
+msgstr "Poveži ORCID OpenID"
+
+msgid "plugins.generic.openid.settings.btnTxt.desc"
+msgstr "Prosimo vnesite napis za gumb za prijavo."
+
+msgid "plugins.generic.openid.settings.btnImg.desc"
+msgstr ""
+"Prosimo vnesite URL do slike (46x41), ki bo prikazana na gumbu za prijavo. "
+"Če ne posredujete slike, bo prikazan OpenID logo."
+
+msgid "plugins.generic.openid.settings.provider.settings"
+msgstr "Poverilnice za prijavo"
+
+msgid "plugins.generic.openid.settings.custom.enable"
+msgstr "OpenID ponudnik po meri"
+
+msgid "plugins.generic.openid.settings.btn.settings"
+msgstr "Nastavitve za gumb za prijavo po meri"
+
+msgid "plugins.generic.openid.settings.custom.desc"
+msgstr ""
+"Če želite uporabljati OpenID ponudnika po meri (npr. lasten Keycloak "
+"strežnik), morate zagotoviti URL do OpenID konfiguracijske točka in "
+"poverilnice klienta."
+
+msgid "plugins.generic.openid.settings.openid.desc"
+msgstr ""
+"Prosimo vnesite naslednje informacije kot jih zahteva vaš OpenID ponudnik."
+
+# settings messages
+msgid "plugins.generic.openid.settings.openid.head"
+msgstr "OpenId ponudnik:"
+
+msgid "plugins.generic.openid.settings.error"
+msgstr ""
+"<strong>Napačna nastavitev OpenID vtičnika!</strong><br />OpenID ponudnik ni "
+"nastavljen<br />Prosimo sporočite to vaši tehnični podpori."
+
+msgid "plugins.generic.openid.form.error.invalid.credentials"
+msgstr "Geslo je napačno."
+
+msgid "plugins.generic.openid.form.error.user.not.found"
+msgstr "Uporabnika s podanimi podatki ni bilo mogoče najti."
+
+msgid "plugins.generic.openid.form.error.password.required"
+msgstr "Geslo je obvezno."
+
+msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
+msgstr "Uporabniško ime ali email je obvezen."
+
+msgid "plugins.generic.openid.form.error.privacyConsent.required"
+msgstr "Strinjati se morate z izjavo o zasebnosti."
+
+msgid "plugins.generic.openid.form.error.emailExists"
+msgstr ""
+"Email naslov že obstaja. Prosimo poskusite se prijaviti v obstoječi račun."
+
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "Email je obvezen."
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
+msgstr "Ustanova je obvezna."
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "Država je obvezna."
+
+msgid "plugins.generic.openid.form.error.familyName.required"
+msgstr "Priimek je obvezen."
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "Ime je obvezno."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "Uporabniško ime že obstaja."
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "Uporabniško ime je obvezno."
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "Prijavi se in poveži računa"
+
+msgid "plugins.generic.openid.step2.connect.username"
+msgstr "Uporabniško ime ali email"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr ""
+"Prosimo prijavite se v {$journalName}.<br />Vapi podtki se bodo posodobili "
+"avtomatično."
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "Končaj registracijo"
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr "Prosimo preverite podrobnosti in dodajte manjkajoče informacije"
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "Ja, račun že imam."
+
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "Ne, nisem še registriran pri {$journalName}."
+
+msgid "plugins.generic.openid.step2.help"
+msgstr "Za registracijo so potrebne dodatne informacije:"
+
+msgid "plugins.generic.openid.step2.headline"
+msgstr "Ali že imate račun pri {$journalName}?"
+
+# step2 messages
+msgid "plugins.generic.openid.step2.title"
+msgstr "Končaj registracijo"
+
+msgid "plugins.generic.openid.description"
+msgstr ""
+"Vtičnik omogoča, da se uporabniki registrirajo in prijavijo preko OpenID "
+"ponudnikov kot je Keycloak."
+
+# general messages
+msgid "plugins.generic.openid.name"
+msgstr "Vtičnik za OpenID avtentikacijo"
