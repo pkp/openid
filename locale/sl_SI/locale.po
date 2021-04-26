@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-04-25 13:56+0000\n"
+"PO-Revision-Date: 2021-04-26 09:30+0000\n"
 "Last-Translator: Primož Svetek <primoz.svetek@gmail.com>\n"
 "Language-Team: Slovenian <http://translate.pkp.sfu.ca/projects/plugins/"
 "openid/sl_SI/>\n"
@@ -176,3 +176,57 @@ msgstr ""
 # general messages
 msgid "plugins.generic.openid.name"
 msgstr "Vtičnik za OpenID avtentikacijo"
+
+msgid "plugins.generic.openid.settings.hashSecret"
+msgstr "Encrypt/Decrypt secret"
+
+msgid "plugins.generic.openid.settings.step2.connect.desc"
+msgstr ""
+"Če je revija nova in še nima obstoječih uporabnikov, lahko s to opcijo "
+"izključite funkcijo povezovanja računov. V tem primeru bo uporabnik ob "
+"registraciji  preko OpenID računa naprošen le za vnos dodatnih podatkov, ki "
+"so zahtevani za uporabo te aplikacije."
+
+msgid "plugins.generic.openid.settings.step2.connect.check"
+msgstr "Onemogoči \"Povezavo računa\""
+
+msgid "plugins.generic.openid.settings.step2.connect"
+msgstr "Povezava računa"
+
+msgid "plugins.generic.openid.settings.legacyLogin.desc"
+msgstr ""
+"To opcijo vklopite, če želite, da se uporabniki lahko registrirajo in "
+"prijavijo s prijavo v aplikacijo poleg OpenID prijave."
+
+msgid "plugins.generic.openid.settings.legacyLogin.check"
+msgstr "Omogoči staro prijavo"
+
+msgid "plugins.generic.openid.settings.legacyLogin"
+msgstr "Stara prijava"
+
+msgid "plugins.generic.openid.settings.features.desc"
+msgstr ""
+"Naslednja polja so neobvezna. Polja niso zahtevana za povezavo z OpenID "
+"ponudnikom."
+
+msgid "plugins.generic.openid.settings.features.head"
+msgstr "Napredne funkcije vtičnika"
+
+msgid "plugins.generic.openid.settings.clientSecret.desc"
+msgstr "Prosimo vnesite secret klienta."
+
+msgid "plugins.generic.openid.settings.clientSecret"
+msgstr "Secret klienta"
+
+msgid "plugins.generic.openid.settings.clientId.desc"
+msgstr "Prosimo vnesite vaš clientId."
+
+msgid "plugins.generic.openid.settings.clientId"
+msgstr "identifikator klienta"
+
+msgid "plugins.generic.openid.settings.configUrl.desc"
+msgstr ""
+"Prosimo vnesite nastavitveni URL vašega OpenID ponudnika. <strong>URL se "
+"mora končati z \".well-known/openid-configuration\" (npr. \""
+"https://sso.example.com/auth/realms/master/.well-known/openid-configuration\""
+").</strong>"
