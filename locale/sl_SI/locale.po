@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-04-26 09:30+0000\n"
+"PO-Revision-Date: 2021-04-28 17:34+0000\n"
 "Last-Translator: Primož Svetek <primoz.svetek@gmail.com>\n"
 "Language-Team: Slovenian <http://translate.pkp.sfu.ca/projects/plugins/"
 "openid/sl_SI/>\n"
@@ -230,3 +230,123 @@ msgstr ""
 "mora končati z \".well-known/openid-configuration\" (npr. \""
 "https://sso.example.com/auth/realms/master/.well-known/openid-configuration\""
 ").</strong>"
+
+msgid "plugins.generic.openid.disables.fields.info.password"
+msgstr ""
+"Za prijavo uporabljate \"single sign-on\" ponudnika, zato morate spremeniti "
+"geslo na strani vašega ponudnika."
+
+msgid "plugins.generic.openid.disables.fields.info.api"
+msgstr "Vtičnik avtomatsko generira API ključ."
+
+msgid "plugins.generic.openid.disables.fields.info.orcid"
+msgstr "ORCID je avtomatično prenesen iz vašega uporabljenega ORCID računa."
+
+# disabled fields info
+msgid "plugins.generic.openid.disables.fields.info"
+msgstr ""
+"Določene informacije pridejo preko uporabljenega avtenticiranega računa za "
+"prijavo in ne morejo biti spremenjene.<br /> Podatki se bodo sinhronizirani "
+"vsakič, ko se odjavite in spet prijavite."
+
+msgid "plugins.generic.openid.select.provider.apple"
+msgstr "Prijava z Apple računom"
+
+msgid "plugins.generic.openid.select.provider.microsoft"
+msgstr "Prijava z Microsoft računom"
+
+msgid "plugins.generic.openid.select.provider.google"
+msgstr "Prijava z Google računom"
+
+msgid "plugins.generic.openid.select.provider.orcid"
+msgstr "Prijava z Orcid računom"
+
+msgid "plugins.generic.openid.select.provider.custom"
+msgstr "Prijava s ponudnikom po meri"
+
+msgid "plugins.generic.openid.select.provider.help"
+msgstr "Prijava ali registracija z:"
+
+msgid "plugins.generic.openid.select.legacy"
+msgstr "Prijava z vašim računom v {$journalName}"
+
+#provider page
+msgid "plugins.generic.openid.select.provider"
+msgstr "Registracija ali prijava"
+
+msgid "plugins.generic.openid.error.legacy.link"
+msgstr ""
+"Upravniki in podporno osebje se lahko prijavi preko te <a href=\""
+"{$legacyLoginUrl}\">povezave</a>, da razreši težave."
+
+msgid "plugins.generic.openid.error.openid.disabled.with"
+msgstr "<strong>Ta račun je onemogočen zaradi:</strong>"
+
+msgid "plugins.generic.openid.error.openid.disabled.without"
+msgstr ""
+"<strong>Ta račun je onemogočen, brez podatkov o tem zakaj.</strong><br />"
+"Prosimo <a href='mailto:{$supportEmail}'>obrnite se na tehnično pomoč</a> za "
+"ponovno omogočanje tega računa."
+
+msgid "plugins.generic.openid.error.openid.cert.desc"
+msgstr ""
+"<strong>Prišlo je do napake pri preverjanju in razčlenitvi vaših "
+"podatkov.</strong><br />Morda storitev ta trenutek ni na voljo.<br />"
+"Prosimo, poskusite kasneje in če se bo težava ponavljala <a "
+"href='mailto:{$supportEmail}'>o tem obvestite tehnično podporo</a>."
+
+msgid "plugins.generic.openid.error.openid.connect.desc.data"
+msgstr ""
+"<strong>Prišlo je do napake pri prejemanju vaših podatkov iz OpenID "
+"ponudnika.</strong><br />Morda storitev ta trenutek ni na voljo.<br />"
+"Prosimo, poskusite kasneje in če se bo težava ponavljala <a "
+"href='mailto:{$supportEmail}'>o tem obvestite tehnično podporo</a>."
+
+# error messages
+msgid "plugins.generic.openid.error.openid.connect.desc.key"
+msgstr ""
+"<strong>Prišlo je do napake pri preverjanju vaših podatkov.</strong><br />"
+"Morda storitev ta trenutek ni na voljo.<br />Prosimo, poskusite kasneje in "
+"če se bo težava ponavljala <a href='mailto:{$supportEmail}'>o tem obvestite "
+"tehnično podporo</a>."
+
+msgid "plugins.generic.openid.settings.features.disable.email"
+msgstr "<strong>Email</strong> samo branje"
+
+msgid "plugins.generic.openid.settings.features.disable.family"
+msgstr "<strong>Priimek</strong> samo branje"
+
+msgid "plugins.generic.openid.settings.features.disable.given"
+msgstr "<strong>Ime</strong> samo branje"
+
+msgid "plugins.generic.openid.settings.features.disable.fields.desc"
+msgstr "Prepreči spreminjanje naslednjih polj preko te aplikacije:"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync.desc"
+msgstr ""
+"Določene informacije, kot so ime, priimek in email, so prenešene od OpenID "
+"ponudnika do te aplikacije. Omogoči to opcijo za avtomatično shranjevanje "
+"teh informacij v uporabniškem računu. (priporočljivo)"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync"
+msgstr "Omogoči sinhronizacijo uporabniških podatkov z OpenID ponudnikom"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.desc"
+msgstr ""
+"Vtičnik lahko generira ključ s pomočjo enkripcije OpenID identifikatorja s "
+"pomočjo <strong>secret vnešenega zgoraj</strong>.  Ta ključ bo ponovno "
+"enkriptiran s secret, ki mora biti vnesen v nastavitvah aplikacije. To bi "
+"moralo biti dovolj varno."
+
+msgid "plugins.generic.openid.settings.generateAPIKey.check"
+msgstr "Omogoči avtomatsko generiranje API ključa"
+
+msgid "plugins.generic.openid.settings.generateAPIKey"
+msgstr "Avtomatski API ključ"
+
+msgid "plugins.generic.openid.settings.hashSecret.desc"
+msgstr ""
+"Če želite uporabiti enkriptirane OpenID podatke, kot je recimo OpenID "
+"identifikator, v HTML kodi in želite uporabiti naslednjo funkcijo za "
+"avtomatsko generiranje API ključa, potem morate tu vnesti secret. Da bo "
+"dovolj varen, mora biti dolg vsaj 24 znakov."
