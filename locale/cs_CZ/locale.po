@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-02-26 10:58+0000\n"
+"PO-Revision-Date: 2021-04-28 17:34+0000\n"
 "Last-Translator: Jiří Dlouhý <jiri.dlouhy@czp.cuni.cz>\n"
 "Language-Team: Czech <http://translate.pkp.sfu.ca/projects/plugins/openid/"
 "cs_CZ/>\n"
@@ -194,7 +194,7 @@ msgstr "Starší přihlášení"
 
 msgid "plugins.generic.openid.settings.features.desc"
 msgstr ""
-"Následující pole jsou volitelná. Nejsou požadována, pro připojení k "
+"Následující pole jsou volitelná. Nejsou požadována pro připojení k "
 "poskytovateli OpenID."
 
 msgid "plugins.generic.openid.settings.features.head"
