@@ -29,6 +29,11 @@ class OpenIDPlugin extends GenericPlugin
 {
 
 
+    public function isSitePlugin()
+    {
+        return !Application::get()->getRequest()->getContext();
+    }
+
 	/**
 	 * Get the display name of this plugin
 	 * @return string
@@ -61,7 +66,12 @@ class OpenIDPlugin extends GenericPlugin
 		$success = parent::register($category, $path);
 		if ($success && $this->getEnabled()) {
 			$request = Application::get()->getRequest();
-			$settings = json_decode($this->getSetting($request->getContext()->getId(), 'openIDSettings'), true);
+			if($request->getContext() && $request->getContext()->getId()){
+			    $contextId = $request->getContext()->getId();
+            } else {
+                $contextId = 0;
+            }
+			$settings = json_decode($this->getSetting($contextId, 'openIDSettings'), true);
 			$user = $request->getUser();
 			if ($user && $user->getData('openid::lastProvider') && isset($settings)
 				&& key_exists('disableFields', $settings) && key_exists('providerSync', $settings) && $settings['providerSync'] == 1) {
