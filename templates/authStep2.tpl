@@ -128,7 +128,7 @@
 				</div>
 			</fieldset>
 			<fieldset class="consent">
-				{if $currentContext->getData('privacyStatement')}
+				{if isset($currentContext) and $currentContext->getData('privacyStatement')}
 					{* Require the user to agree to the terms of the privacy policy *}
 					<div class="fields">
 						<div class="optin optin-privacy">
@@ -155,7 +155,11 @@
 				</div>
 			</fieldset>
 			{* Allow the user to sign up as a reviewer *}
+			{if isset($currentContext) }
 			{assign var=contextId value=$currentContext->getId()}
+			{else}
+			{assign var=contextId value=0}
+			{/if}
 			{assign var=userCanRegisterReviewer value=0}
 			{foreach from=$reviewerUserGroups[$contextId] item=userGroup}
 				{if $userGroup->getPermitSelfRegistration()}

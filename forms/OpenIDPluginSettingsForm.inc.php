@@ -65,6 +65,7 @@ class OpenIDPluginSettingsForm extends Form
 		$settingsJson = $this->plugin->getSetting($contextId, 'openIDSettings');
 		$settings = json_decode($settingsJson, true);
 		$provider = $settings['provider'];
+
 		if ($provider && is_array($provider)) {
 			foreach ($provider as &$prov) {
 				if (key_exists('clientId', $prov) && !empty($prov['clientId'])) {
@@ -119,10 +120,12 @@ class OpenIDPluginSettingsForm extends Form
 	 */
 	public function fetch($request, $template = null, $display = false)
 	{
+		$context = $request->getContext();
+		$redirectURL = $context == null ? $request->getIndexUrl().'/openid/doAuthentication' : $request->getIndexUrl().'/'.$context->getPath().'/openid/doAuthentication';
 		$templateMgr = TemplateManager::getManager($request);
 		$request->getBasePath();
 		$templateMgr->assign('pluginName', $this->plugin->getName());
-		$templateMgr->assign('redirectUrl', $request->getIndexUrl().'/'.$request->getContext()->getPath().'/openid/doAuthentication');
+		$templateMgr->assign('redirectUrl', $redirectURL);
 
 		return parent::fetch($request, $template, $display);
 	}

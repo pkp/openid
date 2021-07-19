@@ -65,6 +65,7 @@ class OpenIDHandler extends Handler
 		$selectedProvider = $request->getUserVar('provider');
 		$token = $this->_getTokenViaAuthCode($settings['provider'], $request->getUserVar('code'), $selectedProvider);
 		$publicKey = $this->_getOpenIDAuthenticationCert($settings['provider'], $selectedProvider);
+
 		if (isset($token) && isset($publicKey)) {
 			$tokenPayload = $this->_validateAndExtractToken($token, $publicKey);
 			if (isset($tokenPayload) && is_array($tokenPayload)) {
@@ -84,9 +85,9 @@ class OpenIDHandler extends Handler
 						[ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR, ROLE_ID_REVIEWER, ROLE_ID_ASSISTANT],
 						$contextId
 					)) {
-						return $request->redirect($context->getPath(), 'submissions');
+						return $request->redirect($context, 'submissions');
 					} else {
-						return $request->redirect($context->getPath(), 'user', 'profile', null, $args);
+						return $request->redirect($context, 'user', 'profile', null, $args);
 					}
 				} elseif ($user->getDisabled()) {
 					$reason = $user->getDisabledReason();
@@ -115,13 +116,15 @@ class OpenIDHandler extends Handler
 	 */
 	function registerOrConnect($args, $request)
 	{
+		$context = $request->getContext();
+
 		if (Validation::isLoggedIn()) {
 			$this->setupTemplate($request);
 			$templateMgr = TemplateManager::getManager($request);
 			$templateMgr->assign('pageTitle', 'user.login.registrationComplete');
 			$templateMgr->display('frontend/pages/userRegisterComplete.tpl');
 		} elseif (!$request->isPost()) {
-			$request->redirect(Application::get()->getRequest()->getContext(), 'login');
+			$request->redirect($context, 'login');
 		} else {
 			$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 			import($plugin->getPluginPath().'/forms/OpenIDStep2Form');
@@ -130,7 +133,7 @@ class OpenIDHandler extends Handler
 			if (!$regForm->validate()) {
 				$regForm->display($request);
 			} elseif ($regForm->execute()) {
-				$request->redirect(Application::get()->getRequest()->getContext(), 'openid', 'registerOrConnect');
+				$request->redirect($context, 'openid', 'registerOrConnect');
 			} else {
 				$regForm->addError('', '');
 				$regForm->display($request);
@@ -145,6 +148,7 @@ class OpenIDHandler extends Handler
 		$contextId = ($context == null) ? 0 : $context->getId();
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
+
 		if (key_exists('providerSync', $settings) && $settings['providerSync'] == 1) {
 			$site = $request->getSite();
 			$sitePrimaryLocale = $site->getPrimaryLocale();
@@ -165,8 +169,10 @@ class OpenIDHandler extends Handler
 			}
 			$userDao->updateObject($user);
 		}
+
 		$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
 		$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
+
 		if (is_array($payload) && key_exists('id', $payload) && !empty($payload['id'])) {
 			if ($setProviderId) {
 				$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, $payload['id'], 'string');
@@ -195,7 +201,8 @@ class OpenIDHandler extends Handler
 	{
 		$alg = 'AES-256-CBC';
 		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
-		$result = null;;
+		$result = null;
+
 		if (key_exists('hashSecret', $settings) && !empty($settings['hashSecret'])) {
 			$pwd = $settings['hashSecret'];
 			$iv = substr($settings['hashSecret'], 0, 16);
