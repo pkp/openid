@@ -61,8 +61,7 @@ class OpenIDStep2Form extends Form
 	function fetch($request, $template = null, $display = false)
 	{
 		$templateMgr = TemplateManager::getManager($request);
-		$contextId = ($request->getContext() == null) ? 0 : $request->getContext()->getId();
-		$settingsJson = $this->plugin->getSetting($contextId, 'openIDSettings');
+		$settingsJson = $this->plugin->getSetting($this->contextId, 'openIDSettings');
 		$settings = json_decode($settingsJson, true);
 		$isoCodes = new IsoCodesFactory();
 		$countries = array();
@@ -209,11 +208,13 @@ class OpenIDStep2Form extends Form
 	function execute(...$functionArgs)
 	{
 		$userDao = DAORegistry::getDAO('UserDAO');
+		$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
 		$register = is_string($this->getData('register'));
 		$connect = is_string($this->getData('connect'));
 		$oauthId = $this->getData('oauthId');
 		$selectedProvider = $this->getData('selectedProvider');
 		$result = false;
+
 		if (!empty($oauthId) && !empty($selectedProvider)) {
 			$oauthId = OpenIDHandler::encryptOrDecrypt($this->plugin, $this->contextId, 'decrypt', $oauthId);
 			// prevent saving one openid:ident to multiple accounts
@@ -225,6 +226,7 @@ class OpenIDStep2Form extends Form
 				if ($register) {
 					$user = $this->_registerUser();
 					if (isset($user)) {
+						$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, $oauthId, 'string');
 						$result = true;
 					}
 				} elseif ($connect) {

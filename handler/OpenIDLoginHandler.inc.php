@@ -45,19 +45,23 @@ class OpenIDLoginHandler extends Handler
 		if (Config::getVar('security', 'force_login_ssl') && $request->getProtocol() != 'https') {
 			$request->redirectSSL();
 		}
+
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		$legacyLogin = false;
 		$templateMgr = TemplateManager::getManager($request);
 		$context = $request->getContext();
+
 		if (!Validation::isLoggedIn()) {
 			$router = $request->getRouter();
 			$contextId = ($context == null) ? 0 : $context->getId();
 			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
+
 			if ($settingsJson != null) {
 				$settings = json_decode($settingsJson, true);
 				$legacyLogin = key_exists('legacyLogin', $settings) && isset($settings['legacyLogin']) ? $settings['legacyLogin'] : false;
 				$legacyRegister = key_exists('legacyRegister', $settings) && isset($settings['legacyRegister']) ? $settings['legacyRegister'] : false;
 				$providerList = key_exists('provider', $settings) ? $settings['provider'] : null;
+
 				if (isset($providerList)) {
 					foreach ($providerList as $name => $settings) {
 						if (key_exists('authUrl', $settings) && !empty($settings['authUrl'])
@@ -97,12 +101,15 @@ class OpenIDLoginHandler extends Handler
 					$linkList['legacyRegister'] = $router->url($request, null, "user", "registerUser");
 				}
 			}
+
 			if (isset($linkList) && is_array($linkList) && sizeof($linkList) > 0) {
 				$templateMgr->assign('linkList', $linkList);
 				$ssoError = $request->getUserVar('sso_error');
+
 				if (isset($ssoError) && !empty($ssoError)) {
 					$this->_setSSOErrorMessages($ssoError, $templateMgr, $request);
 				}
+
 				if ($legacyLogin) {
 					$this->_enableLegacyLogin($templateMgr, $request);
 				}
@@ -113,8 +120,8 @@ class OpenIDLoginHandler extends Handler
 
 			return $templateMgr->display($plugin->getTemplateResource('openidLogin.tpl'));
 		}
-		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 
+		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 		return false;
 	}
 
@@ -162,14 +169,17 @@ class OpenIDLoginHandler extends Handler
 			$user = Application::get()->getRequest()->getUser();
 			$contextId = ($context == null) ? 0 : $context->getId();
 			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
+
 			if (isset($user)) {
 				$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
 				$userSettingsDao->deleteSetting($user->getId(), 'openid::lastProvider');
 			}
+
 			Validation::logout();
 			if (isset($settingsJson) && isset($lastProvider)) {
 				$providerList = json_decode($settingsJson, true)['provider'];
 				$settings = $providerList[$lastProvider];
+
 				if (isset($settings) && key_exists('logoutUrl', $settings) && !empty($settings['logoutUrl']) && key_exists('clientId', $settings)) {
 					$request->redirectUrl(
 						$settings['logoutUrl'].
@@ -213,6 +223,7 @@ class OpenIDLoginHandler extends Handler
 				}
 				break;
 		}
+
 		$context = $request->getContext();
 		$supportEmail = $context != null ? $context->getSetting('supportEmail') : null;
 		if ($supportEmail) {
@@ -234,9 +245,11 @@ class OpenIDLoginHandler extends Handler
 		$session = $sessionManager->getUserSession();
 		$context = $request->getContext();
 		$loginUrl = $request->url(null, 'login', 'signIn');
+
 		if (Config::getVar('security', 'force_login_ssl')) {
 			$loginUrl = PKPString::regexp_replace('/^http:/', 'https:', $loginUrl);
 		}
+
 		$templateMgr->assign(
 			array(
 				'loginMessage' => $request->getUserVar('loginMessage'),

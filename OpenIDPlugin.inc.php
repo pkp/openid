@@ -27,7 +27,18 @@ import('lib.pkp.classes.plugins.GenericPlugin');
  */
 class OpenIDPlugin extends GenericPlugin
 {
+	/** @var int */
+	var $_contextId;
 
+	/** @var bool */
+	var $_globallyEnabled;
+
+	function __construct()
+	{
+		parent::__construct();
+		$this->_contextId = $this->getCurrentContextId();
+		$this->_globallyEnabled = $this->getSetting(0, 'enabled');
+	}
 
 	/**
 	 * Get the display name of this plugin
@@ -47,6 +58,36 @@ class OpenIDPlugin extends GenericPlugin
 		return __('plugins.generic.openid.description');
 	}
 
+	function isSitePlugin()
+	{
+		return true;
+	}
+
+	function getCanEnable()
+	{
+		return !$this->_globallyEnabled || $this->_contextId == 0;
+	}
+
+	/**
+	 * @copydoc LazyLoadPlugin::getCanDisable()
+	 */
+	function getCanDisable()
+	{
+		return !$this->_globallyEnabled || $this->_contextId == 0;
+	}
+
+		/**
+	 * @copydoc Plugin::getSetting()
+	 */
+	function getSetting($contextId, $name)
+	{
+		if ($this->_globallyEnabled) {
+			return parent::getSetting(0, $name);
+		} else {
+			return parent::getSetting($contextId, $name);
+		}
+	}
+
 
 	/**
 	 * Register the plugin, if enabled
@@ -58,11 +99,13 @@ class OpenIDPlugin extends GenericPlugin
 	 */
 	public function register($category, $path, $mainContextId = null)
 	{
-		$success = parent::register($category, $path);
+		$success = parent::register($category, $path, $mainContextId);
+
 		if ($success && $this->getEnabled()) {
 			$request = Application::get()->getRequest();
-			$settings = json_decode($this->getSetting($request->getContext()->getId(), 'openIDSettings'), true);
+			$settings = json_decode($this->getSetting($this->_contextId, 'openIDSettings'), true);
 			$user = $request->getUser();
+
 			if ($user && $user->getData('openid::lastProvider') && isset($settings)
 				&& key_exists('disableFields', $settings) && key_exists('providerSync', $settings) && $settings['providerSync'] == 1) {
 				$templateMgr = TemplateManager::getManager($request);
@@ -71,6 +114,7 @@ class OpenIDPlugin extends GenericPlugin
 				$templateMgr->assign('openIdDisableFields', $settings['disableFields']);
 				HookRegistry::register('TemplateResource::getFilename', array($this, '_overridePluginTemplates'));
 			}
+
 			HookRegistry::register('LoadHandler', array($this, 'callbackLoadHandler'));
 		}
 
@@ -91,7 +135,9 @@ class OpenIDPlugin extends GenericPlugin
 		$op = $args[1];
 		$request = Application::get()->getRequest();
 		$templateMgr = TemplateManager::getManager($request);
+
 		define('KEYCLOAK_PLUGIN_NAME', $this->getName());
+
 		switch ("$page/$op") {
 			case 'openid/doAuthentication':
 			case 'openid/registerOrConnect':
@@ -104,9 +150,9 @@ class OpenIDPlugin extends GenericPlugin
 			case 'login/legacyLogin':
 			case 'login/signOut':
 				$this->_addScriptsAndHandler($templateMgr, $request, $args);
-			break;
+				break;
 			case 'user/register':
-				if(!$request->isPost()) {
+				if (!$request->isPost()) {
 					$this->_addScriptsAndHandler($templateMgr, $request, $args);
 				}
 				break;
@@ -125,9 +171,10 @@ class OpenIDPlugin extends GenericPlugin
 	public function getActions($request, $actionArgs)
 	{
 		$actions = parent::getActions($request, $actionArgs);
-		if (!$this->getEnabled()) {
+		if (!$this->getEnabled() || !$this->getCanDisable()) {
 			return $actions;
 		}
+
 		$router = $request->getRouter();
 		import('lib.pkp.classes.linkAction.request.AjaxModal');
 		$linkAction = new LinkAction(
@@ -168,11 +215,13 @@ class OpenIDPlugin extends GenericPlugin
 			case 'settings':
 				$this->import('forms/OpenIDPluginSettingsForm');
 				$form = new OpenIDPluginSettingsForm($this);
+
 				if (!$request->getUserVar('save')) {
 					$form->initData();
 
 					return new JSONMessage(true, $form->fetch($request));
 				}
+
 				$form->readInputData();
 				if ($form->validate()) {
 					$form->execute();
