@@ -27,19 +27,10 @@ import('lib.pkp.classes.plugins.GenericPlugin');
  */
 class OpenIDPlugin extends GenericPlugin
 {
-	/** @var int */
-	var $_contextId;
-
-	/** @var bool */
-	var $_globallyEnabled;
-
-	function __construct()
+	function isSitePlugin()
 	{
-		parent::__construct();
-		$this->_contextId = $this->getCurrentContextId();
-		$this->_globallyEnabled = $this->getSetting(0, 'enabled');
+		return true;
 	}
-
 	/**
 	 * Get the display name of this plugin
 	 * @return string
@@ -58,14 +49,13 @@ class OpenIDPlugin extends GenericPlugin
 		return __('plugins.generic.openid.description');
 	}
 
-	function isSitePlugin()
-	{
-		return true;
-	}
-
 	function getCanEnable()
 	{
-		return !$this->_globallyEnabled || $this->_contextId == 0;
+		// this plugin can't be enabled if it is already configured for the context == 0
+		if ($this->getCurrentContextId() != 0 && $this->getSetting(0, 'enabled')) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -73,7 +63,32 @@ class OpenIDPlugin extends GenericPlugin
 	 */
 	function getCanDisable()
 	{
-		return !$this->_globallyEnabled || $this->_contextId == 0;
+		// this plugin can't be disabled if it is already configured for the context == 0
+		if ($this->getCurrentContextId() != 0 && $this->getSetting(0, 'enabled')) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * We need to override the method to make sure that the plugin works as a sitewide and journal-scoped plugin
+	 */
+	function setEnabled($enabled)
+	{
+		$contextId = $this->getCurrentContextId();
+		$this->updateSetting($contextId, 'enabled', $enabled, 'bool');
+	}
+
+	/**
+	 * We need to override the method to make sure that the plugin works as a sitewide and journal-scoped plugin
+	 */
+	function getEnabled($contextId = null)
+	{
+		if ($contextId === null) {
+			$contextId = $this->getCurrentContextId();
+		}
+		return $this->getSetting($contextId, 'enabled');
 	}
 
 		/**
@@ -81,13 +96,12 @@ class OpenIDPlugin extends GenericPlugin
 	 */
 	function getSetting($contextId, $name)
 	{
-		if ($this->_globallyEnabled) {
+		if (parent::getSetting(0, 'enabled')) {
 			return parent::getSetting(0, $name);
 		} else {
 			return parent::getSetting($contextId, $name);
 		}
 	}
-
 
 	/**
 	 * Register the plugin, if enabled
@@ -100,10 +114,11 @@ class OpenIDPlugin extends GenericPlugin
 	public function register($category, $path, $mainContextId = null)
 	{
 		$success = parent::register($category, $path, $mainContextId);
+		$contextId = $this->getCurrentContextId();
 
-		if ($success && $this->getEnabled()) {
+		if ($success && $this->getEnabled($contextId)) {
 			$request = Application::get()->getRequest();
-			$settings = json_decode($this->getSetting($this->_contextId, 'openIDSettings'), true);
+			$settings = json_decode($this->getSetting($contextId, 'openIDSettings'), true);
 			$user = $request->getUser();
 
 			if ($user && $user->getData('openid::lastProvider') && isset($settings)
@@ -171,7 +186,10 @@ class OpenIDPlugin extends GenericPlugin
 	public function getActions($request, $actionArgs)
 	{
 		$actions = parent::getActions($request, $actionArgs);
-		if (!$this->getEnabled() || !$this->getCanDisable()) {
+
+		if ($this->getEnabled(0) && $this->getCurrentContextId() != 0) {
+			return $actions;
+		} else if (!$this->getEnabled()) {
 			return $actions;
 		}
 
