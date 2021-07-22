@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-02-26 10:55+0000\n"
-"Last-Translator: Carla Marques <carla.marques@usdb.uminho.pt>\n"
+"PO-Revision-Date: 2021-03-15 18:10+0000\n"
+"Last-Translator: José Carvalho <josekarvalho@gmail.com>\n"
 "Language-Team: Portuguese (Portugal) <http://translate.pkp.sfu.ca/projects/"
 "plugins/openid/pt_PT/>\n"
 "Language: pt_PT\n"
@@ -336,7 +336,7 @@ msgid "plugins.generic.openid.step2.help"
 msgstr "É necessária informação adicional para o registo:"
 
 msgid "plugins.generic.openid.step2.headline"
-msgstr "Já tem um registo em  {$journalName}?"
+msgstr "Já tem um registo em {$journalName}?"
 
 # step2 messages
 msgid "plugins.generic.openid.step2.title"

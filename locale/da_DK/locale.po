@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-02-26 10:58+0000\n"
+"PO-Revision-Date: 2021-03-09 11:56+0000\n"
 "Last-Translator: Niels Erik Frederiksen <nef@kb.dk>\n"
 "Language-Team: Danish <http://translate.pkp.sfu.ca/projects/plugins/openid/"
 "da_DK/>\n"
@@ -309,7 +309,7 @@ msgstr "Det brugernavn, du har angivet, findes allerede."
 
 #step 2 form error messages
 msgid "plugins.generic.openid.form.error.username.required"
-msgstr "Et brugernavn er påkrævet"
+msgstr "Et brugernavn er påkrævet."
 
 msgid "plugins.generic.openid.step2.connect.btn"
 msgstr "Log ind og tilslut konti"
