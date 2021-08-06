@@ -80,4 +80,8 @@
 	<message key="plugins.generic.openid.select.provider.google">Sign in with Google</message>
 	<message key="plugins.generic.openid.select.provider.microsoft">Sign in with Microsoft</message>
 	<message key="plugins.generic.openid.select.provider.apple">Sign in with Apple</message>
+	<message key="plugins.generic.openid.select.provider.orcid">Sign in with Orcid</message>
+	<message key="plugins.generic.openid.settings.orcid.enable">ORCID OpenID Connect</message>
+	<message key="plugins.generic.openid.settings.orcid.desc"><![CDATA[Please use this redirect URL (see <a href='https://github.com/ORCID/ORCID-Source/blob/master/orcid-web/ORCID_AUTH_WITH_OPENID_CONNECT.md' target='_blank' rel='noopener'>tutorial</a>):]]></message>
+
 </locale>

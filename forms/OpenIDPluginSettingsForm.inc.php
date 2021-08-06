@@ -32,6 +32,7 @@ class OpenIDPluginSettingsForm extends Form
 	 */
 	private const PUBLIC_OPENID_PROVIDER = [
 		"custom" => "",
+		"orcid" => ["configUrl" => "https://orcid.org/.well-known/openid-configuration"],
 		"google" => ["configUrl" => "https://accounts.google.com/.well-known/openid-configuration"],
 		"microsoft" => ["configUrl" => "https://login.windows.net/common/.well-known/openid-configuration"],
 		"apple" => ["configUrl" => "https://appleid.apple.com/.well-known/openid-configuration"],
