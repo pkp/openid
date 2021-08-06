@@ -14,8 +14,8 @@
 <version>
 	<application>openid</application>
 	<type>plugins.generic</type>
-	<release>3.1.0.2</release>
-	<date>2020-10-26</date>
+	<release>3.1.0.3</release>
+	<date>2021-08-06</date>
 	<lazy-load>1</lazy-load>
 	<class>OpenIDPlugin</class>
 </version>
