@@ -92,7 +92,7 @@
 					{fbvElement type="checkbox" id="provider[{$name}][active]" checked=$provider[{$name}]['active']  value=1 label="plugins.generic.openid.settings.{$name}.enable" class="strong"}
 					<div class="hiddenContent">
 						{assign var='providerSuffix' value="?provider="|cat:$name}
-						<p>{translate key="plugins.generic.openid.settings.{$name}.desc"}&nbsp;<strong>{$redirectUrl|escape}{if $name == 'microsoft'}{$providerSuffix|escape:'url'}{else}{$providerSuffix}{/if}</strong></p>
+						<p>{translate key="plugins.generic.openid.settings.{$name}.desc"}&nbsp;<strong>{if $name == 'microsoft'}{$redirectMSUrl|escape}{else}{$redirectUrl|escape}{$providerSuffix}{/if}</strong></p>
 						{if $name eq 'custom'}
 							{fbvElement type="text" id="provider[{$name}][configUrl]" value=$provider[{$name}]['configUrl'] maxlength="250" label="plugins.generic.openid.settings.configUrl.desc"}
 							<div style="clear: both;">&nbsp;</div>

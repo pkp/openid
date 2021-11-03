@@ -34,7 +34,7 @@ class OpenIDPluginSettingsForm extends Form
 		"custom" => "",
 		"orcid" => ["configUrl" => "https://orcid.org/.well-known/openid-configuration"],
 		"google" => ["configUrl" => "https://accounts.google.com/.well-known/openid-configuration"],
-		"microsoft" => ["configUrl" => "https://login.windows.net/common/.well-known/openid-configuration"],
+		"microsoft" => ["configUrl" => "https://login.windows.net/common/v2.0/.well-known/openid-configuration"],
 		"apple" => ["configUrl" => "https://appleid.apple.com/.well-known/openid-configuration"],
 	];
 
@@ -121,11 +121,15 @@ class OpenIDPluginSettingsForm extends Form
 	public function fetch($request, $template = null, $display = false)
 	{
 		$context = $request->getContext();
-		$redirectURL = $context == null ? $request->getIndexUrl().'/openid/doAuthentication' : $request->getIndexUrl().'/'.$context->getPath().'/openid/doAuthentication';
+		$redirectURL = $context == null ? $request->getIndexUrl().'/openid/doAuthentication' : $request->getIndexUrl().'/'.$context->getPath(
+			).'/openid/doAuthentication';
+		$redirectMSURL = $context == null ? $request->getIndexUrl().'/openid/doMicrosoftAuthentication' : $request->getIndexUrl().'/'.$context->getPath(
+			).'/openid/doMicrosoftAuthentication';
 		$templateMgr = TemplateManager::getManager($request);
 		$request->getBasePath();
 		$templateMgr->assign('pluginName', $this->plugin->getName());
 		$templateMgr->assign('redirectUrl', $redirectURL);
+		$templateMgr->assign('redirectMSUrl', $redirectMSURL);
 
 		return parent::fetch($request, $template, $display);
 	}

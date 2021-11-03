@@ -1,4 +1,5 @@
 <?php
+
 import('classes.handler.Handler');
 
 /**
@@ -89,10 +90,18 @@ class OpenIDLoginHandler extends Handler
 											? $settings['btnTxt'][AppLocale::getLocale()] : null
 									);
 								}
-								$linkList[$name] = $settings['authUrl'].
-									'?client_id='.$settings['clientId'].
-									'&response_type=code&scope=openid profile email'.
-									'&redirect_uri='.urlencode($router->url($request, null, "openid", "doAuthentication", null, array('provider' => $name)));
+								if ($name == 'microsoft') {
+									$linkList[$name] = $settings['authUrl'].
+										'?client_id='.$settings['clientId'].
+										'&response_type=code&scope=openid profile email';
+								} else {
+									$linkList[$name] = $settings['authUrl'].
+										'?client_id='.$settings['clientId'].
+										'&response_type=code&scope=openid profile email'.
+										'&redirect_uri='.urlencode(
+											$router->url($request, null, "openid", "doAuthentication", null, array('provider' => $name))
+										);
+								}
 							}
 						}
 					}
@@ -122,6 +131,7 @@ class OpenIDLoginHandler extends Handler
 		}
 
 		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
+
 		return false;
 	}
 

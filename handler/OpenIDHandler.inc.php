@@ -41,6 +41,13 @@ import('classes.handler.Handler');
  */
 class OpenIDHandler extends Handler
 {
+
+
+	function doMicrosoftAuthentication($args, $request)
+	{
+		return $this->doAuthentication($args, $request, 'microsoft');
+	}
+
 	/**
 	 * This function is called via OpenID provider redirect URL.
 	 * It receives the authentication code via the get parameter and uses $this->_getTokenViaAuthCode to exchange the code into a JWT
@@ -56,13 +63,13 @@ class OpenIDHandler extends Handler
 	 * @param $request
 	 * @return bool
 	 */
-	function doAuthentication($args, $request)
+	function doAuthentication($args, $request, $provider = null)
 	{
 		$context = $request->getContext();
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		$contextId = ($context == null) ? 0 : $context->getId();
 		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
-		$selectedProvider = $request->getUserVar('provider');
+		$selectedProvider = $provider == null ? $request->getUserVar('provider') : $provider;
 		$token = $this->_getTokenViaAuthCode($settings['provider'], $request->getUserVar('code'), $selectedProvider);
 		$publicKey = $this->_getOpenIDAuthenticationCert($settings['provider'], $selectedProvider);
 
@@ -260,6 +267,21 @@ class OpenIDHandler extends Handler
 			$settings = $providerList[$selectedProvider];
 			$httpClient = Application::get()->getHttpClient();
 			$response = null;
+			$params = [
+				'code' => $authorizationCode,
+				'grant_type' => 'authorization_code',
+				'client_id' => $settings['clientId'],
+				'client_secret' => $settings['clientSecret'],
+			];
+			if ($selectedProvider != 'microsoft') {
+				$params['redirect_uri'] = Application::get()->getRequest()->url(
+					null,
+					'openid',
+					'doAuthentication',
+					null,
+					array('provider' => $selectedProvider)
+				);
+			}
 			try {
 				$response = $httpClient->request(
 					'POST',
@@ -268,20 +290,7 @@ class OpenIDHandler extends Handler
 						'headers' => [
 							'Accept' => 'application/json',
 						],
-						'form_params' =>
-							[
-								'code' => $authorizationCode,
-								'grant_type' => 'authorization_code',
-								'client_id' => $settings['clientId'],
-								'client_secret' => $settings['clientSecret'],
-								'redirect_uri' => Application::get()->getRequest()->url(
-									null,
-									'openid',
-									'doAuthentication',
-									null,
-									array('provider' => $selectedProvider)
-								),
-							],
+						'form_params' => $params,
 					]
 				);
 				if ($response->getStatusCode() != 200) {
