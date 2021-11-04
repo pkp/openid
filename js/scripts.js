@@ -23,7 +23,7 @@ if (pageOauth !== undefined && pageOauth != null) {
 function showRegisterForm() {
 	document.querySelector("#oauth #register-form").style.display = "block";
 	document.querySelector("#oauth #login-form").style.display = "none";
-	document.querySelectorAll("#oauth #register-form input:not(#emailConsent)").forEach(e => e.required = true);
+	document.querySelectorAll("#oauth #register-form input:not(#emailConsent, .reviewerGroupInput)").forEach(e => e.required = true);
 	document.querySelectorAll("#oauth #register-form select").forEach(e => e.required = true);
 	document.querySelectorAll("#oauth #login-form input").forEach(e => e.required = false);
 }

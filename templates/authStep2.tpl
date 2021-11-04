@@ -182,7 +182,7 @@
 								{if $userGroup->getPermitSelfRegistration()}
 									<label>
 										{assign var="userGroupId" value=$userGroup->getId()}
-										<input type="checkbox" name="reviewerGroup[{$userGroupId}]"
+										<input type="checkbox" name="reviewerGroup[{$userGroupId}]" class="reviewerGroupInput"
 										       value="1"{if in_array($userGroupId, $userGroupIds)} checked="checked"{/if}>
 										{translate key=$checkboxLocaleKey userGroup=$userGroup->getLocalizedName()}
 									</label>
@@ -194,7 +194,7 @@
 								<span class="label">
 									{translate key="user.interests"}
 								</span>
-								<input type="text" name="interests" id="interests" value="{$interests|escape}">
+								<input type="text" name="interests" id="interests" value="{$interests|escape}" class="reviewerGroupInput">
 							</label>
 						</div>
 					</div>
