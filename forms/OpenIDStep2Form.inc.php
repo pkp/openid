@@ -226,6 +226,10 @@ class OpenIDStep2Form extends Form
 				if ($register) {
 					$user = $this->_registerUser();
 					if (isset($user)) {
+						if($selectedProvider == 'orcid')
+						{
+							$user->setOrcid($oauthId);
+						}
 						$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, $oauthId, 'string');
 						$result = true;
 					}
