@@ -248,6 +248,9 @@ msgstr "Über Microsoft anmelden"
 msgid "plugins.generic.openid.select.provider.apple"
 msgstr "Über Apple anmelden"
 
+msgid "plugins.generic.openid.select.provider.legacyRegister"
+msgstr "Ohne Oauth registrieren"
+
 # disabled fields info
 msgid "plugins.generic.openid.disables.fields.info"
 msgstr "Einige Informationen werden von einem zur Anmeldung verwendeten authentifizierten Account bereitgestellt und können nicht bearbeitet werden. <br /> Die Daten werden synchronisiert, sobald Sie sich ab- und wieder anmelden."
