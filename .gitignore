@@ -5,3 +5,7 @@ gen
 /vendor/
 vendor/
 /cypress.env.json
+docker/ojs/
+/docker/ojs/
+docker/volumes/
+/docker/volumes/
