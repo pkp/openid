@@ -2,7 +2,7 @@
 # Access via "http://localhost:8081" or "https://localhost:8443"
 #
 # Call example:
-# $ docker-compose up
+# $ docker compose --env-file ./docker/ojs_3_3.env up
 # $ docker cp openid_3_3_x_dev_ojs:/var/www/html docker/ojs
 
 version: "3.6"
@@ -14,7 +14,7 @@ networks:
 services:
   db:
     image: mariadb:latest
-    container_name: "openid_3_3_x_dev_db"
+    container_name: ${OJS_DB_CONTAINER_NAME:-openid_3_3_x_dev_db}
     environment:
       MYSQL_ROOT_PASSWORD: "ojs"
       MYSQL_DATABASE: "ojs"
@@ -30,9 +30,9 @@ services:
     restart: always
 
   ojs:
-    image: pkpofficial/ojs:3_3_0-11
-    container_name: "openid_3_3_x_dev_ojs"
-    hostname: "openid_3_3_x_dev_ojs"
+    image: pkpofficial/${OJS_VERSION:-ojs:3_3_0-11}
+    container_name: ${OJS_CONTAINER_NAME:-openid_3_3_x_dev_ojs}
+    hostname: ${OJS_CONTAINER_NAME:-openid_3_3_x_dev_ojs}
     ports:
       - "8081:80"
       - "8443:443"
@@ -40,7 +40,7 @@ services:
       - ./:/var/www/html/plugins/generic/openid
       - /var/www/html/plugins/generic/openid # empty docker dir in container.
       - /var/www/html/plugins/generic/openid/.github # empty .github dir in container.
-      - /var/www/html/plugins/generic/openid/.git
+      - /var/www/html/plugins/generic/openid/.git # empty .github dir in container.
       - /var/www/html/plugins/generic/openid/.idea # empty .idea dir in container.
       - ./docker/ojs.dev.config.inc.php:/var/www/html/config.inc.php
       - ./docker/volumes/logs/app:/var/log/apache2
