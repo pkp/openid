@@ -14,10 +14,10 @@ networks:
 services:
   db:
     image: mariadb:latest
-    container_name: ${OJS_DB_CONTAINER_NAME:-openid_3_3_x_dev_db}
+    container_name: ${OJS_DB_CONTAINER_NAME}
     environment:
       MYSQL_ROOT_PASSWORD: "ojs"
-      MYSQL_DATABASE: "ojs"
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: "ojs"
       MYSQL_PASSWORD: "ojs"
     volumes:
@@ -30,18 +30,18 @@ services:
     restart: always
 
   ojs:
-    image: pkpofficial/${OJS_VERSION:-ojs:3_3_0-11}
-    container_name: ${OJS_CONTAINER_NAME:-openid_3_3_x_dev_ojs}
-    hostname: ${OJS_CONTAINER_NAME:-openid_3_3_x_dev_ojs}
+    image: pkpofficial/${OJS_VERSION}
+    container_name: ${OJS_CONTAINER_NAME}
+    hostname: ${OJS_CONTAINER_NAME}
     ports:
       - "8081:80"
       - "8443:443"
     volumes:
-      - ./:/var/www/html/plugins/generic/openid
-      - /var/www/html/plugins/generic/openid # empty docker dir in container.
-      - /var/www/html/plugins/generic/openid/.github # empty .github dir in container.
-      - /var/www/html/plugins/generic/openid/.git # empty .github dir in container.
-      - /var/www/html/plugins/generic/openid/.idea # empty .idea dir in container.
+      - ./:${PLUGIN_PATH}
+      - ${PLUGIN_PATH}/docker # empty docker dir in container.
+      - ${PLUGIN_PATH}/.github # empty .github dir in container.
+      - ${PLUGIN_PATH}/.git # empty .github dir in container.
+      - ${PLUGIN_PATH}/.idea # empty .idea dir in container.
       - ./docker/ojs.dev.config.inc.php:/var/www/html/config.inc.php
       - ./docker/volumes/logs/app:/var/log/apache2
     networks:
