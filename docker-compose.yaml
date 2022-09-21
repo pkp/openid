@@ -1,8 +1,10 @@
 # File: docker-compose.yml
 # Access via "http://localhost:8081" or "https://localhost:8443"
 #
-# Call example:
+#  Example:
+# Start an OJS 3.3.0-11 instance for master branch on port 8081
 # $ docker compose --env-file ./docker/ojs_3_3.env up
+# Copy OJS Codebase for autocomplete to docker/ojs directory
 # $ docker cp openid_3_3_x_dev_ojs:/var/www/html docker/ojs
 
 version: "3.6"
