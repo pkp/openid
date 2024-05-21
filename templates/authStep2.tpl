@@ -1,25 +1,14 @@
-{*
+{**
  * templates/authStep2.tpl
  *
- * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
- *
- * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * OpenID Authentication Plugin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
- *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ * Copyright (c) 2023 Simon Fraser University
+ * Copyright (c) 2023 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * Display the OpenID Auth second step.
  *}
+
 {include file="frontend/components/header.tpl" pageTitle="plugins.generic.openid.step2.title"}
 <div class="page page_oauth">
 	{include file="frontend/components/breadcrumbs.tpl" currentTitleKey="plugins.generic.openid.step2.title"}
@@ -32,13 +21,10 @@
 			<h1>
 				{translate key="plugins.generic.openid.step2.headline" journalName=$siteTitle|escape}
 			</h1>
-			{*<p>
-				{translate key="plugins.generic.openid.step2.help" journalName=$siteTitle|escape}
-			</p>*}
 			<ul id="openid-choice-select">
 				<li><span id='showLoginForm' class='step2-choice-links'>{translate key="plugins.generic.openid.step2.choice.yes"}</span></li>
 				<li><span id='showRegisterForm'
-				          class='step2-choice-links'>{translate key="plugins.generic.openid.step2.choice.no" journalName=$siteTitle|escape}</span></li>
+					class='step2-choice-links'>{translate key="plugins.generic.openid.step2.choice.no" journalName=$siteTitle|escape}</span></li>
 			</ul>
 		{/if}
 		<div {if empty($disableConnect) || $disableConnect != "1" }id="register-form"{/if} class="page_register">
@@ -156,9 +142,9 @@
 			</fieldset>
 			{* Allow the user to sign up as a reviewer *}
 			{if isset($currentContext) }
-			{assign var=contextId value=$currentContext->getId()}
+				{assign var=contextId value=$currentContext->getId()}
 			{else}
-			{assign var=contextId value=0}
+				{assign var=contextId value=0}
 			{/if}
 			{assign var=userCanRegisterReviewer value=0}
 			{foreach from=$reviewerUserGroups[$contextId] item=userGroup}
@@ -225,7 +211,7 @@
 							</span>
 						</span>
 							<input type="text" name="usernameLogin" id="usernameLogin" value="{$usernameLogin|escape}" maxlength="32" required
-							       aria-required="true">
+								aria-required="true">
 						</label>
 					</div>
 					<div class="password">
@@ -238,7 +224,7 @@
 							</span>
 						</span>
 							<input type="password" name="passwordLogin" id="passwordLogin" value="{$passwordLogin|escape}" maxlength="32" required
-							       aria-required="true">
+								aria-required="true">
 							<a href="{url page="login" op="lostPassword"}">
 								{translate key="user.login.forgotPassword"}
 							</a>
