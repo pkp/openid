@@ -1,25 +1,14 @@
-{*
+{**
  * templates/openidLogin.tpl
  *
- * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
- *
- * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * OpenID Authentication Plugin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
- *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ * Copyright (c) 2014-2020 Simon Fraser University
+ * Copyright (c) 2003-2020 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * Display the OpenID sign in page
  *}
+
 {include file="frontend/components/header.tpl" pageTitle='plugins.generic.openid.select.provider'}
 <div class="page page_openid_login">
 	{include file="frontend/components/breadcrumbs.tpl" currentTitleKey='plugins.generic.openid.select.provider'}
@@ -46,7 +35,7 @@
 	{/if}
 	<ul id="openid-provider-list">
 		{if $legacyLogin}
-			<li class="margin-top-30"><strong>{translate key='plugins.generic.openid.select.legacy' journalName=$journalName|escape}</strong></li>
+			<li class="margin-top-30"><strong>{translate key='plugins.generic.openid.select.legacy' journalName=$siteTitle|escape}</strong></li>
 			<li class="page_login">
 				<form class="cmp_form cmp_form login" id="login" method="post" action="{$loginUrl}">
 					{csrf}

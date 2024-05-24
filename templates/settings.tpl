@@ -1,25 +1,14 @@
-{*
+{**
  * templates/settings.tpl
  *
- * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
- *
- * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * OpenID Authentication Plugin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
- *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ * Copyright (c) 2023 Simon Fraser University
+ * Copyright (c) 2023 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * Display the OpenID settings
  *}
+
 <script>
 	$(function () {ldelim}
 		$('#openIDSettings').pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
@@ -92,7 +81,13 @@
 					{fbvElement type="checkbox" id="provider[{$name}][active]" checked=$provider[{$name}]['active']  value=1 label="plugins.generic.openid.settings.{$name}.enable" class="strong"}
 					<div class="hiddenContent">
 						{assign var='providerSuffix' value="?provider="|cat:$name}
-						<p>{translate key="plugins.generic.openid.settings.{$name}.desc"}&nbsp;<strong>{if $name == 'microsoft'}{$redirectMSUrl|escape}{else}{$redirectUrl|escape}{$providerSuffix}{/if}</strong></p>
+						<p>
+							{translate key="plugins.generic.openid.settings.{$name}.desc"}
+							&nbsp;
+							<strong>
+								{$redirectUrl|escape}{$providerSuffix}
+							</strong>
+						</p>
 						{if $name eq 'custom'}
 							{fbvElement type="text" id="provider[{$name}][configUrl]" value=$provider[{$name}]['configUrl'] maxlength="250" label="plugins.generic.openid.settings.configUrl.desc"}
 							<div style="clear: both;">&nbsp;</div>
@@ -109,6 +104,11 @@
 							<div><strong>{translate key="plugins.generic.openid.settings.provider.settings"}</strong></div>
 							{fbvElement type="text" id="provider[{$name}][clientId]" value=$provider[{$name}]['clientId'] maxlength="250" label="plugins.generic.openid.settings.clientId.desc" inline=true size=$fbvStyles.size.MEDIUM}
 							{fbvElement type="text" id="provider[{$name}][clientSecret]" value=$provider[{$name}]['clientSecret'] maxlength="250" label="plugins.generic.openid.settings.clientSecret.desc" inline=true size=$fbvStyles.size.MEDIUM}
+							{if $name == 'microsoft'}
+								{fbvFormSection id="microsoftAudiences" title="plugins.generic.openid.settings.provider.microsoft.audience" list=true required=true }
+									{fbvElement type="select" id="provider[{$name}][audience]" selected=$provider[{$name}]['audience'] defaultValue=$microsoftAudienceDefault from=$microsoftAudiences required=true translate=false}
+								{/fbvFormSection}
+							{/if}
 						</div>
 					</div>
 				{/fbvFormSection}
@@ -150,4 +150,3 @@
 	{/fbvFormArea}
 	{fbvFormButtons}
 </form>
-

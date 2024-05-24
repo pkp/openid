@@ -1,31 +1,18 @@
 <?php
 
 /**
- * @file plugins/generic/openid/index.php
+ * @file index.php
  *
- * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
+ * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ * Copyright (c) 2023 Simon Fraser University
+ * Copyright (c) 2023 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
- * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * @class OpenIDPlugin
  *
- * OpenID Authentication Plugin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
- *
- * @file OrcidProfilePlugin.inc.php
- * @copyright 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
  * @ingroup plugins_generic_openid
- * @brief Wrapper for OpenID Authentication Plugin.
  *
+ * @brief Wrapper for OpenID Plugin.
  */
-require_once('OpenIDPlugin.inc.php');
 
-return new OpenIDPlugin();
-
-?>
+return new \APP\plugins\generic\openid\OpenIDPlugin();
