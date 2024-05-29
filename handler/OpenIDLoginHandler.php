@@ -4,13 +4,11 @@
  * @file handler/OpenIDLoginHandler.php
  *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
- * Copyright (c) 2023 Simon Fraser University
- * Copyright (c) 2023 John Willinsky
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * @class OpenIDLoginHandler
- *
- * @ingroup plugins_generic_openid
  *
  * @brief Handler to overwrite default OJS/OMP/OPS login and registration
  */
@@ -51,7 +49,7 @@ class OpenIDLoginHandler extends Handler
 			$request->redirectSSL();
 		}
 
-		$contextData = OpenIDHandler::getContextData($request);
+		$contextData = OpenIDPlugin::getContextData($request);
 
 		if (Validation::isLoggedIn()) {
 			$request->redirect($contextData->getPath(), 'index');
@@ -60,7 +58,7 @@ class OpenIDLoginHandler extends Handler
 		
 		$contextId = $contextData->getId();
 
-		$settings = OpenIDHandler::getOpenIDSettings($this->plugin, $contextId);
+		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
 
 		if ($settings) {
 			$providerList = $settings['provider'] ?? [];
@@ -126,23 +124,23 @@ class OpenIDLoginHandler extends Handler
 			return;
 		}
 
-		$contextData = OpenIDHandler::getContextData($request);
+		$contextData = OpenIDPlugin::getContextData($request);
 
 		$contextId = $contextData->getId();
 
-		$settings = OpenIDHandler::getOpenIDSettings($this->plugin, $contextId);
+		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
 
 		$user = $request->getUser() ? Repo::user()->get($request->getUser()->getId()) : null;
 
 		if ($user) {
-			$lastProviderValue = $user->getData(OpenIDHandler::USER_OPENID_LAST_PROVIDER_SETTING);
+			$lastProviderValue = $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
 
-			$user->setData(OpenIDHandler::USER_OPENID_LAST_PROVIDER_SETTING, null);
+			$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, null);
 			Repo::user()->edit($user);
 		}
 
 		$tokenEncrypted = $request->getSession()->getSessionVar('id_token');
-		$token = OpenIDHandler::encryptOrDecrypt($this->plugin, $contextId, $tokenEncrypted, false);
+		$token = OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $tokenEncrypted, false);
 
 		Validation::logout();
 

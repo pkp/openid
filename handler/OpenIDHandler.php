@@ -4,13 +4,11 @@
  * @file handler/OpenIDHandler.php
  *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
- * Copyright (c) 2023 Simon Fraser University
- * Copyright (c) 2023 John Willinsky
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * @class OpenIDHandler
- *
- * @ingroup plugins_generic_openid
  *
  * @brief Handler for OpenID workflow:
  *  - receive auth-code
@@ -37,16 +35,12 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 use PKP\config\Config;
 use APP\facades\Repo;
-use PKP\core\PKPRequest;
 use PKP\security\Role;
 use PKP\security\Validation;
 use PKP\user\User;
 
 class OpenIDHandler extends Handler
 {
-	public const USER_OPENID_IDENTIFIER_SETTING_BASE = 'openid::';
-	public const USER_OPENID_LAST_PROVIDER_SETTING = self::USER_OPENID_IDENTIFIER_SETTING_BASE . 'lastProvider';
-
 	/**
 	 * Constructor
 	 */
@@ -73,7 +67,7 @@ class OpenIDHandler extends Handler
 	{
 		$selectedProvider = $request->getUserVar('provider');
 
-		$contextData = OpenIDHandler::getContextData($request);
+		$contextData = OpenIDPlugin::getContextData($request);
 
 		$contextId = $contextData->getId();
 		$contextPath = $contextData->getPath();
@@ -85,7 +79,7 @@ class OpenIDHandler extends Handler
 			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_API_RETURNED, "{$selectedProvider}: ($error) \"$errorDescription\"");
 		}
 		
-		$settings = OpenIDHandler::getOpenIDSettings($this->plugin, $contextId);
+		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
 		$token = $this->getTokenViaAuthCode($settings['provider'], $request->getUserVar('code'), $selectedProvider);
 		$publicKey = $this->getOpenIDAuthenticationCert($settings['provider'], $selectedProvider);
 
@@ -115,7 +109,7 @@ class OpenIDHandler extends Handler
 
 		Validation::registerUserSession($user, $reason);
 
-		$request->getSession()->setSessionVar('id_token', OpenIDHandler::encryptOrDecrypt($this->plugin, $contextId, $token['id_token']));
+		$request->getSession()->setSessionVar('id_token', OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token['id_token']));
 
 		self::updateUserDetails($this->plugin, $claims, $user, $contextData, $selectedProvider);
 
@@ -136,7 +130,6 @@ class OpenIDHandler extends Handler
 		}
 	}
 
-
 	/**
 	 * Step2 POST (Form submit) function.
 	 * OpenIDStep2Form is used to handle form initialization, validation and persistence.
@@ -151,7 +144,7 @@ class OpenIDHandler extends Handler
 			return;
 		}
 
-		$contextPath = OpenIDHandler::getContextData($request)->getPath();
+		$contextPath = OpenIDPlugin::getContextData($request)->getPath();
 
 		if (!$request->isPost()) {
 			return $request->redirect($contextPath, 'login');
@@ -182,7 +175,7 @@ class OpenIDHandler extends Handler
 	{
 		$contextId = $contextData->getId();
 
-		$settings = OpenIDHandler::getOpenIDSettings($plugin, $contextId);
+		$settings = OpenIDPlugin::getOpenIDSettings($plugin, $contextId);
 
 		if (($settings['providerSync'] ?? false) && isset($claims)) {
 			$sitePrimaryLocale = $contextData->getPrimaryLocale();
@@ -204,10 +197,10 @@ class OpenIDHandler extends Handler
 			}
 		}
 
-		$user->setData(self::USER_OPENID_LAST_PROVIDER_SETTING, $selectedProvider);
+		$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, $selectedProvider);
 
 		if ($setProviderId && isset($claims['id'])) {
-			$user->setData(self::getOpenIDUserSetting($selectedProvider), $claims['id']);
+			$user->setData(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $claims['id']);
 			self::updateApiKey($plugin, $contextId, $user, $claims['id'], $settings, $selectedProvider);
 		}
 
@@ -225,33 +218,8 @@ class OpenIDHandler extends Handler
 			}
 
 			$user->setData('apiKeyEnabled', true);
-			$user->setData('apiKey', self::encryptOrDecrypt($plugin, $contextId, $providerId));
+			$user->setData('apiKey', OpenIDPlugin::encryptOrDecrypt($plugin, $contextId, $providerId));
 		}
-	}
-
-	/**
-	 * De-/Encrypt function to hide some important things.
-	 */
-	public static function encryptOrDecrypt(OpenIDPlugin $plugin, int $contextId, ?string $string, bool $encrypt = true): ?string
-	{
-		if (!isset($string)) {
-			return null;
-		}
-
-		$settings = OpenIDHandler::getOpenIDSettings($plugin, $contextId);
-
-		if (!isset($settings['hashSecret'])) {
-			return $string;
-		}
-
-		$pwd = $settings['hashSecret'];
-		
-		$iv = substr($pwd, 0, 16);
-		$alg = 'AES-256-CBC';
-
-		return $encrypt
-			? openssl_encrypt($string, $alg, $pwd, 0, $iv)
-			: openssl_decrypt($string, $alg, $pwd, 0, $iv);
 	}
 
 	/**
@@ -262,7 +230,7 @@ class OpenIDHandler extends Handler
 	private function getUserViaProviderId(string $idClaim, string $selectedProvider): ?User
 	{
 		$userIds = Repo::user()->getCollector()
-			->filterBySettings([self::getOpenIDUserSetting($selectedProvider) => $idClaim])
+			->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider) => $idClaim])
 			->getIds();
 		
 		if ($userIds->isNotEmpty()) {
@@ -270,7 +238,7 @@ class OpenIDHandler extends Handler
 		}
 
 		$userIds = Repo::user()->getCollector()
-			->filterBySettings([self::getOpenIDUserSetting($selectedProvider), hash('sha256', $idClaim)])
+			->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), hash('sha256', $idClaim)])
 			->getIds();
 
 		if ($userIds->isNotEmpty()) {
@@ -463,37 +431,17 @@ class OpenIDHandler extends Handler
 		}
 	}
 
-	public static function getOpenIDUserSetting(string $provider): string
-	{
-		return self::USER_OPENID_IDENTIFIER_SETTING_BASE . $provider;
-	}
-
 	/**
 	 * Handle SSO errors
 	 */
 	private function handleSSOError(Request $request, ?string $contextPath, string $error, $errorMsg = null)
 	{
-		$ssoErrors = ['sso_error' => $error];
+		$ssoErrors = ['sso_error' => htmlspecialchars($error, ENT_QUOTES, 'UTF-8')];
 
 		if ($errorMsg) {
-			$ssoErrors['sso_error_msg'] = $errorMsg;
+			$ssoErrors['sso_error_msg'] = htmlspecialchars($errorMsg, ENT_QUOTES, 'UTF-8');
 		}
 
-
 		return $request->redirect($contextPath, 'login', null, null, $ssoErrors);
-	}
-
-	public static function getOpenIDSettings(OpenIDPlugin $plugin, int $contextId): ?array
-	{
-		$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
-		return $settingsJson ? json_decode($settingsJson, true) : null;
-	}
-
-	public static function getContextData(PKPRequest $request): ContextData
-	{
-		$context = $request->getContext();
-		$site = $request->getSite();
-
-		return new ContextData($site, $context);
 	}
 }

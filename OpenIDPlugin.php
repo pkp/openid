@@ -4,13 +4,11 @@
  * @file OpenIDPlugin.php
  *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
- * Copyright (c) 2023 Simon Fraser University
- * Copyright (c) 2023 John Willinsky
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * @class OpenIDPlugin
- *
- * @ingroup plugins_generic_openid
  *
  * @brief OpenIDPlugin class for plugin and handler registration
  */
@@ -19,11 +17,13 @@ namespace APP\plugins\generic\openid;
 
 use APP\core\Application;
 use APP\facades\Repo;
+use APP\plugins\generic\openid\classes\ContextData;
 use APP\plugins\generic\openid\forms\OpenIDPluginSettingsForm;
 use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\handler\OpenIDLoginHandler;
 use Illuminate\Support\Collection;
 use PKP\core\PKPApplication;
+use PKP\core\PKPRequest;
 use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\AjaxModal;
 use PKP\plugins\GenericPlugin;
@@ -35,6 +35,9 @@ require_once(dirname(__FILE__) . '/vendor/autoload.php');
 
 class OpenIDPlugin extends GenericPlugin
 {
+	public const USER_OPENID_IDENTIFIER_SETTING_BASE = 'openid::';
+	public const USER_OPENID_LAST_PROVIDER_SETTING = self::USER_OPENID_IDENTIFIER_SETTING_BASE . 'lastProvider';
+
 	// OpenIDProviders
 	public const PROVIDER_CUSTOM = 'custom';
 	public const PROVIDER_ORCID = 'orcid';
@@ -151,8 +154,8 @@ class OpenIDPlugin extends GenericPlugin
 	 */
 	function getSetting($contextId, $name)
 	{
-		if (parent::getSetting(0, 'enabled')) {
-			return parent::getSetting(0, $name);
+		if (parent::getSetting(PKPApplication::CONTEXT_SITE, 'enabled')) {
+			return parent::getSetting(PKPApplication::CONTEXT_SITE, $name);
 		} else {
 			return parent::getSetting($contextId, $name);
 		}
@@ -177,7 +180,7 @@ class OpenIDPlugin extends GenericPlugin
 			Hook::add('Schema::get::before::user', [$this, 'beforeGetSchema']);
 			Hook::add('Schema::get::user', [$this, 'addToSchema']);
 
-			$settings = OpenIDHandler::getOpenIDSettings($this, $contextId);
+			$settings = OpenIDPlugin::getOpenIDSettings($this, $contextId);
 			$requestUser = $request->getUser();
 
 			$user = null;
@@ -186,7 +189,7 @@ class OpenIDPlugin extends GenericPlugin
 			}
 
 			if ($user) {
-				$lastProvider = $user->getData(OpenIDHandler::USER_OPENID_LAST_PROVIDER_SETTING);
+				$lastProvider = $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
 			}
 
 			if ($lastProvider && isset($settings)
@@ -222,12 +225,12 @@ class OpenIDPlugin extends GenericPlugin
 		$schema = &$args[0];
 
 		$settings = [
-			OpenIDHandler::USER_OPENID_LAST_PROVIDER_SETTING,
+			OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING,
 		];
 
 		$providers = OpenIDPlugin::$publicOpenidProviders;
 		foreach ($providers as $key => $value) {
-			$settings[] = OpenIDHandler::getOpenIDUserSetting($key);
+			$settings[] = OpenIDPlugin::getOpenIDUserSetting($key);
 		}
 
 		foreach ($settings as $settingName) {
@@ -359,6 +362,50 @@ class OpenIDPlugin extends GenericPlugin
 		}
 
 		return parent::manage($args, $request);
+	}
+
+	public static function getOpenIDSettings(OpenIDPlugin $plugin, int $contextId): ?array
+	{
+		$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
+		return $settingsJson ? json_decode($settingsJson, true) : null;
+	}
+
+	public static function getContextData(PKPRequest $request): ContextData
+	{
+		$context = $request->getContext();
+		$site = $request->getSite();
+
+		return new ContextData($site, $context);
+	}
+
+	public static function getOpenIDUserSetting(string $provider): string
+	{
+		return OpenIDPlugin::USER_OPENID_IDENTIFIER_SETTING_BASE . $provider;
+	}
+
+	/**
+	 * De-/Encrypt function to hide some important things.
+	 */
+	public static function encryptOrDecrypt(OpenIDPlugin $plugin, int $contextId, ?string $string, bool $encrypt = true): ?string
+	{
+		if (!isset($string)) {
+			return null;
+		}
+
+		$settings = OpenIDPlugin::getOpenIDSettings($plugin, $contextId);
+
+		if (!isset($settings['hashSecret'])) {
+			return $string;
+		}
+
+		$pwd = $settings['hashSecret'];
+		
+		$iv = substr($pwd, 0, 16);
+		$alg = 'AES-256-CBC';
+
+		return $encrypt
+			? openssl_encrypt($string, $alg, $pwd, 0, $iv)
+			: openssl_decrypt($string, $alg, $pwd, 0, $iv);
 	}
 }
 

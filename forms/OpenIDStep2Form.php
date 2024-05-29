@@ -4,13 +4,11 @@
  * @file forms/OpenIDStep2Form.php
  *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
- * Copyright (c) 2023 Simon Fraser University
- * Copyright (c) 2023 John Willinsky
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * @class OpenIDStep2Form
- *
- * @ingroup plugins_generic_openid
  *
  * @brief Form class for the second step which is needed if no local user was found with the OpenID identifier
  */
@@ -37,28 +35,6 @@ use PKP\form\validation\FormValidatorCustom;
 use APP\facades\Repo;
 use PKP\facades\Locale;
 
-/**
- * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
- *
- * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * OpenID Authentication Plugin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
- *
- * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
- *
- * @file plugins/generic/openid/forms/OpenIDStep2Form.inc.php
- * @ingroup plugins_generic_openid
- * @brief Form class for the second step which is needed if no local user was found with the OpenID identifier
- */
 class OpenIDStep2Form extends Form
 {
 	private $contextId;
@@ -68,7 +44,7 @@ class OpenIDStep2Form extends Form
 	 */
 	function __construct(private OpenIDPlugin $plugin, private ?string $selectedProvider = null, private $claims = [])
 	{
-		$this->contextId = OpenIDHandler::getContextData(Application::get()->getRequest())->getId();
+		$this->contextId = OpenIDPlugin::getContextData(Application::get()->getRequest())->getId();
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
@@ -81,7 +57,7 @@ class OpenIDStep2Form extends Form
 	 */
 	function fetch($request, $template = null, $display = false)
 	{
-		$settings = OpenIDHandler::getOpenIDSettings($this->plugin, $this->contextId);
+		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, $this->contextId);
 
 		$isoCodes = new IsoCodesFactory();
 		$countries = [];
@@ -90,7 +66,7 @@ class OpenIDStep2Form extends Form
 		}
 		asort($countries);
 
-		$contextData = OpenIDHandler::getContextData($request);
+		$contextData = OpenIDPlugin::getContextData($request);
 
 		$templateMgr = TemplateManager::getManager($request);
 		$templateMgr->assign([
@@ -130,7 +106,7 @@ class OpenIDStep2Form extends Form
 			
 			$this->_data = [
 				'selectedProvider' => $this->selectedProvider,
-				'oauthId' => OpenIDHandler::encryptOrDecrypt($this->plugin, $this->contextId, $this->claims['id']),
+				'oauthId' => OpenIDPlugin::encryptOrDecrypt($this->plugin, $this->contextId, $this->claims['id']),
 				'username' => $this->claims['username'],
 				'givenName' => $this->claims['given_name'],
 				'familyName' => $this->claims['family_name'],
@@ -210,7 +186,7 @@ class OpenIDStep2Form extends Form
 				)
 			);
 
-			if (OpenIDHandler::getContextData(Application::get()->getRequest())->getPrivacyStatement()) {
+			if (OpenIDPlugin::getContextData(Application::get()->getRequest())->getPrivacyStatement()) {
 				$this->addCheck(new FormValidator($this, 'privacyConsent', 'required', 'plugins.generic.openid.form.error.privacyConsent.required'));
 			}
 
@@ -250,15 +226,15 @@ class OpenIDStep2Form extends Form
 		$result = false;
 
 		if (!empty($oauthId) && !empty($selectedProvider)) {
-			$oauthId = OpenIDHandler::encryptOrDecrypt($this->plugin, $this->contextId, $oauthId, false);
+			$oauthId = OpenIDPlugin::encryptOrDecrypt($this->plugin, $this->contextId, $oauthId, false);
 			// prevent saving one openid:ident to multiple accounts
 			$userIds = Repo::user()->getCollector()
-				->filterBySettings([OpenIDHandler::getOpenIDUserSetting($selectedProvider), $oauthId])
+				->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $oauthId])
 				->getIds();
 
 			if ($userIds->isEmpty()) {
 				$userIds = Repo::user()->getCollector()
-					->filterBySettings([OpenIDHandler::getOpenIDUserSetting($selectedProvider), hash('sha256', $oauthId)])
+					->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), hash('sha256', $oauthId)])
 					->getIds();
 			}
 			if ($userIds->isEmpty()) {
@@ -268,7 +244,7 @@ class OpenIDStep2Form extends Form
 						if ($selectedProvider == OpenIDPlugin::PROVIDER_ORCID) {
 							$user->setOrcid($oauthId);
 						}
-						$user->setData(OpenIDHandler::getOpenIDUserSetting($selectedProvider), $oauthId);
+						$user->setData(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $oauthId);
 						
 						Repo::user()->edit($user);
 						$result = true;
@@ -293,7 +269,7 @@ class OpenIDStep2Form extends Form
 				}
 
 				if ($result && isset($user)) {
-					$contextData = OpenIDHandler::getContextData(Application::get()->getRequest());
+					$contextData = OpenIDPlugin::getContextData(Application::get()->getRequest());
 
 					OpenIDHandler::updateUserDetails($this->plugin, isset($payload) ? $payload : null, $user, $contextData, $selectedProvider, true);
 					Validation::registerUserSession($user, $reason);
@@ -314,7 +290,7 @@ class OpenIDStep2Form extends Form
 		$user = Repo::user()->newDataObject();
 		$user->setUsername($this->getData('username'));
 		
-		$contextData = OpenIDHandler::getContextData(Application::get()->getRequest());
+		$contextData = OpenIDPlugin::getContextData(Application::get()->getRequest());
 
 		$sitePrimaryLocale = $contextData->getPrimaryLocale();
 		$currentLocale = Locale::getLocale();

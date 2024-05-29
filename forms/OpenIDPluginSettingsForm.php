@@ -4,13 +4,11 @@
  * @file forms/OpenIDPluginSettingsForm.php
  *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
- * Copyright (c) 2023 Simon Fraser University
- * Copyright (c) 2023 John Willinsky
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * @class OpenIDPluginSettingsForm
- *
- * @ingroup plugins_generic_openid
  *
  * @brief Form class for OpenID Authentication Plugin settings
  */
@@ -50,7 +48,7 @@ class OpenIDPluginSettingsForm extends Form
 	function initData()
 	{
 		$request = Application::get()->getRequest();
-		$settings = OpenIDHandler::getOpenIDSettings($this->plugin, OpenIDHandler::getContextData($request)->getId());
+		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, OpenIDPlugin::getContextData($request)->getId());
 		$provider = $settings['provider'];
 
 		if ($provider && is_array($provider)) {
@@ -123,7 +121,7 @@ class OpenIDPluginSettingsForm extends Form
 	public function fetch($request, $template = null, $display = false)
 	{
 		$redirectURL = $request->getDispatcher()
-			->url($request, PKPApplication::ROUTE_PAGE, OpenIDHandler::getContextData($request)->getPath(), 'openid', 'doAuthentication');
+			->url($request, PKPApplication::ROUTE_PAGE, OpenIDPlugin::getContextData($request)->getPath(), 'openid', 'doAuthentication');
 		
 		$templateMgr = TemplateManager::getManager($request);
 		$templateMgr->assign([
@@ -140,8 +138,8 @@ class OpenIDPluginSettingsForm extends Form
 	function execute(...$functionArgs)
 	{
 		$request = Application::get()->getRequest();
-		$contextId = OpenIDHandler::getContextData($request)->getId();
-		$settingsTMP = OpenIDHandler::getOpenIDSettings($this->plugin, $contextId);
+		$contextId = OpenIDPlugin::getContextData($request)->getId();
+		$settingsTMP = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
 
 		$providerList = $this->getData('provider');
 		$providerListResult = $this->_createProviderList($providerList, $settingsTMP['provider']);
