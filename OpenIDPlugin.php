@@ -254,10 +254,8 @@ class OpenIDPlugin extends GenericPlugin
 	 * ]
 	 *
 	 */
-	public function beforeGetSchema(string $hookName, array $args): bool
+	public function beforeGetSchema(string $hookName, bool &$forceReload): bool
 	{
-		$forceReload = &$args[0];
-
 		$forceReload = true;
 
 		return false;
