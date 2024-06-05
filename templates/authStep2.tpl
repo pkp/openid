@@ -1,25 +1,14 @@
-{*
+{**
  * templates/authStep2.tpl
  *
- * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
- *
- * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * OpenID Authentication Plugin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
- *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * Display the OpenID Auth second step.
  *}
+
 {include file="frontend/components/header.tpl" pageTitle="plugins.generic.openid.step2.title"}
 <div class="page page_oauth">
 	{include file="frontend/components/breadcrumbs.tpl" currentTitleKey="plugins.generic.openid.step2.title"}
@@ -28,23 +17,40 @@
 		<input type="hidden" name="oauthId" id="oauthId" value="{$oauthId}">
 		<input type="hidden" name="selectedProvider" id="selectedProvider" value="{$selectedProvider}">
 		<input type="hidden" name="returnTo" id="returnTo" value="{$returnTo}">
+
+		{if $siteTitle}
+			{assign var="headline" value="{translate key='plugins.generic.openid.step2.headline' journalName=$siteTitle|escape}"}
+			{assign var="choiceNo" value="{translate key="plugins.generic.openid.step2.choice.no" journalName=$siteTitle|escape}"}
+			{assign var="connect" value="{translate key="plugins.generic.openid.step2.connect" journalName=$siteTitle|escape}"}
+			{assign var="help" value="{translate key="plugins.generic.openid.step2.help" journalName=$siteTitle|escape}"}
+		{else}
+			{assign var="headline" value="{translate key='plugins.generic.openid.step2.headline.siteNameMissing'}"}
+			{assign var="choiceNo" value="{translate key='{translate key="plugins.generic.openid.step2.choice.no.siteNameMissing"}'}"}
+			{assign var="connect" value="{translate key='{translate key="plugins.generic.openid.step2.connect.siteNameMissing"}'}"}
+			{assign var="help" value="{translate key='{translate key="plugins.generic.openid.step2.help.siteNameMissing"}'}"}
+		{/if}
+
 		{if empty($disableConnect) || $disableConnect != "1"}
 			<h1>
-				{translate key="plugins.generic.openid.step2.headline" journalName=$siteTitle|escape}
+				{$headline}
 			</h1>
-			{*<p>
-				{translate key="plugins.generic.openid.step2.help" journalName=$siteTitle|escape}
-			</p>*}
 			<ul id="openid-choice-select">
-				<li><span id='showLoginForm' class='step2-choice-links'>{translate key="plugins.generic.openid.step2.choice.yes"}</span></li>
-				<li><span id='showRegisterForm'
-				          class='step2-choice-links'>{translate key="plugins.generic.openid.step2.choice.no" journalName=$siteTitle|escape}</span></li>
+				<li>
+					<span id='showLoginForm' class='step2-choice-links'>
+						{translate key="plugins.generic.openid.step2.choice.yes"}
+					</span>
+				</li>
+				<li>
+					<span id='showRegisterForm' class='step2-choice-links'>
+						{$choiceNo}
+					</span>
+				</li>
 			</ul>
 		{/if}
 		<div {if empty($disableConnect) || $disableConnect != "1" }id="register-form"{/if} class="page_register">
 			<fieldset class="register">
 				<p class="cmp_notification warning">
-					{translate key="plugins.generic.openid.step2.help" journalName=$siteTitle|escape}
+					{$help}
 				</p>
 				{if $returnTo == 'register'}
 					{include file="common/formErrors.tpl"}
@@ -128,7 +134,7 @@
 				</div>
 			</fieldset>
 			<fieldset class="consent">
-				{if isset($currentContext) and $currentContext->getData('privacyStatement')}
+				{if isset($privacyStatement)}
 					{* Require the user to agree to the terms of the privacy policy *}
 					<div class="fields">
 						<div class="optin optin-privacy">
@@ -155,11 +161,6 @@
 				</div>
 			</fieldset>
 			{* Allow the user to sign up as a reviewer *}
-			{if isset($currentContext) }
-			{assign var=contextId value=$currentContext->getId()}
-			{else}
-			{assign var=contextId value=0}
-			{/if}
 			{assign var=userCanRegisterReviewer value=0}
 			{foreach from=$reviewerUserGroups[$contextId] item=userGroup}
 				{if $userGroup->getPermitSelfRegistration()}
@@ -183,7 +184,7 @@
 									<label>
 										{assign var="userGroupId" value=$userGroup->getId()}
 										<input type="checkbox" name="reviewerGroup[{$userGroupId}]" class="reviewerGroupInput"
-										       value="1"{if in_array($userGroupId, $userGroupIds)} checked="checked"{/if}>
+											value="1"{if in_array($userGroupId, $userGroupIds)} checked="checked"{/if}>
 										{translate key=$checkboxLocaleKey userGroup=$userGroup->getLocalizedName()}
 									</label>
 								{/if}
@@ -210,7 +211,7 @@
 			<div id="login-form">
 				<fieldset class="login">
 					<p class="cmp_notification warning">
-						{translate key="plugins.generic.openid.step2.connect" journalName=$siteTitle|escape}
+						{$connect}
 					</p>
 					{if $returnTo == 'connect'}
 						{include file="common/formErrors.tpl"}
