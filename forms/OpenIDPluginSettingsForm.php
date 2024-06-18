@@ -17,6 +17,8 @@ namespace APP\plugins\generic\openid\forms;
 
 use APP\core\Application;
 use APP\notification\NotificationManager;
+use APP\plugins\generic\openid\enums\MicrosoftAudience;
+use APP\plugins\generic\openid\enums\OpenIDProvider;
 use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
@@ -62,12 +64,6 @@ class OpenIDPluginSettingsForm extends Form
 			}
 		}
 
-		$microsoftAudienceArray = [
-			OpenIDPlugin::MICROSOFT_AUDIENCE_COMMON => OpenIDPlugin::MICROSOFT_AUDIENCE_COMMON,
-			OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS => OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS,
-			OpenIDPlugin::MICROSOFT_AUDIENCE_ORGANIZATIONS => OpenIDPlugin::MICROSOFT_AUDIENCE_ORGANIZATIONS,
-		];
-
 		if (isset($settings)) {
 			$this->_data = [
 				'initProvider' => OpenIDPlugin::$publicOpenidProviders,
@@ -79,8 +75,8 @@ class OpenIDPluginSettingsForm extends Form
 				'generateAPIKey' => $settings['generateAPIKey'] ?? 0,
 				'providerSync' => $settings['providerSync'] ?? false,
 				'disableFields' => $settings['disableFields'],
-				'microsoftAudiences' => $microsoftAudienceArray,
-				'microsoftAudienceDefault' => OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS,
+				'microsoftAudiences' => MicrosoftAudience::toAssociativeArray(true),
+				'microsoftAudienceDefault' => MicrosoftAudience::CONSUMERS->value,
 			];
 		} else {
 			$this->_data = [
@@ -88,8 +84,8 @@ class OpenIDPluginSettingsForm extends Form
 				'legacyLogin' => true,
 				'legacyRegister' => false,
 				'generateAPIKey' => false,
-				'microsoftAudiences' => $microsoftAudienceArray,
-				'microsoftAudienceDefault' => OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS,
+				'microsoftAudiences' => MicrosoftAudience::toAssociativeArray(true),
+				'microsoftAudienceDefault' => MicrosoftAudience::CONSUMERS->value,
 			];
 		}
 		parent::initData();
@@ -197,8 +193,12 @@ class OpenIDPluginSettingsForm extends Form
 					}
 				}
 
-				if ($name == OpenIDPlugin::PROVIDER_MICROSOFT) {
-					$provider['configUrl'] = OpenIDPlugin::prepareMicrosoftConfigUrl($provider['audience']);
+				$providedEnum = OpenIDProvider::tryFrom($name);
+				if ($providedEnum == OpenIDProvider::MICROSOFT) {
+					$audience = MicrosoftAudience::tryFrom($provider['audience']);
+					$provider['audience'] = $audience;
+
+					$provider['configUrl'] = OpenIDPlugin::prepareMicrosoftConfigUrl($audience);
 				}
 
 				$openIdConfig = $this->_loadOpenIdConfig($provider['configUrl'] ?? '');

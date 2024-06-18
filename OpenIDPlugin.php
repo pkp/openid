@@ -18,6 +18,8 @@ namespace APP\plugins\generic\openid;
 use APP\core\Application;
 use APP\facades\Repo;
 use APP\plugins\generic\openid\classes\ContextData;
+use APP\plugins\generic\openid\enums\MicrosoftAudience;
+use APP\plugins\generic\openid\enums\OpenIDProvider;
 use APP\plugins\generic\openid\forms\OpenIDPluginSettingsForm;
 use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\handler\OpenIDLoginHandler;
@@ -38,25 +40,6 @@ class OpenIDPlugin extends GenericPlugin
 	public const USER_OPENID_IDENTIFIER_SETTING_BASE = 'openid::';
 	public const USER_OPENID_LAST_PROVIDER_SETTING = self::USER_OPENID_IDENTIFIER_SETTING_BASE . 'lastProvider';
 
-	// OpenIDProviders
-	public const PROVIDER_CUSTOM = 'custom';
-	public const PROVIDER_ORCID = 'orcid';
-	public const PROVIDER_GOOGLE = 'google';
-	public const PROVIDER_MICROSOFT = 'microsoft';
-	public const PROVIDER_APPLE = 'apple';
-
-	// SSOErrors
-	public const SSO_ERROR_CONNECT_DATA = 'connect_data';
-	public const SSO_ERROR_CONNECT_KEY = 'connect_key';
-	public const SSO_ERROR_CERTIFICATION = 'cert';
-	public const SSO_ERROR_USER_DISABLED = 'disabled';
-	public const SSO_ERROR_API_RETURNED = 'api_returned';
-
-	// MicrosoftAudiences
-	public const MICROSOFT_AUDIENCE_COMMON = 'common';
-	public const MICROSOFT_AUDIENCE_CONSUMERS = 'consumers';
-	public const MICROSOFT_AUDIENCE_ORGANIZATIONS = 'organizations';
-
 	/**
 	 * List of OpenID provider.
 	 */
@@ -65,23 +48,23 @@ class OpenIDPlugin extends GenericPlugin
 	public function __construct() 
 	{
 		self::$publicOpenidProviders = collect([
-			self::PROVIDER_CUSTOM => "",
-			self::PROVIDER_ORCID => ["configUrl" => "https://orcid.org/.well-known/openid-configuration"],
-			self::PROVIDER_GOOGLE => ["configUrl" => "https://accounts.google.com/.well-known/openid-configuration"],
-			self::PROVIDER_MICROSOFT => ["configUrl" => "https://login.windows.net/{audience}/v2.0/.well-known/openid-configuration"],
-			self::PROVIDER_APPLE => ["configUrl" => "https://appleid.apple.com/.well-known/openid-configuration"],
+			OpenIDProvider::CUSTOM->value => "",
+			OpenIDProvider::ORCID->value => ["configUrl" => "https://orcid.org/.well-known/openid-configuration"],
+			OpenIDProvider::GOOGLE->value => ["configUrl" => "https://accounts.google.com/.well-known/openid-configuration"],
+			OpenIDProvider::MICROSOFT->value => ["configUrl" => "https://login.windows.net/{audience}/v2.0/.well-known/openid-configuration"],
+			OpenIDProvider::APPLE->value => ["configUrl" => "https://appleid.apple.com/.well-known/openid-configuration"],
 		]);
 	}
 
 	/**
 	 * Replace the given provider's {$setting} placeholder in the configUrl with the provided value.
 	 */
-	public static function prepareMicrosoftConfigUrl(string $audience): string
+	public static function prepareMicrosoftConfigUrl(MicrosoftAudience $audience): string
 	{
 		return str_replace(
 			'{audience}', 
-			$audience, 
-			self::$publicOpenidProviders->get(self::PROVIDER_MICROSOFT)['configUrl']
+			$audience->value, 
+			self::$publicOpenidProviders->get(OpenIDProvider::MICROSOFT->value)['configUrl']
 		);
 	}
 
@@ -177,8 +160,8 @@ class OpenIDPlugin extends GenericPlugin
 		if ($success && $this->getEnabled($contextId)) {
 			$request = Application::get()->getRequest();
 
-			Hook::add('Schema::get::before::user', [$this, 'beforeGetSchema']);
-			Hook::add('Schema::get::user', [$this, 'addToSchema']);
+			Hook::add('Schema::get::before::user', $this->beforeGetSchema(...));
+			Hook::add('Schema::get::user', $this->addToSchema(...));
 
 			$settings = OpenIDPlugin::getOpenIDSettings($this, $contextId);
 			$requestUser = $request->getUser();
@@ -189,7 +172,8 @@ class OpenIDPlugin extends GenericPlugin
 			}
 
 			if ($user) {
-				$lastProvider = $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
+				$lastProviderValue = $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
+				$lastProvider = OpenIDProvider::tryFrom($lastProviderValue);
 			}
 
 			if ($lastProvider && isset($settings)
@@ -201,10 +185,10 @@ class OpenIDPlugin extends GenericPlugin
 				$templateMgr = TemplateManager::getManager($request);
 				$templateMgr->assign('openIdDisableFields', $settings['disableFields']);
 				
-				Hook::add('TemplateResource::getFilename', [$this, '_overridePluginTemplates']);
+				Hook::add('TemplateResource::getFilename', $this->_overridePluginTemplates(...));
 			}
 
-			Hook::add('LoadHandler', [$this, 'setPageHandler']);
+			Hook::add('LoadHandler', $this->setPageHandler(...));
 		}
 
 		return $success;
@@ -230,7 +214,7 @@ class OpenIDPlugin extends GenericPlugin
 
 		$providers = OpenIDPlugin::$publicOpenidProviders;
 		foreach ($providers as $key => $value) {
-			$settings[] = OpenIDPlugin::getOpenIDUserSetting($key);
+			$settings[] = OpenIDPlugin::getOpenIDUserSetting(OpenIDProvider::tryFrom($key));
 		}
 
 		foreach ($settings as $settingName) {
@@ -376,9 +360,9 @@ class OpenIDPlugin extends GenericPlugin
 		return new ContextData($site, $context);
 	}
 
-	public static function getOpenIDUserSetting(string $provider): string
+	public static function getOpenIDUserSetting(OpenIDProvider $provider): string
 	{
-		return OpenIDPlugin::USER_OPENID_IDENTIFIER_SETTING_BASE . $provider;
+		return OpenIDPlugin::USER_OPENID_IDENTIFIER_SETTING_BASE . $provider->value;
 	}
 
 	/**
