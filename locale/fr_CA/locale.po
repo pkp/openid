@@ -1,0 +1,29 @@
+# Weblate Admin <alec@smecher.bc.ca>, 2023.
+# Marie-Hélène Vézina [UdeMontréal] <marie-helene.vezina@umontreal.ca>, 2023.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2023-05-30 15:49+0000\n"
+"Last-Translator: Marie-Hélène Vézina [UdeMontréal] <marie-helene."
+"vezina@umontreal.ca>\n"
+"Language-Team: French (Canada) <http://translate.pkp.sfu.ca/projects/plugins/"
+"openid/fr_CA/>\n"
+"Language: fr_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.13.1\n"
+
+# general messages
+msgid "plugins.generic.openid.name"
+msgstr "Plugiciel d'authentification OpenID"
+
+msgid "plugins.generic.openid.description"
+msgstr ""
+"Ce plugiciel permet aux utilisateur.trice.s de s'enregistrer et de se "
+"connecter avec un fournisseur OpenID tel que Keycloak."
+
+# step2 messages
+#, fuzzy
+msgid "plugins.generic.openid.step2.title"
+msgstr "Compléter l'inscription"

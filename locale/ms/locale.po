@@ -1,0 +1,354 @@
+# Studiorimau <studiorimau@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2021-10-26 08:07+0000\n"
+"Last-Translator: Studiorimau <studiorimau@gmail.com>\n"
+"Language-Team: Malay <http://translate.pkp.sfu.ca/projects/plugins/openid/ms/"
+">\n"
+"Language: ms\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 3.9.1\n"
+
+msgid "plugins.generic.openid.settings.custom.enable"
+msgstr "Penyedia OpenID Custom"
+
+msgid "plugins.generic.openid.settings.openid.desc"
+msgstr "Sila masukkan maklumat berikut mengikut penyedia OpenID anda."
+
+# settings messages
+msgid "plugins.generic.openid.settings.openid.head"
+msgstr "Penyedia OpenId:"
+
+msgid "plugins.generic.openid.settings.error"
+msgstr ""
+"<strong> Konfigurasi plugin OpenID tidak betul! </strong> <br /> Tiada "
+"Penyedia OpenID yang dikonfigurasi! <br /> Laporkan ini kepada sokongan "
+"teknikal anda."
+
+msgid "plugins.generic.openid.form.error.invalid.credentials"
+msgstr "Kata laluan tidak betul."
+
+msgid "plugins.generic.openid.form.error.user.not.found"
+msgstr "Tidak ada pengguna yang sesuai dengan kelayakan anda."
+
+msgid "plugins.generic.openid.form.error.password.required"
+msgstr "Kata laluan diperlukan."
+
+msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
+msgstr "Nama pengguna atau e-mel diperlukan."
+
+msgid "plugins.generic.openid.form.error.privacyConsent.required"
+msgstr "Anda mesti bersetuju dengan syarat pernyataan privasi."
+
+msgid "plugins.generic.openid.form.error.emailExists"
+msgstr ""
+"Alamat e-mel yang anda berikan sudah wujud. Cuba log masuk ke akaun sedia "
+"ada."
+
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "E-mel diperlukan."
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
+msgstr "Afiliasi diperlukan."
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "Negara diperlukan."
+
+msgid "plugins.generic.openid.form.error.familyName.required"
+msgstr "Nama keluarga diperlukan."
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "Nama yang diberikan diperlukan."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "Nama pengguna yang anda berikan sudah wujud."
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "Nama pengguna diperlukan."
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "Log masuk dan sambungkan akaun"
+
+msgid "plugins.generic.openid.step2.connect.username"
+msgstr "Nama pengguna atau e-mel"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr ""
+"Sila log masuk ke akaun anda di {$journalName}. <br /> Maklumat anda akan "
+"dikemas kini secara automatik."
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "Pendaftaran lengkap"
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr "Sila sahkan maklumat anda dan tambahkan maklumat yang hilang"
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "Ya, saya sudah mempunyai akaun."
+
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "Tidak, saya baru menggunakan {$journalName}."
+
+msgid "plugins.generic.openid.step2.help"
+msgstr "Maklumat tambahan diperlukan untuk mendaftar:"
+
+msgid "plugins.generic.openid.step2.headline"
+msgstr "Adakah anda sudah mempunyai akaun dengan {$journalName}?"
+
+# step2 messages
+msgid "plugins.generic.openid.step2.title"
+msgstr "Pendaftaran lengkap"
+
+msgid "plugins.generic.openid.description"
+msgstr ""
+"Plugin ini membolehkan pengguna mendaftar dan log masuk dengan penyedia "
+"OpenID seperti Keycloak."
+
+# general messages
+msgid "plugins.generic.openid.name"
+msgstr "Plugin OpenID Authentication"
+
+msgid "plugins.generic.openid.disables.fields.info.password"
+msgstr ""
+"Anda menggunakan penyedia pengesahan log masuk tunggal untuk log masuk, jadi "
+"anda mesti menukar kata laluan anda pada halaman akaun pembekal."
+
+msgid "plugins.generic.openid.disables.fields.info.api"
+msgstr "Kunci API dijana secara automatik oleh plugin."
+
+msgid "plugins.generic.openid.disables.fields.info.orcid"
+msgstr "ORCID disediakan secara automatik oleh akaun ORCID anda yang disahkan."
+
+# disabled fields info
+msgid "plugins.generic.openid.disables.fields.info"
+msgstr ""
+"Sesetengah maklumat disediakan oleh akaun yang disahkan yang digunakan untuk "
+"log masuk dan tidak boleh diedit.<br /> Data akan disegerakkan apabila anda "
+"log keluar dan log masuk semula."
+
+msgid "plugins.generic.openid.select.provider.apple"
+msgstr "Log masuk dengan Apple"
+
+msgid "plugins.generic.openid.select.provider.microsoft"
+msgstr "Log masuk dengan Microsoft"
+
+msgid "plugins.generic.openid.select.provider.google"
+msgstr "Log masuk dengan Google"
+
+msgid "plugins.generic.openid.select.provider.orcid"
+msgstr "Log masuk dengan Orcid"
+
+msgid "plugins.generic.openid.select.provider.custom"
+msgstr "Log masuk dengan penyedia custom"
+
+msgid "plugins.generic.openid.select.provider.help"
+msgstr "Log masuk atau daftar dengan:"
+
+msgid "plugins.generic.openid.select.legacy"
+msgstr "Log masuk dengan akaun anda di {$journalName}"
+
+#provider page
+msgid "plugins.generic.openid.select.provider"
+msgstr "Log masuk atau daftar"
+
+msgid "plugins.generic.openid.error.legacy.link"
+msgstr ""
+"Pengurus dan kakitangan sokongan boleh log masuk melalui <a href=\""
+"{$legacyLoginUrl}\">pautan</a> ini untuk menyelesaikan isu ini."
+
+msgid "plugins.generic.openid.error.openid.disabled.with"
+msgstr "<strong>Akaun ini dilnyahdayakan atas sebab berikut:</strong>"
+
+msgid "plugins.generic.openid.error.openid.disabled.without"
+msgstr ""
+"<strong>Akaun ini dinyahdayakan tanpa sebarang sebab tertentu.</strong><br />"
+"Sila <a href='mailto:{$supportEmail}'>hubungi sokongan teknikal</a> untuk "
+"mendayakan akaun ini."
+
+msgid "plugins.generic.openid.error.openid.cert.desc"
+msgstr ""
+"<strong>Ralat berlaku semasa pengesahan dan mengekstrak data anda.</strong><"
+"br />Perkhidmatan mungkin tidak tersedia sekarang.<br />Sila cuba lagi "
+"kemudian dan <a href='mailto:{$supportEmail} '>hubungi sokongan teknikal</a> "
+"jika masalah masih wujud."
+
+msgid "plugins.generic.openid.error.openid.connect.desc.data"
+msgstr ""
+"<strong>Ralat berlaku semasa menerima data anda daripada penyedia "
+"OpenId.</strong><br />Perkhidmatan ini mungkin tidak tersedia sekarang.<br />"
+"Sila cuba sebentar lagi dan <a href='mailto:{$ supportEmail}'>hubungi "
+"sokongan teknikal</a> jika masalah masih wujud."
+
+# error messages
+msgid "plugins.generic.openid.error.openid.connect.desc.key"
+msgstr ""
+"<strong>Ralat berlaku semasa mengesahkan data anda.</strong><br />"
+"Perkhidmatan mungkin tidak tersedia sekarang.<br />Sila cuba lagi kemudian "
+"dan <a href='mailto:{$supportEmail}'> hubungi sokongan teknikal</a> jika "
+"masalah masih wujud."
+
+msgid "plugins.generic.openid.settings.features.disable.email"
+msgstr "<strong>E-mel</strong> baca sahaja"
+
+msgid "plugins.generic.openid.settings.features.disable.family"
+msgstr "<strong>Nama keluarga</strong> baca sahaja"
+
+msgid "plugins.generic.openid.settings.features.disable.given"
+msgstr "<strong>Nama diberi</strong> baca sahaja"
+
+msgid "plugins.generic.openid.settings.features.disable.fields.desc"
+msgstr "Elakkan medan berikut daripada diubah suai dalam aplikasi ini:"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync.desc"
+msgstr ""
+"Sesetengah maklumat pengguna, seperti nama yang diberikan, nama keluarga dan "
+"alamat e-mel, dipindahkan daripada OpenID Provider ke aplikasi ini. Dayakan "
+"pilihan ini untuk menyimpan maklumat pengguna ini secara automatik ke akaun "
+"pengguna. (disyorkan)"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync"
+msgstr "Dayakan penyegerakan data pengguna penyedia OpenID"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.desc"
+msgstr ""
+"Plugin ini boleh menjana kunci dengan menyulitkan pengenalpasti OpenID "
+"dengan <strong>rahsia yang dimasukkan di atas</strong>. Kunci ini akan "
+"disulitkan semula dengan rahsia yang mesti dinyatakan dalam tetapan "
+"aplikasi. Ini harus cukup selamat."
+
+msgid "plugins.generic.openid.settings.generateAPIKey.check"
+msgstr "Dayakan penjanaan kunci API automatik"
+
+msgid "plugins.generic.openid.settings.generateAPIKey"
+msgstr "Kunci API Automatik"
+
+msgid "plugins.generic.openid.settings.hashSecret.desc"
+msgstr ""
+"Jika anda ingin menyulitkan maklumat OpenID seperti pengenalpasti OpenID "
+"dalam kod HTML dan anda ingin menggunakan fungsi berikut untuk penjanaan API-"
+"KEY automatik, anda perlu memasukkan rahsia di sini. Untuk selamat, kunci "
+"rahsia hendaklah sekurang-kurangnya 24 aksara."
+
+msgid "plugins.generic.openid.settings.hashSecret"
+msgstr "Sulitkan/Nyahsulit rahsia"
+
+msgid "plugins.generic.openid.settings.step2.connect.desc"
+msgstr ""
+"Jika jurnal ini baharu dan tiada akaun pengguna sedia ada, anda boleh "
+"menandai kotak ini untuk menyahdayakan fungsi pemautan akaun. Dalam kes ini "
+"pengguna hanya akan diminta untuk butiran tambahan yang diperlukan oleh "
+"aplikasi ini apabila mendaftar akaun melalui penyedia OpenID."
+
+msgid "plugins.generic.openid.settings.step2.connect.check"
+msgstr "Dayakan \"Sambungan Akaun\""
+
+msgid "plugins.generic.openid.settings.step2.connect"
+msgstr "Sambungan Akaun"
+
+msgid "plugins.generic.openid.settings.legacyLogin.desc"
+msgstr ""
+"Dayakan pilihan ini jika anda mahu pengguna boleh mendaftar dan log masuk "
+"dengan borang log masuk aplikasi sebagai tambahan kepada log masuk OpenID."
+
+msgid "plugins.generic.openid.settings.legacyLogin.check"
+msgstr "Dayakan log masuk legasi"
+
+msgid "plugins.generic.openid.settings.legacyLogin"
+msgstr "Log Masuk Legasi"
+
+msgid "plugins.generic.openid.settings.features.desc"
+msgstr ""
+"Medan berikut adalah pilihan. Tidak perlu menyambung kepada penyedia OpenID."
+
+msgid "plugins.generic.openid.settings.features.head"
+msgstr "Fungsi plugin lanjutan"
+
+msgid "plugins.generic.openid.settings.clientSecret.desc"
+msgstr "Sila masukkan rahsia klien anda."
+
+msgid "plugins.generic.openid.settings.clientSecret"
+msgstr "Rahsia klien"
+
+msgid "plugins.generic.openid.settings.clientId.desc"
+msgstr "Sila masukkan id pelanggan anda."
+
+msgid "plugins.generic.openid.settings.clientId"
+msgstr "Pengenalpasti pelanggan"
+
+msgid "plugins.generic.openid.settings.configUrl.desc"
+msgstr ""
+"Sila masukkan URL konfigurasi penyedia OpenID anda.<strong>URL mesti "
+"berakhir dengan \".well-known/openid-configuration\" (cth \""
+"https://sso.example.com/auth/realms/master/.well-known/openid-configuration\""
+").</strong>"
+
+msgid "plugins.generic.openid.settings.configUrl"
+msgstr "URL OpenID Provider"
+
+msgid "plugins.generic.openid.settings.apple.desc"
+msgstr ""
+"Lihat <a href='https://developer.apple.com/documentation/"
+"authenticationservices' target='_blank' rel='noopener'>tutorial</a> ini "
+"tentang cara mengkonfigurasi Apple ID. Sila gunakan URL ubah hala ini:"
+
+msgid "plugins.generic.openid.settings.apple.enable"
+msgstr "Apple ID"
+
+msgid "plugins.generic.openid.settings.microsoft.desc"
+msgstr ""
+"Anda perlu mengkonfigurasi Perkhidmatan Apl anda dalam <a "
+"href='https://portal.azure.com/#blade/Microsoft_AAD_IAM/"
+"ActiveDirectoryMenuBlade/Overview' target='_blank' rel='noopener'>portal "
+"Azure</a > (pergi ke 'Pendaftaran aplikasi' selepas log masuk) untuk "
+"menggunakan log masuk Azure AD. Lihat <a href='https://docs.microsoft.com/"
+"en-us/azure/app-service/configure-authentication-provider-aad' target="
+"'_blank' rel='noopener'>tutorial</a ini >. Sila gunakan URL ubah hala ini:"
+
+msgid "plugins.generic.openid.settings.microsoft.enable"
+msgstr "Direktori Aktif Microsoft Azure"
+
+msgid "plugins.generic.openid.settings.google.desc"
+msgstr ""
+"Anda perlu cipta klien OpenID Connect dalam <a "
+"href='https://console.developers.google.com/apis/credentials' target="
+"'_blank' rel='noopener'>Google Developer Console</a> untuk menggunakan "
+"Google sebagai OpenID Connect Provider. Lihat <a "
+"href='https://developers.google.com/identity/protocols/oauth2/openid-"
+"connect' target='_blank' rel='noopener'>tutorial</a> ini. Sila gunakan URL "
+"ubah hala ini:"
+
+msgid "plugins.generic.openid.settings.google.enable"
+msgstr "Google OpenID Connect"
+
+msgid "plugins.generic.openid.settings.orcid.desc"
+msgstr ""
+"Sila gunakan URL ubah hala ini (lihat <a href='https://github.com/ORCID/"
+"ORCID-Source/blob/master/orcid-web/ORCID_AUTH_WITH_OPENID_CONNECT.md' target="
+"'_blank' rel='noopener'>tutorial </a>):"
+
+msgid "plugins.generic.openid.settings.custom.desc"
+msgstr ""
+"Jika anda ingin menggunakan OpenID Connect Provider custom(cth. pelayan "
+"Keycloak yang dihoskan sendiri), anda perlu memberikan URL kepada titik "
+"akhir konfigurasi OpenID dan bukti kelayakan klien."
+
+msgid "plugins.generic.openid.settings.orcid.enable"
+msgstr "ORCID OpenID Connect"
+
+msgid "plugins.generic.openid.settings.btnTxt.desc"
+msgstr "Sila masukkan label butang log masuk."
+
+msgid "plugins.generic.openid.settings.btnImg.desc"
+msgstr ""
+"Sila masukkan URL pada imej (46x41) untuk dipaparkan pada butang log masuk. "
+"Jika tiada imej diberikan, logo OpenID akan ditunjukkan."
+
+msgid "plugins.generic.openid.settings.provider.settings"
+msgstr "Kelayakan log masuk"
+
+msgid "plugins.generic.openid.settings.btn.settings"
+msgstr "Tetapan butang log masuk custom"
