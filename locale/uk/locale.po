@@ -1,0 +1,365 @@
+# Petro Bilous <petrobilous@ukr.net>, 2023.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2023-04-28 11:49+0000\n"
+"Last-Translator: Petro Bilous <petrobilous@ukr.net>\n"
+"Language-Team: Ukrainian <http://translate.pkp.sfu.ca/projects/plugins/"
+"openid/uk/>\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 4.13.1\n"
+
+# step2 messages
+msgid "plugins.generic.openid.step2.title"
+msgstr "Завершіть реєстрацію"
+
+msgid "plugins.generic.openid.step2.headline"
+msgstr "У Вас уже є обліковий запис у \"{$journalName}\"?"
+
+msgid "plugins.generic.openid.step2.help"
+msgstr "Для реєстрації необхідна додаткова інформація:"
+
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "Ні, я новачок у \"{$journalName}\"."
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "Так, у мене вже є обліковий запис."
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr "Будь ласка, перевірте свої дані та додайте будь-яку відсутню інформацію"
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "Завершіть реєстрацію"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr ""
+"Будь ласка, увійдіть у свій обліковий запис у \"{$journalName}\".<br />Вашу "
+"інформацію буде оновлено автоматично."
+
+msgid "plugins.generic.openid.step2.connect.username"
+msgstr "Ім'я користувача або електронна пошта"
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "Увійти та пов'язати облікові записи"
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "Ім'я користувача обов'язкове."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "Ім'я користувача, яке Ви вказали, уже існує."
+
+msgid "plugins.generic.openid.form.error.familyName.required"
+msgstr "Прізвище обов'язкове."
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "Ім'я обов'язкове."
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "Країна обов'язкова."
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
+msgstr "Афіліація обов'язкова."
+
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "Електронна пошта обов'язкова."
+
+msgid "plugins.generic.openid.form.error.privacyConsent.required"
+msgstr "Ви повинні прийняти умови заяви про конфіденційність."
+
+msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
+msgstr "Ім'я користувача або електронна пошта обов'язкові."
+
+msgid "plugins.generic.openid.form.error.password.required"
+msgstr "Пароль обов'язковий."
+
+msgid "plugins.generic.openid.form.error.user.not.found"
+msgstr ""
+"Не знайдено жодного користувача, який би відповідав Вашим обліковим даним."
+
+msgid "plugins.generic.openid.form.error.invalid.credentials"
+msgstr "Пароль неправильний."
+
+msgid "plugins.generic.openid.settings.error"
+msgstr ""
+"<strong>Неправильна конфігурація плагіна OpenID!</strong><br />Постачальника "
+"OpenID не налаштовано!<br />Будь ласка, повідомте про це свою технічну "
+"підтримку."
+
+# settings messages
+msgid "plugins.generic.openid.settings.openid.head"
+msgstr "Постачальник OpenID:"
+
+msgid "plugins.generic.openid.settings.custom.enable"
+msgstr "Настроюваний постачальник OpenID"
+
+msgid "plugins.generic.openid.settings.btn.settings"
+msgstr "Налаштування користувацької кнопки входу"
+
+msgid "plugins.generic.openid.settings.provider.settings"
+msgstr "Облікові дані для входу"
+
+msgid "plugins.generic.openid.form.error.emailExists"
+msgstr ""
+"Указана Вами адреса електронної пошти вже існує. Будь ласка, спробуйте "
+"увійти в обліковий запис, що існує."
+
+msgid "plugins.generic.openid.settings.btnImg.desc"
+msgstr ""
+"Будь ласка, введіть URL-адресу зображення (46x41), яке буде відображатися на "
+"кнопці входу. Якщо зображення не надано, буде показано логотип OpenID."
+
+msgid "plugins.generic.openid.settings.btnTxt.desc"
+msgstr "Будь ласка, введіть мітку кнопки входу."
+
+msgid "plugins.generic.openid.settings.orcid.enable"
+msgstr "ORCID OpenID Connect"
+
+msgid "plugins.generic.openid.settings.google.enable"
+msgstr "Google OpenID Connect"
+
+msgid "plugins.generic.openid.settings.microsoft.enable"
+msgstr "Microsoft Azure Active Directory"
+
+msgid "plugins.generic.openid.settings.apple.enable"
+msgstr "Apple ID"
+
+msgid "plugins.generic.openid.settings.apple.desc"
+msgstr ""
+"Дивіться цей <a href='https://developer.apple.com/documentation/"
+"authenticationservices' target='_blank' rel='noopener'>підручник</a> про те, "
+"як налаштувати Apple ID. Будь ласка, використовуйте цю URL-адресу "
+"перенаправлення:"
+
+msgid "plugins.generic.openid.settings.configUrl"
+msgstr "URL-адреса постачальника OpenID"
+
+msgid "plugins.generic.openid.settings.configUrl.desc"
+msgstr ""
+"Введіть URL-адресу конфігурації вашого постачальника послуг OpenID. "
+"<strong>URL-адреса має закінчуватися на \".well-known/openid-configuration\" "
+"(наприклад, \"https://sso.example.com/auth/realms/master/.well-known/openid-"
+"configuration\").</strong>"
+
+msgid "plugins.generic.openid.settings.clientId"
+msgstr "Ідентифікатор клієнта"
+
+msgid "plugins.generic.openid.settings.clientId.desc"
+msgstr "Будь ласка, введіть свій clientId."
+
+msgid "plugins.generic.openid.settings.clientSecret"
+msgstr "Секрет клієнта"
+
+msgid "plugins.generic.openid.settings.clientSecret.desc"
+msgstr "Будь ласка, введіть ваш секрет клієнта."
+
+msgid "plugins.generic.openid.settings.features.head"
+msgstr "Розширені функції плагіна"
+
+msgid "plugins.generic.openid.settings.legacyLogin"
+msgstr "Успадкований логін"
+
+msgid "plugins.generic.openid.settings.legacyLogin.check"
+msgstr "Увімкнути успадкований логін"
+
+msgid "plugins.generic.openid.settings.step2.connect"
+msgstr "Зв'язок облікового запису"
+
+msgid "plugins.generic.openid.settings.step2.connect.check"
+msgstr "Відключити \"Зв'язок облікового запису\""
+
+msgid "plugins.generic.openid.settings.hashSecret"
+msgstr "Шифрування / розшифрування секрета"
+
+msgid "plugins.generic.openid.settings.generateAPIKey"
+msgstr "Автоматизований ключ API"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.check"
+msgstr "Увімкнути автоматичне генерування ключів API"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.desc"
+msgstr ""
+"Цей плагін може генерувати ключ, шифруючи ідентифікатор OpenID "
+"<strong>секретом, введеним вище</strong>. Цей ключ буде знову зашифрований "
+"секретом, який необхідно вказати в налаштуваннях програми. Це має бути "
+"належним чином безпечно."
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync"
+msgstr "Увімкнути синхронізацію даних користувачів постачальника OpenID"
+
+msgid "plugins.generic.openid.settings.features.disable.fields.desc"
+msgstr "Заборонити змінення таких полів у цій програмі:"
+
+msgid "plugins.generic.openid.settings.features.disable.given"
+msgstr "<strong>Ім'я</strong> лише для читання"
+
+msgid "plugins.generic.openid.settings.features.disable.family"
+msgstr "<strong>Прізвище</strong> лише для читання"
+
+msgid "plugins.generic.openid.settings.features.disable.email"
+msgstr "<strong>Електронна пошта</strong> лише для читання"
+
+msgid "plugins.generic.openid.error.openid.disabled.without"
+msgstr ""
+"<strong>Цей обліковий запис вимкнено без будь-якої конкретної причини.</"
+"strong><br />Будь ласка, <a href='mailto:{$supportEmail}'>зверніться до "
+"служби технічної підтримки</a>, щоб увімкнути цей обліковий запис."
+
+msgid "plugins.generic.openid.error.openid.disabled.with"
+msgstr "<strong>Цей обліковий запис вимкнено з такої причини:</strong>"
+
+msgid "plugins.generic.openid.error.legacy.link"
+msgstr ""
+"Менеджери та допоміжний персонал можуть увійти за допомогою цього <a href=\""
+"{$legacyLoginUrl}\">посилання</a>, щоб вирішити цю проблему."
+
+#provider page
+msgid "plugins.generic.openid.select.provider"
+msgstr "Увійти або зареєструватися"
+
+msgid "plugins.generic.openid.select.legacy"
+msgstr "Увійдіть за допомогою свого облікового запису для \"{$journalName}\""
+
+msgid "plugins.generic.openid.select.provider.help"
+msgstr "Увійдіть або зареєструйтеся за допомогою:"
+
+msgid "plugins.generic.openid.select.provider.orcid"
+msgstr "Увійти через ORCID"
+
+msgid "plugins.generic.openid.select.provider.google"
+msgstr "Увійти через Google"
+
+msgid "plugins.generic.openid.select.provider.microsoft"
+msgstr "Увійти через Microsoft"
+
+msgid "plugins.generic.openid.select.provider.apple"
+msgstr "Увійти через Apple"
+
+# disabled fields info
+msgid "plugins.generic.openid.disables.fields.info"
+msgstr ""
+"Деяка інформація надається автентифікованим обліковим записом, який "
+"використовується для входу, і не може бути відредагована.<br /> Дані "
+"синхронізуватимуться щоразу, коли ви виходите із системи та знову входите в "
+"систему."
+
+msgid "plugins.generic.openid.disables.fields.info.orcid"
+msgstr ""
+"ORCID автоматично надається вашим автентифікованим обліковим записом ORCID."
+
+msgid "plugins.generic.openid.disables.fields.info.api"
+msgstr "Ключ API автоматично генерується плагіном."
+
+msgid "plugins.generic.openid.disables.fields.info.password"
+msgstr ""
+"Для входу ви використовуєте постачальника автентифікації єдиного входу, тому "
+"потрібно змінити пароль на сторінці облікового запису цього постачальника."
+
+msgid "plugins.generic.openid.select.provider.custom"
+msgstr "Увійти через настроюваного постачальника"
+
+# general messages
+msgid "plugins.generic.openid.name"
+msgstr "Плагін автентифікації OpenID"
+
+msgid "plugins.generic.openid.description"
+msgstr ""
+"Цей плагін дає змогу користувачам реєструватися та входити за допомогою "
+"постачальників OpenID, таких як Keycloak."
+
+msgid "plugins.generic.openid.settings.openid.desc"
+msgstr ""
+"Будь ласка, введіть таку інформацію відповідно до вимог Вашого постачальника "
+"OpenID."
+
+msgid "plugins.generic.openid.settings.custom.desc"
+msgstr ""
+"Якщо ви хочете використовувати настроюваного постачальника OpenID Connect ("
+"наприклад, сервер Keycloak із власним хостингом), вам потрібно надати URL-"
+"адресу кінцевої точки конфігурації OpenID та облікові дані клієнта."
+
+msgid "plugins.generic.openid.settings.orcid.desc"
+msgstr ""
+"Будь ласка, використовуйте цю URL-адресу перенаправлення (див. <a "
+"href='https://github.com/ORCID/ORCID-Source/blob/master/orcid-web/"
+"ORCID_AUTH_WITH_OPENID_CONNECT.md' target='_blank' "
+"rel='noopener'>підручник</a>):"
+
+msgid "plugins.generic.openid.settings.google.desc"
+msgstr ""
+"Вам потрібно створити клієнт OpenID Connect у <a href='https://console."
+"developers.google.com/apis/credentials' target='_blank' "
+"rel='noopener'>Google Developer Console</a>, щоб використовувати Google як "
+"постачальника OpenID Connect. Див. цей <a href='https://developers.google."
+"com/identity/protocols/oauth2/openid-connect' target='_blank' "
+"rel='noopener'>підручник.</a> Будь ласка, використовуйте цю URL-адресу "
+"перенаправлення:"
+
+msgid "plugins.generic.openid.settings.microsoft.desc"
+msgstr ""
+"Ви повинні налаштувати свою службу програм на <a href='https://portal.azure."
+"com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview' "
+"target='_blank' rel='noopener'>порталі Azure</a> (перейдіть до \"App "
+"registrations\" після входу), щоб використовувати логін Azure AD. "
+"Перегляньте цей <a href='https://docs.microsoft.com/en-us/azure/app-service/"
+"configure-authentication-provider-aad' target='_blank' "
+"rel='noopener'>підручник</a>. Будь ласка, використовуйте цю URL-адресу "
+"перенаправлення:"
+
+msgid "plugins.generic.openid.settings.features.desc"
+msgstr ""
+"Такі поля необов'язкові. Вони не потрібні для підключення до постачальника "
+"OpenID."
+
+msgid "plugins.generic.openid.settings.legacyLogin.desc"
+msgstr ""
+"Увімкніть цю опцію, якщо хочете, щоб користувачі могли реєструватися та "
+"входити за допомогою форми входу в програму на додачу до входу в систему "
+"OpenID."
+
+msgid "plugins.generic.openid.settings.step2.connect.desc"
+msgstr ""
+"Якщо журнал новий і не має наявних облікових записів користувачів, можна "
+"відмітити цю позначку, щоб вимкнути функцію пов'язування облікових записів. "
+"У цьому випадку користувача запитають лише додаткові дані, необхідні цій "
+"програмі, під час реєстрації облікового запису через постачальника OpenID."
+
+msgid "plugins.generic.openid.settings.hashSecret.desc"
+msgstr ""
+"Якщо ви хочете зашифрувати інформацію OpenID, таку як ідентифікатор OpenID, "
+"в HTML-коді і хочете використовувати таку функцію для автоматичної генерації "
+"API-KEY, тут вам потрібно ввести секрет. Для того щоб бути захищеним, "
+"секретний ключ повинен містити не менше 24 символів."
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync.desc"
+msgstr ""
+"Деякі відомості про користувача, такі як ім'я, прізвище й адреса електронної "
+"пошти, передаються від постачальника OpenID до цієї програми. Увімкніть цей "
+"параметр, щоб автоматично зберігати ці відомості користувача в обліковому "
+"записі користувача. (рекомендується)"
+
+# error messages
+msgid "plugins.generic.openid.error.openid.connect.desc.key"
+msgstr ""
+"<strong>Під час перевірки даних сталася помилка.</strong><br />Послуга може "
+"бути недоступна прямо зараз.<br />Повторіть спробу пізніше та <a "
+"href='mailto:{$supportEmail}'>зверніться до служби технічної підтримки</a>, "
+"якщо проблема все ще існує."
+
+msgid "plugins.generic.openid.error.openid.cert.desc"
+msgstr ""
+"<strong>Під час перевірки та видобування даних сталася помилка.</strong><br /"
+">Послуга може бути недоступна прямо зараз.<br />Повторіть спробу пізніше та "
+"<a href='mailto:{$supportEmail}'>зверніться до служби технічної підтримки</"
+"a>, якщо проблема все ще існує."
+
+msgid "plugins.generic.openid.error.openid.connect.desc.data"
+msgstr ""
+"<strong>Під час отримання даних від постачальника OpenID сталася помилка.</"
+"strong><br />Послуга може бути недоступна прямо зараз.<br />Повторіть спробу "
+"пізніше та <a href='mailto:{$supportEmail}'>зверніться до служби технічної "
+"підтримки</a> ,якщо проблема все ще існує."

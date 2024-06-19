@@ -1,9 +1,11 @@
+# Osman Durmaz <osmandurmaz@hotmail.de>, 2022.
+# Kerim Sarıgül <sarigulkerim@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenID Authentication Plugin\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2021-02-22 21:56+0000\n"
-"Last-Translator: Uğur Koçak <ugurkocak@hotmail.com>\n"
+"PO-Revision-Date: 2023-04-04 23:48+0000\n"
+"Last-Translator: Kerim Sarıgül <sarigulkerim@gmail.com>\n"
 "Language-Team: Turkish <http://translate.pkp.sfu.ca/projects/plugins/openid/"
 "tr_TR/>\n"
 "Language: tr_TR\n"
@@ -11,264 +13,350 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.13.1\n"
 
 #. general messages
 msgid "plugins.generic.openid.name"
 msgstr "OpenID Kimlik Doğrulama Eklentisi"
 
 msgid "plugins.generic.openid.description"
-msgstr "Bu eklenti, kullanıcıların Keycloak gibi bir OpenID sağlayıcısı ile kaydolmasına ve oturum açmasına olanak tanır."
+msgstr ""
+"Bu eklenti, kullanıcıların Keycloak gibi bir OpenID sağlayıcısı ile "
+"kaydolmasına ve oturum açmasına imkan verir."
 
 #. step2 messages
 msgid "plugins.generic.openid.step2.title"
-msgstr "Kayıt işlemini tamamlayın"
+msgstr "Kaydı Tamamla"
 
 msgid "plugins.generic.openid.step2.headline"
-msgstr "{$journalName} ile önceden bir hesabınız var mı?"
+msgstr ""
+"{$journalName} sitesinde daha önceden oluşturduğunuz bir kullanıcı hesabınız "
+"var mı?"
 
 msgid "plugins.generic.openid.step2.help"
-msgstr "Kaydolmak için ek bilgiler gereklidir:"
+msgstr "Kaydı tamamlamak için aşağıdaki bilgileri girmeniz gereklidir:"
 
 msgid "plugins.generic.openid.step2.choice.no"
 msgstr "Hayır, {$journalName} için yeniyim."
 
 msgid "plugins.generic.openid.step2.choice.yes"
-msgstr "Evet, önceden bir hesabım var."
+msgstr "Evet, önceden oluşturduğum bir hesabım var."
 
 msgid "plugins.generic.openid.step2.complete"
-msgstr "Lütfen bilgilerinizi doğrulayın ve eksik bilgileri ekleyin"
+msgstr "Lütfen bilgilerinizi gözden geçirin ve eksik bilgileri ekleyin"
 
 msgid "plugins.generic.openid.step2.complete.btn"
-msgstr "Kaydı tamamlayın"
+msgstr "Kaydı Tamamla"
 
 msgid "plugins.generic.openid.step2.connect"
-msgstr "Lütfen {$journalName} adresinden hesabınıza giriş yapın. <br /> Bilgileriniz otomatik olarak güncellenecektir."
+msgstr ""
+"Lütfen {$journalName} sitesinde daha önceden oluşturduğunuz hesabınıza ait "
+"kullanıcı bilgilerinizle giriş yapın. <br /> Giriş yaptığınızda kullanıcı "
+"hesabı bilgileriniz otomatik olarak birbiriyle bağlanacak."
 
 msgid "plugins.generic.openid.step2.connect.username"
-msgstr "Kullanıcı adı ya da eposta"
+msgstr "Kullanıcı Adı veya e-Posta"
 
 msgid "plugins.generic.openid.step2.connect.btn"
-msgstr "Giriş yapın ve hesapları bağlayın"
+msgstr "Giriş Yap ve Hesapları Bağla"
 
 msgid "plugins.generic.openid.form.error.username.required"
-msgstr "Bir kullanıcı adı gereklidir."
+msgstr "Kullanıcı adı girmeniz gerekli."
 
 msgid "plugins.generic.openid.form.error.usernameExists"
-msgstr "Belirttiğiniz kullanıcı adı önceden mevcut."
+msgstr "Girdiğiniz kullanıcı adı önceden kaydedilmiş."
 
 msgid "plugins.generic.openid.form.error.givenName.required"
-msgstr "Bir isim gereklidir."
+msgstr "İsim girmeniz gerekli."
 
 msgid "plugins.generic.openid.form.error.familyName.required"
-msgstr "Bir soy adı gerekli."
+msgstr "Soyadı girmeniz gerekli."
 
 msgid "plugins.generic.openid.form.error.country.required"
-msgstr "Bir ülke gerekli."
+msgstr "Ülke girmeniz gerekli."
 
 msgid "plugins.generic.openid.form.error.affiliation.required"
-msgstr "Görev yeri gerekli."
+msgstr "Kurum bilgisi girmeniz gerekli."
 
 msgid "plugins.generic.openid.form.error.email.required"
-msgstr "Bir e-posta gerekli."
+msgstr "E-posta girmeniz gerekli."
 
 msgid "plugins.generic.openid.form.error.emailExists"
-msgstr "Verdiğiniz e-posta adresi önceden kayıtlı. Lütfen mevcut hesaba giriş yapmayı deneyin."
+msgstr ""
+"Girdiğiniz e-posta adresi önceden kaydedilmiş. Lütfen mevcut hesaba giriş "
+"yapmayı deneyin."
 
 msgid "plugins.generic.openid.form.error.privacyConsent.required"
-msgstr "Gizlilik bildiriminin şartlarını kabul etmelisiniz."
+msgstr "Gizlilik bildirimi şartlarını kabul etmelisiniz."
 
 msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
-msgstr "Bir kullanıcı adı veya e-posta gerekli."
+msgstr "Kullanıcı adı veya e-posta girmeniz gerekli."
 
 msgid "plugins.generic.openid.form.error.password.required"
-msgstr "Bir parola gerekli."
+msgstr "Parola girmeniz gerekli."
 
 msgid "plugins.generic.openid.form.error.user.not.found"
-msgstr "Kimlik bilgilerinizle eşleşen bir kullanıcı bulunamadı."
+msgstr "Girdiğiniz kimlik bilgileriyle eşleşen bir kullanıcı bulunamadı."
 
 msgid "plugins.generic.openid.form.error.invalid.credentials"
-msgstr "Parola yanlış."
+msgstr "Parola yanlış veya hatalı."
 
 msgid "plugins.generic.openid.settings.error"
-msgstr "<strong>OpenID eklentisi yapılandırması Yanlış!</strong> <br />Yapılandırılmış OpenID Sağlayıcısı yok!<br />Lütfen bunu teknik destek biriminize bildirin."
+msgstr ""
+"<strong>OpenID eklentisi yapılandırması hatalı!</strong> <br />"
+"Yapılandırılmış OpenID sağlayıcısı yok!<br />Lütfen bunu teknik destek "
+"birimine bildirin."
 
 #. settings messages
 msgid "plugins.generic.openid.settings.openid.head"
 msgstr "OpenID Sağlayıcısı:"
 
 msgid "plugins.generic.openid.settings.openid.desc"
-msgstr "Lütfen aşağıdaki bilgileri OpenID sağlayıcınıza göre girin."
+msgstr "Lütfen aşağıdaki bilgileri OpenID sağlayıcısına göre doldurun."
 
 msgid "plugins.generic.openid.settings.custom.enable"
-msgstr "Özel OpenID Sağlayıcı"
+msgstr "Özel OpenID Sağlayıcısı"
 
 msgid "plugins.generic.openid.settings.custom.desc"
-msgstr "Özel bir OpenID Bağlantı Sağlayıcısı (örneğin, kendi kendine barındırılan bir Keycloak sunucusu) kullanmak istiyorsanız, OpenID yapılandırma uç noktasına ait URL ve istemci kimlik bilgilerini belirtmeniz gerekir."
+msgstr ""
+"Özel bir OpenID Bağlantı Sağlayıcısı (Ör. kendi sunucunuzda barındırılan bir "
+"Keycloak sunucusu) kullanmak istiyorsanız, OpenID yapılandırma uç noktasına "
+"ait URL ve istemci kimlik bilgilerini aşağıya girin."
 
 msgid "plugins.generic.openid.settings.btn.settings"
-msgstr "Özel oturum açma düğmesi ayarları"
+msgstr "Oturum Açma Butonu Ayarları"
 
 msgid "plugins.generic.openid.settings.provider.settings"
 msgstr "Giriş Bilgileri"
 
 msgid "plugins.generic.openid.settings.btnImg.desc"
-msgstr "Lütfen oturum açma düğmesinde görüntülenecek bir resmin (46x41) URL'sini girin. Resim belirtilmemişse, OpenID logosu gösterilecektir."
+msgstr ""
+"Oturum açma butonunda görüntülenecek resmin (46x41) URL'sini girin. Resim "
+"belirtilmemişse, OpenID logosu gösterilecektir."
 
 msgid "plugins.generic.openid.settings.btnTxt.desc"
-msgstr "Lütfen giriş düğmesinin etiketini girin."
+msgstr "Giriş butonunda gösterilecek metni girin."
 
 msgid "plugins.generic.openid.settings.orcid.enable"
 msgstr "ORCID OpenID Bağlantısı"
 
 msgid "plugins.generic.openid.settings.orcid.desc"
-msgstr "Lütfen bu yönlendirme URL'sini kullanın (Bakınız <a href='https://github.com/ORCID/ORCID-Source/blob/master/orcid-web/ORCID_AUTH_WITH_OPENID_CONNECT.md' target='_blank' rel='noopener'>Açıklamalar</a>):"
+msgstr ""
+"ORCID API ayarlarında kullanılacak yönlendirme URL'si (Ayrıntı için bk. <a "
+"href='https://github.com/ORCID/ORCID-Source/blob/master/orcid-web/"
+"ORCID_AUTH_WITH_OPENID_CONNECT.md' target='_blank' "
+"rel='noopener'>Açıklamalar</a>):"
 
 msgid "plugins.generic.openid.settings.google.enable"
 msgstr "Google OpenID Bağlantısı"
 
 msgid "plugins.generic.openid.settings.google.desc"
-msgstr "Google'ı OpenID Bağlantı sağlayıcısını kullanmak için <a href='https://console.developers.google.com/apis/credentials' target='_blank' rel='noopener'>Google Yazılım Geliştiricisi Masasında</a> OpenID Bağlantı istemcisi hesabı oluşturmalısınız. Lütfen bu <a href='https://developers.google.com/identity/protocols/oauth2/openid-connect' target='_blank' rel='noopener'>açıklamalara</a> bakınız. Lütfen bu yönlendirme URL'sini kullanın:"
+msgstr ""
+"Google OpenID bağlantı sağlayıcısını kullanmak için <a href='https://console."
+"developers.google.com/apis/credentials' target='_blank' "
+"rel='noopener'>Google Developer Console</a> üzerinde bir OpenID bağlantı "
+"istemcisi hesabı oluşturulmalıdır. Google API ayarlarında kullanılacak "
+"yönlendirme URL'si (Ayrıntılı bilgi için bk. <a href='https://developers."
+"google.com/identity/protocols/oauth2/openid-connect' target='_blank' "
+"rel='noopener'>Açıklamalar</a>) :"
 
 msgid "plugins.generic.openid.settings.microsoft.enable"
 msgstr "Microsoft Azure Active Directory"
 
 msgid "plugins.generic.openid.settings.microsoft.desc"
-msgstr "Azure AD oturum açma işlemini kullanmak için <a href='https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview' target='_blank' rel='noopener'>Azure portalında</a> Uygulama Hizmetinizi (oturum açtıktan sonra Uygulama kaydına gidin) yapılandırmalısınız. Lütfen bu <a href='https://docs.microsoft.com/en-us/azure/app-service/configure-authentication-provider-aad' target='_blank' rel='noopener'>açıklamalara</a> bakınız. Lütfen bu yönlendirme URL'sini kullanın:"
+msgstr ""
+"Azure Active Directory kullanarak giriş yapmak için <a "
+"href='https://portal.azure.com/#blade/Microsoft_AAD_IAM/"
+"ActiveDirectoryMenuBlade/Overview' target='_blank' rel='noopener'>Azure "
+"Portalında</a> Uygulama Hizmeti (Oturum açtıktan sonra Uygulama kaydına git) "
+"ayarları yapılandırılmalıdır. Azure Active Directory ayarlarında "
+"kullanılacak yönlendirme URL'si (Ayrıntı için bk. <a "
+"href='https://docs.microsoft.com/en-us/azure/app-service/configure-"
+"authentication-provider-aad' target='_blank' rel='noopener'>Açıklamalar</a>):"
 
 msgid "plugins.generic.openid.settings.apple.enable"
-msgstr "Apple Kimligi"
+msgstr "Apple Kimliği"
 
 msgid "plugins.generic.openid.settings.apple.desc"
-msgstr "Apple Kimliğinin nasıl yapılandırılacağını öğrenmek için bu <a href='https://developer.apple.com/documentation/authenticationservices' target='_blank' rel='noopener'> açıklamalara </a> bakın. Lütfen bu yönlendirme URL'sini kullanın:"
+msgstr ""
+"Apple Kimliği yapılandırmasında kullanılacak yönlendirme URL'si (Ayrıntı "
+"için bk. <a href='https://developer.apple.com/documentation/"
+"authenticationservices' target='_blank' rel='noopener'> Açıklamalar </a>):"
 
 msgid "plugins.generic.openid.settings.configUrl"
 msgstr "OpenID Sağlayıcı URL'si"
 
 msgid "plugins.generic.openid.settings.configUrl.desc"
-msgstr "Lütfen OpenID sağlayıcınızın yapılandırma URL'sini girin. <strong>URL şu şekilde sonlanmalıdır \".well-known/openid-configuration\" (Örn. \"https://sso.example.com/auth/realms/master/.well-known/openid-configuration\").</strong>"
+msgstr ""
+"Lütfen OpenID sağlayıcınızın yapılandırma URL'sini girin. <strong>URL şu "
+"şekilde bitmelidir: \".well-known/openid-configuration\" (Ör. \""
+"https://sso.example.com/auth/realms/master/.well-known/openid-configuration\""
+").</strong>"
 
 msgid "plugins.generic.openid.settings.clientId"
-msgstr "İstemci tanımlayıcı"
+msgstr "İstemci Tanımlayıcı"
 
 msgid "plugins.generic.openid.settings.clientId.desc"
-msgstr "Lütfen istemci kimliğinizi girin."
+msgstr "İstemci kimliğini girin."
 
 msgid "plugins.generic.openid.settings.clientSecret"
-msgstr "İstemci sırrı"
+msgstr "İstemci Gizli Anahtar"
 
 msgid "plugins.generic.openid.settings.clientSecret.desc"
-msgstr "Lütfen istemci sırrınızı girin."
+msgstr "İstemci gizli anahtarını girin."
 
 msgid "plugins.generic.openid.settings.features.head"
-msgstr "Gelişmiş eklenti işlevleri"
+msgstr "Gelişmiş Eklenti İşlevleri"
 
 msgid "plugins.generic.openid.settings.features.desc"
-msgstr "Aşağıdaki alanlar isteğe bağlıdır. Bir OpenID sağlayıcısına bağlanmaları gerekmez."
+msgstr ""
+"Aşağıdaki alanlar isteğe bağlıdır. Özel bir OpenID sağlayıcısıyla "
+"ilişkilendirilmeleri gerekmez."
 
 msgid "plugins.generic.openid.settings.legacyLogin"
 msgstr "Eski Giriş Yöntemi"
 
 msgid "plugins.generic.openid.settings.legacyLogin.check"
-msgstr "Eski giriş yönteminii etkinleştir"
+msgstr "Eski giriş yöntemini etkinleştir"
 
 msgid "plugins.generic.openid.settings.legacyLogin.desc"
-msgstr "Kullanıcıların OpenID oturum açmaya ek olarak uygulamanın oturum açma formuna kaydolmasını ve oturum açmasını istiyorsanız bu seçeneği etkinleştirin."
+msgstr ""
+"Kullanıcıların OpenID ile oturum açmaya ek olarak, uygulamanın oturum açma "
+"formunu kullanarak kaydolması ve oturum açmasını istiyorsanız bu seçeneği "
+"etkinleştirin."
 
 msgid "plugins.generic.openid.settings.step2.connect"
 msgstr "Hesap Bağlantısı"
 
 msgid "plugins.generic.openid.settings.step2.connect.check"
-msgstr "\"Hesap Bağlantısını\" devre dışı bırakın"
+msgstr "\"Hesap Bağlantısını\" Devre Dışı Bırak"
 
 msgid "plugins.generic.openid.settings.step2.connect.desc"
-msgstr "Bu dergi yeniyse ve mevcut hiçbir kullanıcı hesabı yoksa, hesap bağlama işlevini devre dışı bırakmak için bu kutucuğu işaretleyebilirsiniz. Bu durumda, kullanıcıdan yalnızca bir OpenID sağlayıcısı aracılığıyla bir hesaba kaydolurken bu uygulamanın gerektirdiği ek ayrıntılar istenecektir."
+msgstr ""
+"Sistem yeni kurulmuş ve mevcut hiçbir kullanıcı hesabı yoksa, hesap bağlama "
+"işlevini devre dışı bırakmak için bu kutucuğu işaretleyebilirsiniz. Bu "
+"durumda kullanıcı, kaydolurken girmesi gereken ek bilgileri OpenID "
+"sağlayıcısıyla kayıt yaparken girecektir."
 
 msgid "plugins.generic.openid.settings.hashSecret"
-msgstr "Sırrı şifrele/şifresini çöz"
+msgstr "Gizli Anahtarı Şifrele/Çöz"
 
 msgid "plugins.generic.openid.settings.hashSecret.desc"
-msgstr "HTML kodundaki OpenID tanımlayıcı gibi OpenID bilgilerini şifrelemek ve otomatik API-KEY üretimi için aşağıdaki işlevi kullanmak istiyorsanız, buraya bir sır girmelisiniz. Güvenli olması için sır anahtarın en az 24 simgeden oluşması gerekir."
+msgstr ""
+"HTML kodundaki OpenID tanımlayıcı gibi OpenID bilgilerini şifrelemek ve "
+"otomatik API-KEY üretimi için aşağıdaki işlevi kullanmak istiyorsanız, "
+"buraya bir gizli anahtar kodu girmelisiniz. Güvenli olması için gizli "
+"anahtarın en az 24 karakterden oluşması gerekir."
 
 msgid "plugins.generic.openid.settings.generateAPIKey"
 msgstr "Otomatik API Anahtarı"
 
 msgid "plugins.generic.openid.settings.generateAPIKey.check"
-msgstr "Otomatik API anahtarı oluşturmayı etkinleştirin"
+msgstr "Otomatik API anahtarı oluşturmayı etkinleştir"
 
 msgid "plugins.generic.openid.settings.generateAPIKey.desc"
-msgstr "Bu eklenti, OpenID tanımlayıcısını <strong>yukarıda girilen sırla</strong> şifreleyerek bir anahtar oluşturabilir. Bu anahtar, uygulama ayarlarında belirtilmesi gereken bir sır ile tekrar şifrelenecektir. Bu yeterince güvenli olmalıdır."
+msgstr ""
+"Bu eklenti, OpenID tanımlayıcısını <strong>yukarıda girilen gizli anahtar "
+"kodu</strong> ile şifreleyerek şifreli bir anahtar oluşturabilir. Yeni "
+"şifreli anahtar, uygulama ayarlarında belirtilen gizli anahtar kodu ile "
+"tekrar şifrelenerek oluşturulur. Bu yöntem yeterince güvenlik sağlamaktadır."
 
 msgid "plugins.generic.openid.settings.features.enable.provider.sync"
-msgstr "OpenID sağlayıcı kullanıcı verileri eşleştirme işlemini etkinleştirin"
+msgstr "OpenID sağlayıcı kullanıcı verileri eşleştirmeyi etkinleştir"
 
 msgid "plugins.generic.openid.settings.features.enable.provider.sync.desc"
-msgstr "Verilen ad, soyadı ve e-posta adresi gibi bazı kullanıcı bilgileri OpenID Sağlayıcısından bu uygulamaya aktarılır. Bu kullanıcı bilgilerini kullanıcı hesabına otomatik olarak kaydetmek için bu seçeneği etkinleştirin. (önerilir)"
+msgstr ""
+"Adı soyadı ve e-posta adresi gibi bazı kullanıcı bilgileri OpenID "
+"sağlayıcısından bu uygulamaya aktarılır. Bu kullanıcı bilgilerini kullanıcı "
+"hesabına otomatik olarak kaydetmek için bu seçeneği etkinleştirin. (önerilir)"
 
 msgid "plugins.generic.openid.settings.features.disable.fields.desc"
-msgstr "Bu uygulama içinde aşağıdaki alanların değiştirilmesini önleyin:"
+msgstr "Uygulama içinde düzenlenmesi kısıtlanacak alanlar:"
 
 msgid "plugins.generic.openid.settings.features.disable.given"
-msgstr "<strong>Ad </strong> salt okunur"
+msgstr "<strong>Adı</strong> salt okunur"
 
 msgid "plugins.generic.openid.settings.features.disable.family"
-msgstr "<strong> Soyadı </strong> salt okunur"
+msgstr "<strong>Soyadı</strong> salt okunur"
 
 msgid "plugins.generic.openid.settings.features.disable.email"
 msgstr "<strong> E-posta </strong> salt okunur"
 
 #. error messages
 msgid "plugins.generic.openid.error.openid.connect.desc.key"
-msgstr "<strong>Verileriniz doğrulanırken bir hata oluştu.</strong><br />Hizmet şu anda kullanılamayabilir.<br />Lütfen daha sonra tekrar deneyin ve sorun devam ederse lütfen <a href='mailto:{$supportEmail}'>teknik desteğe başvurun</a>."
+msgstr ""
+"<strong>Verileriniz doğrulanırken bir hata oluştu.</strong><br />Hizmet şu "
+"anda kullanılamıyor olabilir.<br />Lütfen daha sonra tekrar deneyin ve sorun "
+"devam ederse <a href='mailto:{$supportEmail}'>teknik destekle iletişime "
+"geçin</a>."
 
 msgid "plugins.generic.openid.error.openid.connect.desc.data"
-msgstr "<strong>OpenID sağlayıcıdan verileriniz alınırken bir hata oluştu.</strong><br />Hizmet şu anda kullanılamayabilir.<br />Lütfen daha sonra tekrar deneyin e sorun devam ederse lütfen <a href='mailto:{$supportEmail}'>teknik desteğe başvurun</a>."
+msgstr ""
+"<strong>OpenID sağlayıcısından verileriniz alınırken bir hata "
+"oluştu.</strong><br />Hizmet şu anda kullanılamıyor olabilir.<br />Lütfen "
+"daha sonra tekrar deneyin ve sorun devam ederse <a "
+"href='mailto:{$supportEmail}'>teknik destekle iletişime geçin</a>."
 
 msgid "plugins.generic.openid.error.openid.cert.desc"
-msgstr "<strong>Verileriniz doğrulanırken ve arşivden çıkarılırken bir hata oluştu.</strong><br />Hizmet şu anda kullanılamayabilir.<br /> Lütfen daha sonra tekrar deneyin e sorun devam ederse lütfen <a href='mailto:{$supportEmail}'>teknik desteğe başvurun</a>."
+msgstr ""
+"<strong>Verileriniz doğrulanırken ve arşivden çıkarılırken bir hata "
+"oluştu.</strong><br />Hizmet şu anda kullanılamıyor olabilir.<br /> Lütfen "
+"daha sonra tekrar deneyin ve sorun devam ederse <a "
+"href='mailto:{$supportEmail}'>teknik destekle iletişime geçin</a>."
 
 msgid "plugins.generic.openid.error.openid.disabled.without"
-msgstr "<strong>Bu hesap, belirli bir neden olmaksızın devre dışı bırakıldı.</strong><br />Bu hesabı etkinleştirmek için lütfen <a href='mailto:{$supportEmail}'> teknik destekle iletişime geçin</a>."
+msgstr ""
+"<strong>Bu hesap devre dışı bırakıldı.</strong><br />Hesabı etkinleştirmek "
+"için lütfen <a href='mailto:{$supportEmail}'> teknik destekle iletişime "
+"geçin</a>."
 
 msgid "plugins.generic.openid.error.openid.disabled.with"
 msgstr "<strong> Bu hesap aşağıdaki nedenle devre dışı bırakılmıştır: </strong>"
 
 msgid "plugins.generic.openid.error.legacy.link"
-msgstr "Yöneticiler ve destek personeli, bu sorunu çözmek için bu <a href=\"{$legacyLoginUrl}\">bağlantı</a> üzerinden oturum açabilir."
+msgstr ""
+"Yöneticiler ve destek personeli, bu sorunu çözmek için <a href=\""
+"{$legacyLoginUrl}\">bu bağlantıyı</a> kullanarak oturum açabilir."
 
 msgid "plugins.generic.openid.select.provider"
-msgstr "Giriş Yapın veya Kayıt Olun"
+msgstr "Giriş Yap veya Kayıt Ol"
 
 msgid "plugins.generic.openid.select.legacy"
-msgstr "{$journalName} adresinde hesabınızla oturum açın"
+msgstr "{$journalName} sitesinde kayıtlı hesabınızla oturum açın"
 
 msgid "plugins.generic.openid.select.provider.help"
-msgstr "Giriş yapın veya şununla kayıt olun:"
+msgstr "Giriş yap veya doğrulama yöntemi kullanarak kayıt ol:"
 
 msgid "plugins.generic.openid.select.provider.custom"
-msgstr "Özel sağlayıcıyla oturum açın"
+msgstr "Özel Kimlik Doğrulama Hesabı ile Giriş Yap"
 
 msgid "plugins.generic.openid.select.provider.orcid"
-msgstr "ORCID ile oturum açın"
+msgstr "ORCID Hesabı ile Giriş Yap"
 
 msgid "plugins.generic.openid.select.provider.google"
-msgstr "Google ile oturum açın"
+msgstr "Google Hesabı ile Giriş Yap"
 
 msgid "plugins.generic.openid.select.provider.microsoft"
-msgstr "Microsoft ile oturum açın"
+msgstr "Microsoft Hesabı ile Giriş Yap"
 
 msgid "plugins.generic.openid.select.provider.apple"
-msgstr "Apple ile oturum açın"
+msgstr "Apple Kimliği ile Giriş Yap"
 
 #. disabled fields info
 msgid "plugins.generic.openid.disables.fields.info"
-msgstr "Bazı bilgiler, oturum açmak için kullanılan kimliği doğrulanmış bir hesap tarafından sağlanır ve düzenlenemez.<br />Veriler, oturumu kapatıp tekrar oturum açtığınız zaman eşitlenecektir."
+msgstr ""
+"Bazı bilgiler, oturum açmak için kullanılan kimlik doğrulama hesabı "
+"tarafından sağlanır ve düzenlenemez.<br />Veriler, oturumu kapatıp tekrar "
+"oturum açtığınız zaman eşitlenecektir."
 
 msgid "plugins.generic.openid.disables.fields.info.orcid"
-msgstr "ORCID, kimliği doğrulanmış ORCID hesabınız tarafından otomatik olarak sağlanır."
+msgstr "ORCID numarası, ORCID hesabınız tarafından otomatik olarak sağlanır."
 
 msgid "plugins.generic.openid.disables.fields.info.api"
 msgstr "API anahtarı, bir eklenti tarafından otomatik olarak oluşturulur."
 
 msgid "plugins.generic.openid.disables.fields.info.password"
-msgstr "Oturum açmak için tek oturum açma kimlik doğrulama sağlayıcısı kullanıyorsunuz, bu nedenle sağlayıcının hesap sayfasında parolanızı değiştirmeniz gerekir."
+msgstr ""
+"Oturum açmak için, oturum açma kimlik doğrulama sağlayıcısı kullanıyorsunuz. "
+"Bu nedenle parolanızı kimlik doğrulama sağlayıcısı üzerinden değiştirmeniz "
+"gerekir."

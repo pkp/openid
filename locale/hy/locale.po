@@ -1,0 +1,354 @@
+# Tigran Zargaryan <tigran@flib.sci.am>, 2023.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2023-04-22 08:49+0000\n"
+"Last-Translator: Tigran Zargaryan <tigran@flib.sci.am>\n"
+"Language-Team: Armenian <http://translate.pkp.sfu.ca/projects/plugins/openid/"
+"hy/>\n"
+"Language: hy\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.13.1\n"
+
+# general messages
+msgid "plugins.generic.openid.name"
+msgstr "OpenID վավերացման պլագին"
+
+# step2 messages
+msgid "plugins.generic.openid.step2.title"
+msgstr "Լրիվ գրանցում"
+
+msgid "plugins.generic.openid.step2.headline"
+msgstr "Դուք արդեն ունե՞ք հաշիվ {$journalName} -ով:"
+
+msgid "plugins.generic.openid.step2.help"
+msgstr "Գրանցվելու համար անհրաժեշտ է լրացուցիչ տեղեկատվություն:"
+
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "Ոչ, ես նոր եմ {$journalName} -ում:"
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "Այո, ես արդեն ունեմ հաշիվ:"
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "Լրիվ գրանցում"
+
+msgid "plugins.generic.openid.step2.connect.username"
+msgstr "Օգտանուն կամ էլ. փոստ"
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "Մուտք գործեք և միացրեք հաշիվները"
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "Պահանջվում է օգտանուն."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "Ձեր տրամադրած օգտանունն արդեն գոյություն ունի:"
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "Պահանջվում է անուն:"
+
+msgid "plugins.generic.openid.form.error.familyName.required"
+msgstr "Պահանջվում է ազգանուն:"
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "Պահանջվում է երկիր."
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
+msgstr "Պահանջվում է պատկանելություն:"
+
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "Պահանջվում է էլ. փոստ:"
+
+msgid "plugins.generic.openid.form.error.privacyConsent.required"
+msgstr "Դուք պետք է համաձայնեք գաղտնիության հայտարարության պայմաններին:"
+
+msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
+msgstr "Պահանջվում է օգտանուն կամ էլ. փոստ:"
+
+msgid "plugins.generic.openid.form.error.password.required"
+msgstr "Պահանջվում է գաղտնաբառ:"
+
+msgid "plugins.generic.openid.form.error.invalid.credentials"
+msgstr "Գաղտնաբառը սխալ է:"
+
+# settings messages
+msgid "plugins.generic.openid.settings.openid.head"
+msgstr "OpenId մատակարար:"
+
+msgid "plugins.generic.openid.settings.openid.desc"
+msgstr "Խնդրում ենք մուտքագրել հետևյալ տվյալները ըստ ձեր OpenID մատակարարի:"
+
+msgid "plugins.generic.openid.settings.custom.enable"
+msgstr "Անհատականացված OpenID մատակարար"
+
+msgid "plugins.generic.openid.settings.btn.settings"
+msgstr "Անհատականացված մուտքի կոճակի կարգավորումներ"
+
+msgid "plugins.generic.openid.settings.provider.settings"
+msgstr "Մուտքի հավատարմագրերը"
+
+msgid "plugins.generic.openid.settings.btnImg.desc"
+msgstr ""
+"Խնդրում ենք մուտքագրել պատկերի URL (46x41), որը կցուցադրվի մուտքի կոճակի վրա:"
+" Եթե պատկեր չտրամադրվի, կցուցադրվի OpenID պատկերանշանը:"
+
+msgid "plugins.generic.openid.settings.orcid.enable"
+msgstr "ORCID OpenID Connect"
+
+msgid "plugins.generic.openid.settings.google.enable"
+msgstr "Google OpenID Connect"
+
+msgid "plugins.generic.openid.settings.microsoft.enable"
+msgstr "Microsoft Azure Active Directory"
+
+msgid "plugins.generic.openid.settings.apple.enable"
+msgstr "Apple ID"
+
+msgid "plugins.generic.openid.settings.apple.desc"
+msgstr ""
+"Տես սա <a href='https://developer.apple.com/documentation/"
+"authenticationservices' target='_blank' rel='noopener'>ձեռնարկ</a> թե ինչպես "
+"կարգավորել Apple ID-ն: Խնդրում ենք օգտագործել վերահղման այս URL-ը:"
+
+msgid "plugins.generic.openid.settings.configUrl"
+msgstr "OpenID մատակարարի URL"
+
+msgid "plugins.generic.openid.settings.configUrl.desc"
+msgstr ""
+"Խնդրում ենք մուտքագրել ձեր OpenID մատակարարի կազմաձևման URL-ը:<strong>URL-ը "
+"պետք է ավարտվի \".well-known/openid-configuration\" (օրինակ՝ \"https://sso."
+"example.com/auth/realms/master/.well-known/openid-configuration\").</strong>"
+
+msgid "plugins.generic.openid.settings.clientId"
+msgstr "Հաճախորդի նույնացուցիչ"
+
+msgid "plugins.generic.openid.settings.clientSecret"
+msgstr "Հաճախորդի գաղտնիք"
+
+msgid "plugins.generic.openid.settings.features.head"
+msgstr "Ընդլայնված plugin գործառույթներ"
+
+msgid "plugins.generic.openid.settings.features.desc"
+msgstr ""
+"Հետևյալ դաշտերը պարտադիր չեն: Նրանցից չի պահանջվում միանալ OpenID-ի "
+"մատակարարին:"
+
+msgid "plugins.generic.openid.settings.legacyLogin"
+msgstr "Մուտք հին ձևով"
+
+msgid "plugins.generic.openid.settings.legacyLogin.check"
+msgstr "Թույլատրել մուտքը հին ձևով"
+
+msgid "plugins.generic.openid.settings.step2.connect"
+msgstr "Հաշիվների միացում"
+
+msgid "plugins.generic.openid.settings.step2.connect.check"
+msgstr "Անջատել «Հաշվի միացումը»"
+
+msgid "plugins.generic.openid.settings.hashSecret"
+msgstr "Գաղտնագրել/գաղտնազերծել գաղտնիքը"
+
+msgid "plugins.generic.openid.settings.generateAPIKey"
+msgstr "Ավտոմատացված API բանալի"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.check"
+msgstr "Միացնել API բանալիների ինքնաշխատ ստեղծումը"
+
+msgid "plugins.generic.openid.settings.generateAPIKey.desc"
+msgstr ""
+"Այս փլագինը կարող է բանալի ստեղծել՝ գաղտնագրելով OpenID նույնացուցիչը "
+"<strong>վերևում մուտքագրված գաղտնիքով</strong>: Այս բանալին նորից "
+"կգաղտնագրվի գաղտնիքով, որը պետք է նշվի հավելվածի կարգավորումներում: Սա պետք "
+"է լինի բավականաչափ ապահով:"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync"
+msgstr "Միացնել OpenID մատակարարի օգտատիրոջ տվյալների համաժամացումը"
+
+msgid "plugins.generic.openid.settings.features.disable.fields.desc"
+msgstr "Կանխել հետևյալ դաշտերի փոփոխումը այս հավելվածում:"
+
+msgid "plugins.generic.openid.error.openid.disabled.without"
+msgstr ""
+"<strong>Այս հաշիվն անջատված է առանց որևէ կոնկրետ պատճառի:</strong><br /"
+">Սեղմեք <a href='mailto:{$supportEmail}'>կապվեք տեխնիկական աջակցության հետ</"
+"a> այս հաշիվը միացնելու համար:"
+
+msgid "plugins.generic.openid.error.openid.disabled.with"
+msgstr "<strong>Այս հաշիվն անջատված է հետևյալ պատճառով:</strong>"
+
+msgid "plugins.generic.openid.error.legacy.link"
+msgstr ""
+"Կառավարիչները և աջակցման անձնակազմը կարող են մուտք գործել այս <a href=\""
+"{$legacyLoginUrl}\">հղման</a> միջոցով՝ այս խնդիրը լուծելու համար:"
+
+#provider page
+msgid "plugins.generic.openid.select.provider"
+msgstr "Մուտք գործեք կամ գրանցվեք"
+
+msgid "plugins.generic.openid.select.legacy"
+msgstr "Մուտք գործեք ձեր {$journalName} հաշիվ"
+
+msgid "plugins.generic.openid.select.provider.help"
+msgstr "Մուտք գործեք կամ գրանցվեք հետևյալով:"
+
+msgid "plugins.generic.openid.select.provider.custom"
+msgstr "Մուտք գործեք հատուկ մատակարարի հետ"
+
+msgid "plugins.generic.openid.select.provider.google"
+msgstr "Մուտք գործեք Google-ով"
+
+msgid "plugins.generic.openid.select.provider.microsoft"
+msgstr "Մուտք գործեք Microsoft-ով"
+
+msgid "plugins.generic.openid.select.provider.apple"
+msgstr "Մուտք գործեք Apple-ով"
+
+msgid "plugins.generic.openid.disables.fields.info.orcid"
+msgstr ""
+"ORCID-ն ինքնաշխատ կերպով տրամադրվում է ձեր վավերացված ORCID հաշվի կողմից:"
+
+msgid "plugins.generic.openid.disables.fields.info.api"
+msgstr "API բանալին ինքնաշխատ կերպով ստեղծվում է plugin-ի կողմից:"
+
+msgid "plugins.generic.openid.disables.fields.info.password"
+msgstr ""
+"Մուտք գործելու համար դուք օգտագործում եք մեկ մուտքի վավերացման մատակարար, "
+"ուստի պետք է փոխեք ձեր գաղտնաբառը մատակարարի հաշվի էջում:"
+
+msgid "plugins.generic.openid.description"
+msgstr ""
+"Այս պլագինը թույլ է տալիս օգտվողներին գրանցվել և մուտք գործել OpenID "
+"մատակարարներ, ինչպիսին է Keycloak-ը:"
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr ""
+"Խնդրում ենք ստուգել ձեր տվյալները և ավելացնել ցանկացած բացակայող տեղեկություն"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr ""
+"Խնդրում ենք մուտք գործել ձեր հաշիվ {$journalName} հասցեով:<br />Ձեր "
+"տեղեկությունները ինքնաշխատ կերպով կթարմացվեն:"
+
+msgid "plugins.generic.openid.form.error.emailExists"
+msgstr ""
+"Ձեր տրամադրած էլ. փոստի հասցեն արդեն գոյություն ունի: Խնդրում ենք փորձել "
+"մուտք գործել գոյություն ունեցող հաշիվ:"
+
+msgid "plugins.generic.openid.form.error.user.not.found"
+msgstr "Ձեր հավատարմագրերին համապատասխան օգտատեր չի գտնվել:"
+
+msgid "plugins.generic.openid.settings.error"
+msgstr ""
+"<strong>Սխալ OpenID հավելվածի կազմաձևում:</strong><br />Կազմաձևված չէ OpenID-"
+"ի մատակարարը:<br />Խնդրում ենք հայտնել այս մասին ձեր տեխնիկական աջակցությանը:"
+
+msgid "plugins.generic.openid.settings.custom.desc"
+msgstr ""
+"Եթե ցանկանում եք օգտագործել սովորական OpenID Connect-ի մատակարար (օրինակ՝ "
+"ինքնակառավարվող Keycloak սերվեր), դուք պետք է URL տրամադրեք OpenID-ի "
+"կազմաձևման վերջնակետին և հաճախորդի հավատարմագրերին:"
+
+msgid "plugins.generic.openid.settings.legacyLogin.desc"
+msgstr ""
+"Միացրեք այս տարբերակը, եթե ցանկանում եք, որ օգտատերերը բացի OpenID մուտքից, "
+"կարողանան գրանցվել և մուտք գործել հավելվածի մուտքի ձևով:"
+
+msgid "plugins.generic.openid.settings.btnTxt.desc"
+msgstr "Խնդրում ենք մուտքագրել մուտքի կոճակի պիտակը:"
+
+msgid "plugins.generic.openid.settings.orcid.desc"
+msgstr ""
+"Խնդրում ենք օգտագործել այս վերահղման URL-ը (տես <a href='https://github.com/"
+"ORCID/ORCID-Source/blob/master/orcid-web/ORCID_AUTH_WITH_OPENID_CONNECT.md' "
+"target='_blank' rel='noopener'>ձեռնարկ</a>):"
+
+msgid "plugins.generic.openid.settings.google.desc"
+msgstr ""
+"Դուք պետք է ստեղծեք OpenID Connect հաճախորդ այստեղ <a href='https://console."
+"developers.google.com/apis/credentials' target='_blank' "
+"rel='noopener'>Google Developer Console</a>Google-ը որպես OpenID Connect "
+"մատակարար օգտագործելու համար: Տես սա <a href='https://developers.google.com/"
+"identity/protocols/oauth2/openid-connect' target='_blank' "
+"rel='noopener'>ձեռնարկ</a>. Խնդրում ենք օգտագործել վերահղման այս URL-ը:"
+
+msgid "plugins.generic.openid.settings.clientId.desc"
+msgstr "Խնդրում ենք մուտքագրել ձեր clientId -ին."
+
+msgid "plugins.generic.openid.settings.clientSecret.desc"
+msgstr "Խնդրում ենք մուտքագրել ձեր հաճախորդի գաղտնիքը:"
+
+msgid "plugins.generic.openid.settings.step2.connect.desc"
+msgstr ""
+"Եթե այս ամսագիրը նոր է և չունի գոյություն ունեցող օգտատերերի հաշիվներ, կարող "
+"եք նշել այս վանդակը՝ հաշիվների միացման գործառույթն անջատելու համար: Այս "
+"դեպքում օգտատերից կպահանջվեն միայն լրացուցիչ մանրամասներ, որոնք պահանջվում "
+"են այս հավելվածի կողմից OpenID մատակարարի միջոցով հաշիվ գրանցելիս:"
+
+msgid "plugins.generic.openid.settings.microsoft.desc"
+msgstr ""
+"Դուք պետք է կարգավորեք ձեր App Service-ը այստեղ <a href='https://portal.azure"
+".com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview' "
+"target='_blank' rel='noopener'>Azure portal</a> (գնա 'Հավելվածների "
+"գրանցումներ' մուտք գործելուց հետո) որպեսզի օգտագործես Azure AD մուտքը: Տես "
+"սա <a href='https://docs.microsoft.com/en-us/azure/app-service/configure-"
+"authentication-provider-aad' target='_blank' rel='noopener'>ձեռնարկ</a>. "
+"Խնդրում ենք օգտագործել վերահղման այս URL-ը:"
+
+msgid "plugins.generic.openid.settings.hashSecret.desc"
+msgstr ""
+"Եթե ցանկանում եք գաղտնագրել OpenID-ի տեղեկատվությունը, ինչպիսին է OpenID "
+"նույնացուցիչը HTML կոդի մեջ և ցանկանում եք օգտագործել հետևյալ գործառույթը "
+"ավտոմատացված API-KEY սերնդի համար, ապա այստեղ պետք է գաղտնիք մուտքագրեք: "
+"Ապահով լինելու համար գաղտնի բանալին պետք է լինի առնվազն 24 նիշ:"
+
+msgid "plugins.generic.openid.settings.features.enable.provider.sync.desc"
+msgstr ""
+"Օգտատիրոջ որոշ տեղեկություններ, ինչպիսիք են անունը, ազգանունը և էլ․ հասցեն, "
+"փոխանցվում են OpenID Մատակարարից այս հավելվածին: Միացրեք այս տարբերակը՝ "
+"օգտվողի այս տեղեկությունները օգտատիրոջ հաշվում ինքնաշխատ կերպով պահպանելու "
+"համար: (խորհուրդ է տրվում)"
+
+msgid "plugins.generic.openid.settings.features.disable.given"
+msgstr "<strong>Անուն</strong> միայն կարդալ"
+
+msgid "plugins.generic.openid.settings.features.disable.family"
+msgstr "<strong>Ազգանուն</strong> միայն կարդալ"
+
+msgid "plugins.generic.openid.settings.features.disable.email"
+msgstr "<strong>Էլ. փոստ</strong> միայն կարդալ"
+
+# error messages
+msgid "plugins.generic.openid.error.openid.connect.desc.key"
+msgstr ""
+"<strong>Ձեր տվյալները ստուգելիս սխալ է տեղի ունեցել:</strong><br /"
+">Ծառայությունը կարող է հասանելի չլինել հենց հիմա:<br />Խնդրում ենք փորձել "
+"ավելի ուշ և <a href='mailto:{$supportEmail}'> կապվեք տեխնիկական աջակցության "
+"հետ</a> եթե խնդիրը դեռ գոյություն ունի:"
+
+msgid "plugins.generic.openid.error.openid.connect.desc.data"
+msgstr ""
+"<strong>Սխալ է տեղի ունեցել OpenId-ի մատակարարից ձեր տվյալները ստանալու "
+"ժամանակ:</strong><br />Ծառայությունը կարող է հասանելի չլինել հենց հիմա:<br /"
+">Խնդրում ենք փորձել ավելի ուշ և <a href='mailto:{$ supportEmail}'>դիմեք "
+"տեխնիկական աջակցությանը</a>, եթե խնդիրը դեռ գոյություն ունի:"
+
+msgid "plugins.generic.openid.error.openid.cert.desc"
+msgstr ""
+"<strong>Սխալ է տեղի ունեցել ձեր տվյալների վավերացման և հանելու ժամանակ:</"
+"strong><br />Ծառայությունը կարող է հասանելի չլինել հենց հիմա:<br />Խնդրում "
+"ենք փորձել ավելի ուշ և <a href='mailto:{$supportEmail} '>դիմեք տեխնիկական "
+"աջակցությանը</a>, եթե խնդիրը դեռ առկա է:"
+
+msgid "plugins.generic.openid.select.provider.orcid"
+msgstr "Մուտք գործեք Orcid-ի միջոցով"
+
+# disabled fields info
+msgid "plugins.generic.openid.disables.fields.info"
+msgstr ""
+"Որոշ տեղեկություններ տրամադրվում են վավերացված հաշվի կողմից, որն "
+"օգտագործվում է մուտք գործելու համար և չի կարող խմբագրվել:<br /> Տվյալները "
+"կհամաժամացվեն, երբ դուրս գաք և նորից մուտք գործեք:"
