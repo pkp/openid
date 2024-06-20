@@ -19,6 +19,8 @@ use APP\core\Request;
 use APP\facades\Repo;
 use APP\handler\Handler;
 use APP\plugins\generic\openid\classes\ContextData;
+use APP\plugins\generic\openid\enums\OpenIDProvider;
+use APP\plugins\generic\openid\enums\SSOError;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
 use PKP\config\Config;
@@ -139,7 +141,7 @@ class OpenIDLoginHandler extends Handler
 			Repo::user()->edit($user);
 		}
 
-		$tokenEncrypted = $request->getSession()->getSessionVar('id_token');
+		$tokenEncrypted = $request->getSession()->pull('id_token');
 		$token = OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $tokenEncrypted, false);
 
 		Validation::logout();
@@ -158,22 +160,22 @@ class OpenIDLoginHandler extends Handler
 	/**
 	 * Sets user friendly error messages, which are thrown during the OpenID auth process.
 	 */
-	private function _setSSOErrorMessages(string $ssoError, string $reason, TemplateManager $templateMgr, ContextData $contextData): void
+	private function _setSSOErrorMessages(SSOError $ssoError, string $reason, TemplateManager $templateMgr, ContextData $contextData): void
 	{
 		$templateMgr->assign('openidError', true);
 		
 		$errorMessages = [
-			OpenIDPlugin::SSO_ERROR_CONNECT_DATA => 'plugins.generic.openid.error.openid.connect.desc.data',
-			OpenIDPlugin::SSO_ERROR_CONNECT_KEY => 'plugins.generic.openid.error.openid.connect.desc.key',
-			OpenIDPlugin::SSO_ERROR_CERTIFICATION => 'plugins.generic.openid.error.openid.cert.desc',
-			OpenIDPlugin::SSO_ERROR_USER_DISABLED => 'plugins.generic.openid.error.openid.disabled.' . (empty($reason) ? 'without' : 'with'),
-			OpenIDPlugin::SSO_ERROR_API_RETURNED => 'plugins.generic.openid.error.openid.api.returned'
+			SSOError::CONNECT_DATA => 'plugins.generic.openid.error.openid.connect.desc.data',
+			SSOError::CONNECT_KEY => 'plugins.generic.openid.error.openid.connect.desc.key',
+			SSOError::CERTIFICATION => 'plugins.generic.openid.error.openid.cert.desc',
+			SSOError::USER_DISABLED => 'plugins.generic.openid.error.openid.disabled.' . (empty($reason) ? 'without' : 'with'),
+			SSOError::API_RETURNED => 'plugins.generic.openid.error.openid.api.returned'
 		];
 
-		$templateMgr->assign('errorMsg', $errorMessages[$ssoError] ?? '');
-		if (in_array($ssoError, [OpenIDPlugin::SSO_ERROR_USER_DISABLED, OpenIDPlugin::SSO_ERROR_API_RETURNED])) {
+		$templateMgr->assign('errorMsg', $errorMessages[$ssoError->value] ?? '');
+		if (in_array($ssoError, [SSOError::USER_DISABLED, SSOError::API_RETURNED])) {
 			$templateMgr->assign('reason', $reason);
-			if ($ssoError == OpenIDPlugin::SSO_ERROR_USER_DISABLED) {
+			if ($ssoError == SSOError::USER_DISABLED) {
 				$templateMgr->assign('accountDisabled', true);
 			}
 		}
@@ -196,7 +198,7 @@ class OpenIDLoginHandler extends Handler
 
 		// Apply htmlspecialchars to encode special characters
 		$loginMessage = htmlspecialchars($request->getUserVar('loginMessage'), ENT_QUOTES, 'UTF-8');
-		$username = htmlspecialchars($request->getSession()->getSessionVar('username'), ENT_QUOTES, 'UTF-8');
+		$username = htmlspecialchars($request->getSession()->get('username'), ENT_QUOTES, 'UTF-8');
 		$remember = htmlspecialchars($request->getUserVar('remember'), ENT_QUOTES, 'UTF-8');
 		$source = htmlspecialchars($request->getUserVar('source'), ENT_QUOTES, 'UTF-8');
 
@@ -271,7 +273,7 @@ class OpenIDLoginHandler extends Handler
 
 	private function handleCustomProvider(string $provider, array $settings, TemplateManager $templateMgr): void
 	{
-		if ($provider == OpenIDPlugin::PROVIDER_CUSTOM) {
+		if ($provider == OpenIDProvider::CUSTOM) {
 			$customBtnTxt = htmlspecialchars($settings['btnTxt'][Locale::getLocale()] ?? '', ENT_QUOTES, 'UTF-8');
 			$templateMgr->assign([
 				'customBtnImg' => $settings['btnImg'] ?? null,
@@ -282,7 +284,7 @@ class OpenIDLoginHandler extends Handler
 
 	private function handleErrors(TemplateManager $templateMgr, Request $request, ContextData $contextData): void
 	{
-		$ssoError = $request->getUserVar('sso_error');
+		$ssoError = SSOError::tryFrom($request->getUserVar('sso_error'));
 		$reason = htmlspecialchars($request->getUserVar('sso_error_msg') ?? '', ENT_QUOTES, 'UTF-8');
 
 		if ($ssoError) {

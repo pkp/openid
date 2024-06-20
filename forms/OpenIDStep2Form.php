@@ -16,6 +16,7 @@
 namespace APP\plugins\generic\openid\forms;
 
 use APP\core\Application;
+use APP\plugins\generic\openid\enums\OpenIDProvider;
 use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
@@ -42,7 +43,7 @@ class OpenIDStep2Form extends Form
 	/**
 	 * OpenIDStep2Form constructor.
 	 */
-	function __construct(private OpenIDPlugin $plugin, private ?string $selectedProvider = null, private $claims = [])
+	function __construct(private OpenIDPlugin $plugin, private ?OpenIDProvider $selectedProvider = null, private $claims = [])
 	{
 		$this->contextId = OpenIDPlugin::getContextData(Application::get()->getRequest())->getId();
 
@@ -105,7 +106,7 @@ class OpenIDStep2Form extends Form
 			}
 			
 			$this->_data = [
-				'selectedProvider' => $this->selectedProvider,
+				'selectedProvider' => $this->selectedProvider->value,
 				'oauthId' => OpenIDPlugin::encryptOrDecrypt($this->plugin, $this->contextId, $this->claims['id']),
 				'username' => $this->claims['username'],
 				'givenName' => $this->claims['given_name'],
@@ -221,7 +222,7 @@ class OpenIDStep2Form extends Form
 		$register = is_string($this->getData('register'));
 		$connect = is_string($this->getData('connect'));
 		$oauthId = $this->getData('oauthId');
-		$selectedProvider = $this->getData('selectedProvider');
+		$selectedProvider = OpenIDProvider::tryFrom($this->getData('selectedProvider'));
 
 		$result = false;
 
@@ -241,7 +242,7 @@ class OpenIDStep2Form extends Form
 				if ($register) {
 					$user = $this->_registerUser();
 					if (isset($user)) {
-						if ($selectedProvider == OpenIDPlugin::PROVIDER_ORCID) {
+						if ($selectedProvider == OpenIDProvider::ORCID) {
 							$user->setOrcid($oauthId);
 						}
 						$user->setData(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $oauthId);
