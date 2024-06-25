@@ -1,7 +1,7 @@
-# José Carvalho <jcarvalho@keep.pt>, 2022.
+# José Carvalho <jcarvalho@keep.pt>, 2022, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-11-01 09:02+0000\n"
+"PO-Revision-Date: 2024-06-26 09:40+0000\n"
 "Last-Translator: José Carvalho <jcarvalho@keep.pt>\n"
 "Language-Team: Portuguese (Portugal) <http://translate.pkp.sfu.ca/projects/"
 "plugins/openid/pt_PT/>\n"
@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.13.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.openid.disables.fields.info.password"
 msgstr ""
@@ -351,3 +351,33 @@ msgstr ""
 # general messages
 msgid "plugins.generic.openid.name"
 msgstr "Plugin de Autenticação OpenID"
+
+msgid "plugins.generic.openid.settings.legacyRegister.check"
+msgstr "Ativar registo legado"
+
+msgid "plugins.generic.openid.settings.legacyRegister.desc"
+msgstr ""
+"Ative esta opção se desejar que os utilizadores possam registrar-se no "
+"formulário de registo da aplicação, além do login do OpenID."
+
+msgid "plugins.generic.openid.select.provider.legacyRegister"
+msgstr "Registar conta (sem Oauth)"
+
+msgid "plugins.generic.openid.settings.provider.microsoft.audience"
+msgstr ""
+"Escolha a configuração de público que corresponde ao serviço de autenticação "
+"do Azure que está a usar atualmente"
+
+msgid "plugins.generic.openid.step2.headline.siteNameMissing"
+msgstr "Já tem uma conta?"
+
+msgid "plugins.generic.openid.step2.choice.no.siteNameMissing"
+msgstr "Não, sou novo."
+
+msgid "plugins.generic.openid.step2.help.siteNameMissing"
+msgstr "São necessárias informações adicionais para se registar:"
+
+msgid "plugins.generic.openid.step2.connect.siteNameMissing"
+msgstr ""
+"Faça login na sua conta.<br />As suas informações serão atualizadas "
+"automaticamente."
