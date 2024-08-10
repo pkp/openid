@@ -130,7 +130,7 @@ class OpenIDLoginHandler extends Handler
 			return $templateMgr->display($plugin->getTemplateResource('openidLogin.tpl'));
 		}
 
-		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
+		$request->redirect(Application::get()->getRequest()->getContext()->getPath(), 'index');
 
 		return false;
 	}
@@ -199,7 +199,7 @@ class OpenIDLoginHandler extends Handler
 				}
 			}
 		}
-		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
+		$request->redirect(Application::get()->getRequest()->getContext()->getPath(), 'index');
 	}
 
 	/**
