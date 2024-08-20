@@ -1,10 +1,10 @@
 # Weblate Admin <alec@smecher.bc.ca>, 2023.
 # Marie-Hélène Vézina [UdeMontréal] <marie-helene.vezina@umontreal.ca>, 2023.
+# Pierre Lasou <pierre.lasou@bibl.ulaval.ca>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-05-30 15:49+0000\n"
-"Last-Translator: Marie-Hélène Vézina [UdeMontréal] <marie-helene."
-"vezina@umontreal.ca>\n"
+"PO-Revision-Date: 2024-08-21 17:40+0000\n"
+"Last-Translator: Pierre Lasou <pierre.lasou@bibl.ulaval.ca>\n"
 "Language-Team: French (Canada) <http://translate.pkp.sfu.ca/projects/plugins/"
 "openid/fr_CA/>\n"
 "Language: fr_CA\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.13.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 # general messages
 msgid "plugins.generic.openid.name"
@@ -27,3 +27,51 @@ msgstr ""
 #, fuzzy
 msgid "plugins.generic.openid.step2.title"
 msgstr "Compléter l'inscription"
+
+msgid "plugins.generic.openid.step2.complete"
+msgstr ""
+"S'il vous plaît, vérifiez les détails et ajouter toute information manquante"
+
+msgid "plugins.generic.openid.step2.connect.btn"
+msgstr "Se connecter et connecter les comptes"
+
+msgid "plugins.generic.openid.step2.headline"
+msgstr "Avez-vous déjà un compte utilisateur dans {$journalName} ?"
+
+msgid "plugins.generic.openid.step2.choice.no"
+msgstr "Non, je suis un-e nouveau-elle utilisateur-trice de {$journalName}."
+
+msgid "plugins.generic.openid.step2.choice.yes"
+msgstr "Oui, j'ai déjà un compte utilisateur."
+
+msgid "plugins.generic.openid.step2.complete.btn"
+msgstr "Inscription terminée"
+
+msgid "plugins.generic.openid.step2.connect"
+msgstr ""
+"S'il vous plaît, connectez vous à votre compte sur {$journalName}.<br /"
+">Votre information sera mise à jour automatiquement."
+
+msgid "plugins.generic.openid.step2.connect.username"
+msgstr "Nom d'utilisateur-trice ou courriel"
+
+#step 2 form error messages
+msgid "plugins.generic.openid.form.error.username.required"
+msgstr "Un nom d'utilisateur est requis."
+
+msgid "plugins.generic.openid.form.error.usernameExists"
+msgstr "Le nom d'utilisateur existe déjà."
+
+msgid "plugins.generic.openid.form.error.givenName.required"
+msgstr "Un prénom est requis."
+
+msgid "plugins.generic.openid.form.error.familyName.required"
+msgstr "Un nom de famille est requis."
+
+msgid "plugins.generic.openid.form.error.country.required"
+msgstr "Un pays est requis."
+
+msgid "plugins.generic.openid.step2.help"
+msgstr ""
+"Des informations additionnelles sont requises afin de vous inscrire dans "
+"{$journalName} :"
