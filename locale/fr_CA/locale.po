@@ -3,7 +3,7 @@
 # Pierre Lasou <pierre.lasou@bibl.ulaval.ca>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-21 17:40+0000\n"
+"PO-Revision-Date: 2024-09-07 04:24+0000\n"
 "Last-Translator: Pierre Lasou <pierre.lasou@bibl.ulaval.ca>\n"
 "Language-Team: French (Canada) <http://translate.pkp.sfu.ca/projects/plugins/"
 "openid/fr_CA/>\n"
@@ -75,3 +75,27 @@ msgid "plugins.generic.openid.step2.help"
 msgstr ""
 "Des informations additionnelles sont requises afin de vous inscrire dans "
 "{$journalName} :"
+
+msgid "plugins.generic.openid.form.error.affiliation.required"
+msgstr "Une affiliation est requise."
+
+msgid "plugins.generic.openid.form.error.usernameOrEmail.required"
+msgstr "Un nom d'utilisateur ou un courriel est requis."
+
+msgid "plugins.generic.openid.form.error.email.required"
+msgstr "Un courriel est requis."
+
+msgid "plugins.generic.openid.form.error.emailExists"
+msgstr "L'adresse courriel fournie existe déjà."
+
+msgid "plugins.generic.openid.form.error.privacyConsent.required"
+msgstr "Vous devez approuver la déclaration de confidentialité."
+
+msgid "plugins.generic.openid.form.error.password.required"
+msgstr "Un mot de passe est requis."
+
+msgid "plugins.generic.openid.form.error.invalid.credentials"
+msgstr "Le mot de passe est incorrect."
+
+msgid "plugins.generic.openid.settings.apple.enable"
+msgstr "Identifiant Apple"
