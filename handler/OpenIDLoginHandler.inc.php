@@ -51,6 +51,7 @@ class OpenIDLoginHandler extends Handler
 		$legacyLogin = false;
 		$templateMgr = TemplateManager::getManager($request);
 		$context = $request->getContext();
+		$contextPath = $context ? $context->getPath() : null; 
 
 		if (!Validation::isLoggedIn()) {
 			$router = $request->getRouter();
@@ -130,7 +131,7 @@ class OpenIDLoginHandler extends Handler
 			return $templateMgr->display($plugin->getTemplateResource('openidLogin.tpl'));
 		}
 
-		$request->redirect(Application::get()->getRequest()->getContext()->getPath(), 'index');
+		$request->redirect($contextPath, 'index');
 
 		return false;
 	}
@@ -176,6 +177,7 @@ class OpenIDLoginHandler extends Handler
 			$router = $request->getRouter();
 			$lastProvider = $request->getUser()->getSetting('openid::lastProvider');
 			$context = Application::get()->getRequest()->getContext();
+			$contextPath = $context ? $context->getPath() : null; 
 			$user = Application::get()->getRequest()->getUser();
 			$contextId = ($context == null) ? 0 : $context->getId();
 			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
@@ -199,7 +201,7 @@ class OpenIDLoginHandler extends Handler
 				}
 			}
 		}
-		$request->redirect(Application::get()->getRequest()->getContext()->getPath(), 'index');
+		$request->redirect($contextPath, 'index');
 	}
 
 	/**

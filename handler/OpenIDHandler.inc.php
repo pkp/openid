@@ -68,6 +68,7 @@ class OpenIDHandler extends Handler
 		$context = $request->getContext();
 		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 		$contextId = ($context == null) ? 0 : $context->getId();
+		$contextPath = $context ? $context->getPath() : null; 
 		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
 		$selectedProvider = $provider == null ? $request->getUserVar('provider') : $provider;
 		$token = $this->_getTokenViaAuthCode($settings['provider'], $request->getUserVar('code'), $selectedProvider);
@@ -92,9 +93,9 @@ class OpenIDHandler extends Handler
 						[ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR, ROLE_ID_REVIEWER, ROLE_ID_ASSISTANT],
 						$contextId
 					)) {
-						return $request->redirect($context->getPath(), 'submissions');
+						return $request->redirect($contextPath, 'submissions');
 					} else {
-						return $request->redirect($context->getPath(), 'user', 'profile', null, $args);
+						return $request->redirect($contextPath, 'user', 'profile', null, $args);
 					}
 				} elseif ($user->getDisabled()) {
 					$reason = $user->getDisabledReason();
@@ -110,7 +111,7 @@ class OpenIDHandler extends Handler
 			$ssoErrors['sso_error'] = !isset($publicKey) ? 'connect_key' : 'connect_data';
 		}
 
-		return $request->redirect($context->getPath(), 'login', null, null, isset($ssoErrors) ? $ssoErrors : null);
+		return $request->redirect($contextPath, 'login', null, null, isset($ssoErrors) ? $ssoErrors : null);
 	}
 
 
@@ -124,6 +125,7 @@ class OpenIDHandler extends Handler
 	function registerOrConnect($args, $request)
 	{
 		$context = $request->getContext();
+		$contextPath = $context ? $context->getPath() : null; 
 
 		if (Validation::isLoggedIn()) {
 			$this->setupTemplate($request);
@@ -131,7 +133,7 @@ class OpenIDHandler extends Handler
 			$templateMgr->assign('pageTitle', 'user.login.registrationComplete');
 			$templateMgr->display('frontend/pages/userRegisterComplete.tpl');
 		} elseif (!$request->isPost()) {
-			$request->redirect($context->getPath(), 'login');
+			$request->redirect($contextPath, 'login');
 		} else {
 			$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
 			import($plugin->getPluginPath().'/forms/OpenIDStep2Form');
@@ -140,7 +142,7 @@ class OpenIDHandler extends Handler
 			if (!$regForm->validate()) {
 				$regForm->display($request);
 			} elseif ($regForm->execute()) {
-				$request->redirect($context->getPath(), 'openid', 'registerOrConnect');
+				$request->redirect($contextPath, 'openid', 'registerOrConnect');
 			} else {
 				$regForm->addError('', '');
 				$regForm->display($request);
