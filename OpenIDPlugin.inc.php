@@ -150,6 +150,7 @@ class OpenIDPlugin extends GenericPlugin
 		$op = $args[1];
 		$request = Application::get()->getRequest();
 		$templateMgr = TemplateManager::getManager($request);
+		AppLocale::requireComponents(LOCALE_COMPONENT_PKP_COMMON, LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_USER);
 
 		define('KEYCLOAK_PLUGIN_NAME', $this->getName());
 
