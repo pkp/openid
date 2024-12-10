@@ -1,15 +1,16 @@
+# Alexandra Fogtmann-Schulz <alfo@kb.dk>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-03-09 11:56+0000\n"
-"Last-Translator: Niels Erik Frederiksen <nef@kb.dk>\n"
+"PO-Revision-Date: 2024-06-21 19:39+0000\n"
+"Last-Translator: Alexandra Fogtmann-Schulz <alfo@kb.dk>\n"
 "Language-Team: Danish <http://translate.pkp.sfu.ca/projects/plugins/openid/"
-"da_DK/>\n"
-"Language: da_DK\n"
+"da/>\n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.openid.disables.fields.info.password"
 msgstr ""
@@ -188,9 +189,8 @@ msgstr "Klient-id"
 msgid "plugins.generic.openid.settings.configUrl.desc"
 msgstr ""
 "Indtast konfigurations-URL'en til din OpenID-udbyder.<strong>URL'en skal "
-"slutte med  \".well-known/openid-configuration\" (f.eks. \""
-"https://sso.example.com/auth/realms/master/.well-known/openid-configuration\""
-").</strong>"
+"slutte med \".well-known/openid-configuration\" (f.eks. \"https://sso.example"
+".com/auth/realms/master/.well-known/openid-configuration\").</strong>"
 
 msgid "plugins.generic.openid.settings.configUrl"
 msgstr "OpenID-udbyders URL"
@@ -352,3 +352,33 @@ msgstr ""
 # general messages
 msgid "plugins.generic.openid.name"
 msgstr "OpenID-godkendelsesplugin"
+
+msgid "plugins.generic.openid.settings.legacyRegister.check"
+msgstr "Aktiver gammel registrering ('legacy registration')"
+
+msgid "plugins.generic.openid.settings.legacyRegister.desc"
+msgstr ""
+"Aktivér denne mulighed, hvis du vil have, at brugerne skal kunne registrere "
+"sig med applikationens registreringsformular ud over OpenID-login."
+
+msgid "plugins.generic.openid.select.provider.legacyRegister"
+msgstr "Registrer konto (uden Oauth)"
+
+msgid "plugins.generic.openid.settings.provider.microsoft.audience"
+msgstr ""
+"Vælg brugerindstillingen der svarer til Azure Authentication servicen som du "
+"pt. bruger"
+
+msgid "plugins.generic.openid.step2.headline.siteNameMissing"
+msgstr "Har du allerede en konto?"
+
+msgid "plugins.generic.openid.step2.choice.no.siteNameMissing"
+msgstr "Nej, jeg er ny."
+
+msgid "plugins.generic.openid.step2.connect.siteNameMissing"
+msgstr ""
+"Vær venlig at logge ind på din konto.<br />Din information vil automatisk "
+"blive opdateret."
+
+msgid "plugins.generic.openid.step2.help.siteNameMissing"
+msgstr "Yderligere information er nødvendig for at kunne registrere sig:"
