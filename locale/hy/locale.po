@@ -1,7 +1,7 @@
-# Tigran Zargaryan <tigran@flib.sci.am>, 2023.
+# Tigran Zargaryan <tigran@flib.sci.am>, 2023, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-04-22 08:49+0000\n"
+"PO-Revision-Date: 2024-06-25 07:39+0000\n"
 "Last-Translator: Tigran Zargaryan <tigran@flib.sci.am>\n"
 "Language-Team: Armenian <http://translate.pkp.sfu.ca/projects/plugins/openid/"
 "hy/>\n"
@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.13.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 # general messages
 msgid "plugins.generic.openid.name"
@@ -352,3 +352,33 @@ msgstr ""
 "Որոշ տեղեկություններ տրամադրվում են վավերացված հաշվի կողմից, որն "
 "օգտագործվում է մուտք գործելու համար և չի կարող խմբագրվել:<br /> Տվյալները "
 "կհամաժամացվեն, երբ դուրս գաք և նորից մուտք գործեք:"
+
+msgid "plugins.generic.openid.select.provider.legacyRegister"
+msgstr "Գրանցել հաշիվ (առանց Oauth -ի)"
+
+msgid "plugins.generic.openid.settings.provider.microsoft.audience"
+msgstr ""
+"Ընտրեք լսարանի կարգավորումը, որը համապատասխանում է Azure Authentication "
+"ծառայությանը, որն այժմ օգտագործում եք"
+
+msgid "plugins.generic.openid.step2.headline.siteNameMissing"
+msgstr "Դուք արդեն ունե՞ք հաշիվ:"
+
+msgid "plugins.generic.openid.step2.choice.no.siteNameMissing"
+msgstr "Ոչ, ես նորեկ եմ:"
+
+msgid "plugins.generic.openid.step2.help.siteNameMissing"
+msgstr "Գրանցվելու համար անհրաժեշտ է լրացուցիչ տեղեկատվություն."
+
+msgid "plugins.generic.openid.step2.connect.siteNameMissing"
+msgstr ""
+"Խնդրում ենք մուտք գործել ձեր հաշիվ:<br />Ձեր տեղեկությունները ինքնաշխատ "
+"կերպով կթարմացվեն:"
+
+msgid "plugins.generic.openid.settings.legacyRegister.check"
+msgstr "Միացնել ժառանգության գրանցումը"
+
+msgid "plugins.generic.openid.settings.legacyRegister.desc"
+msgstr ""
+"Միացրեք այս տարբերակը, եթե ցանկանում եք, որ օգտատերերը բացի OpenID մուտքից, "
+"կարողանան գրանցվել հավելվածի գրանցաձևով:"
