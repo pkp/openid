@@ -194,7 +194,7 @@ class OpenIDLoginHandler extends Handler
 					$request->redirectUrl(
 						$settings['logoutUrl'].
 						'?client_id='.$settings['clientId'].
-						'&redirect_uri='.$router->url($request, $context, "index")
+						'&post_logout_redirect_uri='.$router->url($request, $context, "index")
 					);
 				}
 			}

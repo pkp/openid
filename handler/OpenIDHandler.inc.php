@@ -8,6 +8,7 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 
 import('classes.handler.Handler');
+import('plugins.generic.openid.classes.UserClaims');
 
 /**
  * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
@@ -41,8 +42,6 @@ import('classes.handler.Handler');
  */
 class OpenIDHandler extends Handler
 {
-
-
 	function doMicrosoftAuthentication($args, $request)
 	{
 		return $this->doAuthentication($args, $request, 'microsoft');
@@ -70,44 +69,49 @@ class OpenIDHandler extends Handler
 		$contextId = ($context == null) ? 0 : $context->getId();
 		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
 		$selectedProvider = $provider == null ? $request->getUserVar('provider') : $provider;
-		$token = $this->_getTokenViaAuthCode($settings['provider'], $request->getUserVar('code'), $selectedProvider);
-		$publicKey = $this->_getOpenIDAuthenticationCert($settings['provider'], $selectedProvider);
 
-		if (isset($token) && isset($publicKey)) {
-			$tokenPayload = $this->_validateAndExtractToken($token, $publicKey);
-			if (isset($tokenPayload) && is_array($tokenPayload)) {
-				$tokenPayload['selectedProvider'] = $selectedProvider;
-				$user = $this->_getUserViaKeycloakId($tokenPayload);
-				if (!isset($user)) {
-					import($plugin->getPluginPath().'/forms/OpenIDStep2Form');
-					$regForm = new OpenIDStep2Form($plugin, $tokenPayload);
-					$regForm->initData();
+		if (isset($settings['provider'][$selectedProvider])) {
+			$providerSettings = $settings['provider'][$selectedProvider];
+			$token = $this->_getTokenViaAuthCode($providerSettings, $request->getUserVar('code'), $selectedProvider);
 
-					return $regForm->fetch($request, null, true);
-				} elseif (is_a($user, 'User') && !$user->getDisabled()) {
-					Validation::registerUserSession($user, $reason, true);
+			if (isset($token)) {
+				$userClaims = $this->getCompleteClaims($providerSettings, $token);
 
-					self::updateUserDetails($tokenPayload, $user, $request, $selectedProvider);
-					if ($user->hasRole(
-						[ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR, ROLE_ID_REVIEWER, ROLE_ID_ASSISTANT],
-						$contextId
-					)) {
-						return $request->redirect($context, 'submissions');
-					} else {
-						return $request->redirect($context, 'user', 'profile', null, $args);
+				if (isset($userClaims)) {
+					$user = $this->getUserViaProviderId($userClaims->id, $selectedProvider);
+					if (!isset($user)) {
+						import($plugin->getPluginPath().'/forms/OpenIDStep2Form');
+						$regForm = new OpenIDStep2Form($plugin, $selectedProvider, $userClaims);
+						$regForm->initData();
+
+						return $regForm->fetch($request, null, true);
+					} elseif (is_a($user, 'User') && !$user->getDisabled()) {
+						Validation::registerUserSession($user, $reason, true);
+
+						self::updateUserDetails($userClaims, $user, $request, $selectedProvider);
+						if ($user->hasRole(
+							[ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR, ROLE_ID_REVIEWER, ROLE_ID_ASSISTANT],
+							$contextId
+						)) {
+							return $request->redirect($context->getPath(), 'submissions');
+						} else {
+							return $request->redirect($context, 'user', 'profile', null, $args);
+						}
+					} elseif ($user->getDisabled()) {
+						$reason = $user->getDisabledReason();
+						$ssoErrors['sso_error'] = 'disabled';
+						if ($reason != null) {
+							$ssoErrors['sso_error_msg'] = $reason;
+						}
 					}
-				} elseif ($user->getDisabled()) {
-					$reason = $user->getDisabledReason();
-					$ssoErrors['sso_error'] = 'disabled';
-					if ($reason != null) {
-						$ssoErrors['sso_error_msg'] = $reason;
-					}
+				} else {
+					$ssoErrors['sso_error'] = 'cert';
 				}
 			} else {
-				$ssoErrors['sso_error'] = 'cert';
+				$ssoErrors['sso_error'] = !isset($publicKey) ? 'connect_key' : 'connect_data';
 			}
 		} else {
-			$ssoErrors['sso_error'] = !isset($publicKey) ? 'connect_key' : 'connect_data';
+			$ssoErrors['sso_error'] = 'connect_data';
 		}
 
 		return $request->redirect($context, 'login', null, null, isset($ssoErrors) ? $ssoErrors : null);
@@ -148,7 +152,7 @@ class OpenIDHandler extends Handler
 		}
 	}
 
-	public static function updateUserDetails($payload, $user, $request, $selectedProvider, $setProviderId = false)
+	public static function updateUserDetails($claims, $user, $request, $selectedProvider, $setProviderId = false)
 	{
 		$userDao = DAORegistry::getDAO('UserDAO');
 		$context = $request->getContext();
@@ -160,19 +164,18 @@ class OpenIDHandler extends Handler
 			$site = $request->getSite();
 			$sitePrimaryLocale = $site->getPrimaryLocale();
 			$currentLocale = AppLocale::getLocale();
-			if (is_array($payload) && key_exists('given_name', $payload) && !empty($payload['given_name'])) {
-				$user->setGivenName($payload['given_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
+			if (!empty($claims->givenName)) {
+				$user->setGivenName($claims->givenName, ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
 			}
-			if (is_array($payload) && key_exists('family_name', $payload) && !empty($payload['family_name'])) {
-				$user->setFamilyName($payload['family_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
+			if (!empty($claims->familyName)) {
+				$user->setFamilyName($claims->familyName, $sitePrimaryLocale);
 			}
-			if (is_array($payload) && key_exists('email', $payload) && !empty($payload['email']) && $userDao->getUserByEmail($payload['email']) == null) {
-				$user->setEmail($payload['email']);
+
+			if (!empty($claims->email) && $userDao->getUserByEmail($claims->email) == null) {
+				$user->setEmail($claims->email);
 			}
-			if ($selectedProvider == 'orcid') {
-				if (is_array($payload) && key_exists('id', $payload) && !empty($payload['id'])) {
-					$user->setOrcid($payload['id']);
-				}
+			if (!empty($claims->id) && $selectedProvider === 'orcid') {
+				$user->setOrcid($claims->id);
 			}
 			$userDao->updateObject($user);
 		}
@@ -180,15 +183,15 @@ class OpenIDHandler extends Handler
 		$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
 		$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
 
-		if (is_array($payload) && key_exists('id', $payload) && !empty($payload['id'])) {
+		if (isset($claims) && !empty($claims->id)) {
 			if ($setProviderId) {
-				$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, $payload['id'], 'string');
+				$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, $claims->id, 'string');
 			}
 			$generateApiKey = isset($settings) && key_exists('generateAPIKey', $settings) ? $settings['generateAPIKey'] : false;
 			$secret = Config::getVar('security', 'api_key_secret', '');
 			if ($generateApiKey && $selectedProvider == 'custom' && $secret) {
 				$user->setData('apiKeyEnabled', true);
-				$user->setData('apiKey', self::encryptOrDecrypt($plugin, $contextId, 'encrypt', $payload['id']));
+				$user->setData('apiKey', self::encryptOrDecrypt($plugin, $contextId, 'encrypt', $claims->id));
 				$userDao->updateObject($user);
 			}
 		}
@@ -233,15 +236,15 @@ class OpenIDHandler extends Handler
 	 * @param array $credentials
 	 * @return User|null
 	 */
-	private function _getUserViaKeycloakId(array $credentials)
+	private function getUserViaProviderId(string $idClaim, string $selectedProvider)
 	{
 		$userDao = DAORegistry::getDAO('UserDAO');
-		$user = $userDao->getBySetting('openid::'.$credentials['selectedProvider'], $credentials['id']);
+		$user = $userDao->getBySetting('openid::'.$selectedProvider, $idClaim);
 		if (isset($user) && is_a($user, 'User')) {
 			return $user;
 		}
 		// prior versions of this plugin used hash for saving the openid identifier, but this is not recommended.
-		$user = $userDao->getBySetting('openid::'.$credentials['selectedProvider'], hash('sha256', $credentials['id']));
+		$user = $userDao->getBySetting('openid::'.$selectedProvider, hash('sha256', $idClaim));
 		if (isset($user) && is_a($user, 'User')) {
 			return $user;
 		}
@@ -260,57 +263,54 @@ class OpenIDHandler extends Handler
 	 * @param string $selectedProvider
 	 * @return array
 	 */
-	private function _getTokenViaAuthCode(array $providerList, string $authorizationCode, string $selectedProvider)
+	private function _getTokenViaAuthCode(array $providerSettings, string $authorizationCode, string $selectedProvider)
 	{
 		$token = null;
-		if (isset($providerList) && key_exists($selectedProvider, $providerList)) {
-			$settings = $providerList[$selectedProvider];
-			$httpClient = Application::get()->getHttpClient();
-			$response = null;
-			$params = [
-				'code' => $authorizationCode,
-				'grant_type' => 'authorization_code',
-				'client_id' => $settings['clientId'],
-				'client_secret' => $settings['clientSecret'],
-			];
-			if ($selectedProvider != 'microsoft') {
-				$params['redirect_uri'] = Application::get()->getRequest()->url(
-					null,
-					'openid',
-					'doAuthentication',
-					null,
-					array('provider' => $selectedProvider)
-				);
-			}
-			try {
-				$response = $httpClient->request(
-					'POST',
-					$settings['tokenUrl'],
-					[
-						'headers' => [
-							'Accept' => 'application/json',
-						],
-						'form_params' => $params,
-					]
-				);
-				if ($response->getStatusCode() != 200) {
-					error_log('Guzzle Response != 200: '.$response->getStatusCode());
-				} else {
-					$result = $response->getBody()->getContents();
-					if (isset($result) && !empty($result)) {
-						$result = json_decode($result, true);
-						if (is_array($result) && !empty($result) && key_exists('access_token', $result)) {
-							$token = [
-								'access_token' => $result['access_token'],
-								'id_token' => key_exists('id_token', $result) ? $result['id_token'] : null,
-								'refresh_token' => key_exists('refresh_token', $result) ? $result['refresh_token'] : null,
-							];
-						}
+		$httpClient = Application::get()->getHttpClient();
+		$response = null;
+		$params = [
+			'code' => $authorizationCode,
+			'grant_type' => 'authorization_code',
+			'client_id' => $providerSettings['clientId'],
+			'client_secret' => $providerSettings['clientSecret'],
+		];
+		if ($selectedProvider != 'microsoft') {
+			$params['redirect_uri'] = Application::get()->getRequest()->url(
+				null,
+				'openid',
+				'doAuthentication',
+				null,
+				array('provider' => $selectedProvider)
+			);
+		}
+		try {
+			$response = $httpClient->request(
+				'POST',
+				$providerSettings['tokenUrl'],
+				[
+					'headers' => [
+						'Accept' => 'application/json',
+					],
+					'form_params' => $params,
+				]
+			);
+			if ($response->getStatusCode() != 200) {
+				error_log('Guzzle Response != 200: '.$response->getStatusCode());
+			} else {
+				$result = $response->getBody()->getContents();
+				if (isset($result) && !empty($result)) {
+					$result = json_decode($result, true);
+					if (is_array($result) && !empty($result) && key_exists('access_token', $result)) {
+						$token = [
+							'access_token' => $result['access_token'],
+							'id_token' => key_exists('id_token', $result) ? $result['id_token'] : null,
+							'refresh_token' => key_exists('refresh_token', $result) ? $result['refresh_token'] : null,
+						];
 					}
 				}
-			} catch (GuzzleException $e) {
-				error_log('Guzzle Exception thrown: '.$e->getMessage());
 			}
+		} catch (GuzzleException $e) {
+			error_log('Guzzle Exception thrown: '.$e->getMessage());
 		}
 
 		return $token;
@@ -330,46 +330,43 @@ class OpenIDHandler extends Handler
 	 * @param string $selectedProvider
 	 * @return array
 	 */
-	private function _getOpenIDAuthenticationCert(array $providerList, string $selectedProvider)
+	private function getOpenIDAuthenticationCert(array $providerList)
 	{
 		$publicKeys = null;
-		if (isset($providerList) && key_exists($selectedProvider, $providerList)) {
-			$settings = $providerList[$selectedProvider];
-			$beginCert = '-----BEGIN CERTIFICATE-----';
-			$endCert = '-----END CERTIFICATE----- ';
-			$httpClient = Application::get()->getHttpClient();
-			$response = null;
-			try {
-				$response = $httpClient->request('GET', $settings['certUrl']);
-				if ($response->getStatusCode() != 200) {
-					error_log('Guzzle Response != 200: '.$response->getStatusCode());
-				} else {
-					$result = $response->getBody()->getContents();
-					$arr = json_decode($result, true);
-					if (key_exists('keys', $arr)) {
-						$publicKeys = array();
-						foreach ($arr['keys'] as $key) {
-							if ((key_exists('alg', $key) && $key['alg'] = 'RS256') || (key_exists('kty', $key) && $key['kty'] = 'RSA')) {
-								if (key_exists('x5c', $key) && $key['x5c'] != null && is_array($key['x5c'])) {
-									foreach ($key['x5c'] as $n) {
-										if (!empty($n)) {
-											$publicKeys[] = $beginCert.PHP_EOL.$n.PHP_EOL.$endCert;
-										}
+		$beginCert = '-----BEGIN CERTIFICATE-----';
+		$endCert = '-----END CERTIFICATE----- ';
+		$httpClient = Application::get()->getHttpClient();
+		$response = null;
+		try {
+			$response = $httpClient->request('GET', $providerList['certUrl']);
+			if ($response->getStatusCode() != 200) {
+				error_log('Guzzle Response != 200: '.$response->getStatusCode());
+			} else {
+				$result = $response->getBody()->getContents();
+				$arr = json_decode($result, true);
+				if (key_exists('keys', $arr)) {
+					$publicKeys = array();
+					foreach ($arr['keys'] as $key) {
+						if ((key_exists('alg', $key) && $key['alg'] = 'RS256') || (key_exists('kty', $key) && $key['kty'] = 'RSA')) {
+							if (key_exists('x5c', $key) && $key['x5c'] != null && is_array($key['x5c'])) {
+								foreach ($key['x5c'] as $n) {
+									if (!empty($n)) {
+										$publicKeys[] = $beginCert.PHP_EOL.$n.PHP_EOL.$endCert;
 									}
-								} elseif (key_exists('n', $key) && key_exists('e', $key)) {
-									$rsa = new RSA();
-									$modulus = new BigInteger(JWT::urlsafeB64Decode($key['n']), 256);
-									$exponent = new BigInteger(JWT::urlsafeB64Decode($key['e']), 256);
-									$rsa->loadKey(array('n' => $modulus, 'e' => $exponent));
-									$publicKeys[] = $rsa->getPublicKey();
 								}
+							} elseif (key_exists('n', $key) && key_exists('e', $key)) {
+								$rsa = new RSA();
+								$modulus = new BigInteger(JWT::urlsafeB64Decode($key['n']), 256);
+								$exponent = new BigInteger(JWT::urlsafeB64Decode($key['e']), 256);
+								$rsa->loadKey(array('n' => $modulus, 'e' => $exponent));
+								$publicKeys[] = $rsa->getPublicKey();
 							}
 						}
 					}
 				}
-			} catch (GuzzleException $e) {
-				error_log('Guzzle Exception thrown: '.$e->getMessage());
 			}
+		} catch (GuzzleException $e) {
+			error_log('Guzzle Exception thrown: '.$e->getMessage());
 		}
 
 		return $publicKeys;
@@ -383,7 +380,7 @@ class OpenIDHandler extends Handler
 	 * @param array $publicKeys
 	 * @return array|null
 	 */
-	private function _validateAndExtractToken(array $token, array $publicKeys)
+	private function getClaimsFromJwt(array $token, array $publicKeys): ?UserClaims
 	{
 		$credentials = null;
 		foreach ($publicKeys as $publicKey) {
@@ -392,19 +389,17 @@ class OpenIDHandler extends Handler
 					if (!empty($t)) {
 						$jwtPayload = JWT::decode($t, $publicKey, array('RS256'));
 
-						if (isset($jwtPayload)) {
-							$credentials = [
-								'id' => property_exists($jwtPayload, 'sub') ? $jwtPayload->sub : null,
-								'email' => property_exists($jwtPayload, 'email') ? $jwtPayload->email : null,
-								'username' => property_exists($jwtPayload, 'preferred_username') ? $jwtPayload->preferred_username : null,
-								'given_name' => property_exists($jwtPayload, 'given_name') ? $jwtPayload->given_name : null,
-								'family_name' => property_exists($jwtPayload, 'family_name') ? $jwtPayload->family_name : null,
-								'email_verified' => property_exists($jwtPayload, 'email_verified') ? $jwtPayload->email_verified : null,
-							];
+						if ($jwtPayload) {
+							$claimsParams = (array)$jwtPayload;
+
+							$claims = new UserClaims();
+							$claims->setValues($claimsParams);
+
+							return $claims;
 						}
-						if (isset($credentials) && key_exists('id', $credentials) && !empty($credentials['id'])) {
-							break 2;
-						}
+						// if (isset($credentials) && key_exists('id', $credentials) && !empty($credentials['id'])) {
+						// 	break 2;
+						// }
 					}
 				} catch (Exception $e) {
 					$credentials = null;
@@ -422,9 +417,8 @@ class OpenIDHandler extends Handler
 	 * @param $token
 	 * @param $settings
 	 *
-	 * @return bool|string
 	 */
-	private function _getClientDetails($token, $settings)
+	private function getClaimsFromUserInfo(array $providerSettings, array $token): ?UserClaims
 	{
 		$httpClient = Application::get()->getHttpClient();
 		$response = null;
@@ -432,7 +426,7 @@ class OpenIDHandler extends Handler
 		try {
 			$response = $httpClient->request(
 				'GET',
-				$settings['userInfoUrl'],
+				$providerSettings['userInfoUrl'],
 				[
 					'headers' => [
 						'Accept' => 'application/json',
@@ -443,12 +437,39 @@ class OpenIDHandler extends Handler
 			if ($response->getStatusCode() != 200) {
 				error_log('Guzzle Response != 200: '.$response->getStatusCode());
 			} else {
-				$result = $response->getBody()->getContents();
+				$userInfo = json_decode($response->getBody()->getContents(), true);
+
+				$claims = new UserClaims();
+				$claims->setValues($userInfo);
+
+				return $claims;
 			}
 		} catch (GuzzleException $e) {
 			error_log('Guzzle Exception thrown: '.$e->getMessage());
 		}
 
 		return $result;
+	}
+
+	private function getCompleteClaims(array $providerSettings, array $token): ?UserClaims
+	{
+		$publicKey = $this->getOpenIDAuthenticationCert($providerSettings);
+
+		if (!$publicKey) {
+			return null;
+		}
+
+		$jwtClaims = $this->getClaimsFromJwt($token, $publicKey);
+
+		if ($jwtClaims === null) {
+			return null;
+		}
+
+		if (!$jwtClaims || !$jwtClaims->isComplete()) {
+			$userInfoClaims = $this->getClaimsFromUserInfo($providerSettings, $token);
+			$jwtClaims->merge($userInfoClaims); // Merge UserInfo claims into JWT claims
+		}
+
+		return $jwtClaims;
 	}
 }

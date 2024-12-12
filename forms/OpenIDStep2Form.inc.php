@@ -3,6 +3,7 @@
 use Sokil\IsoCodes\IsoCodesFactory;
 
 import('lib.pkp.classes.form.Form');
+import('plugins.generic.openid.classes.UserClaims');
 
 /**
  * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
@@ -28,22 +29,25 @@ import('lib.pkp.classes.form.Form');
  */
 class OpenIDStep2Form extends Form
 {
-	private $credentials;
+	private ?UserClaims $claims;
 	private $plugin;
 	private $contextId;
+	private $selectedProvider;
 
 	/**
 	 * OpenIDStep2Form constructor.
 	 *
 	 * @param $plugin
-	 * @param $credentials
+	 * @param $claims
 	 */
-	function __construct($plugin, $credentials = array())
+	function __construct($plugin, $selectedProvider = null, $claims = null)
 	{
 		$context = Application::get()->getRequest()->getContext();
 		$this->contextId = ($context == null) ? 0 : $context->getId();
 		$this->plugin = $plugin;
-		$this->credentials = $credentials;
+		$this->claims = $claims;
+		$this->selectedProvider = $selectedProvider;
+		
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
 		parent::__construct($plugin->getTemplateResource('authStep2.tpl'));
@@ -83,24 +87,30 @@ class OpenIDStep2Form extends Form
 	 */
 	function initData()
 	{
-		if (is_array($this->credentials) && !empty($this->credentials)) {
-			// generate username if username is orchid id
-			if (key_exists('username', $this->credentials)) {
-				if (preg_match('/\d{4}-\d{4}-\d{4}-\d{4}/', $this->credentials['username'])) {
-					$given = key_exists('given_name', $this->credentials) ? $this->credentials['given_name'] : '';
-					$family = key_exists('family_name', $this->credentials) ? $this->credentials['family_name'] : '';
-					$this->credentials['username'] = mb_strtolower($given.$family, 'UTF-8');
+		if ($this->claims !== null) {
+			// Generate username if username is ORCID ID
+			if ($this->claims->username && preg_match('/\d{4}-\d{4}-\d{4}-\d{4}/', $this->claims->username)) {
+				$given = $this->claims->givenName ?? '';
+				$family = $this->claims->familyName ?? '';
+				$this->claims->username = mb_strtolower($given . $family, 'UTF-8');
+			}
+
+			// Sanitize all string values in claims
+			foreach (get_object_vars($this->claims) as $key => $value) {
+				if (is_string($value)) {
+					$this->claims->$key = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 				}
 			}
-			$this->_data = array(
-				'selectedProvider' => $this->credentials['selectedProvider'],
-				'oauthId' => OpenIDHandler::encryptOrDecrypt($this->plugin, $this->contextId, 'encrypt', $this->credentials['id']),
-				'username' => $this->credentials['username'],
-				'givenName' => $this->credentials['given_name'],
-				'familyName' => $this->credentials['family_name'],
-				'email' => $this->credentials['email'],
-				'userGroupIds' => array(),
-			);
+
+			$this->_data = [
+				'selectedProvider' => $this->selectedProvider ?? null,
+				'oauthId' => OpenIDHandler::encryptOrDecrypt($this->plugin, $this->contextId, 'encrypt', $this->claims->id),
+				'username' => $this->claims->username,
+				'givenName' => $this->claims->givenName,
+				'familyName' => $this->claims->familyName,
+				'email' => $this->claims->email,
+				'userGroupIds' => [],
+			];
 		}
 	}
 
