@@ -25,6 +25,7 @@ use APP\core\Application;
 use APP\core\Request;
 use APP\handler\Handler;
 use APP\plugins\generic\openid\classes\ContextData;
+use APP\plugins\generic\openid\classes\UserClaims;
 use APP\plugins\generic\openid\forms\OpenIDStep2Form;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
@@ -80,23 +81,28 @@ class OpenIDHandler extends Handler
 		}
 		
 		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
-		$token = $this->getTokenViaAuthCode($settings['provider'], $request->getUserVar('code'), $selectedProvider);
-		$publicKey = $this->getOpenIDAuthenticationCert($settings['provider'], $selectedProvider);
 
-		if (!$token || !$publicKey) {
-			return $this->handleSSOError($request, $contextPath, $publicKey ? OpenIDPlugin::SSO_ERROR_CONNECT_DATA : OpenIDPlugin::SSO_ERROR_CONNECT_KEY);
+		if (!isset($settings['provider'][$selectedProvider])) {
+			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CONNECT_DATA);
 		}
 
-		$claims = $this->validateAndExtractToken($token, $publicKey);
+		$providerSettings = $settings['provider'][$selectedProvider];
 
-		if (!$claims || !is_array($claims)) {
+		$token = $this->getTokenViaAuthCode($providerSettings, $request->getUserVar('code'), $selectedProvider);
+		if (!$token) {
+			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CONNECT_KEY);
+		}
+
+		$userClaims = $this->getCompleteClaims($providerSettings, $token);
+
+		if (!$userClaims) {
 			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CERTIFICATION);
 		}
 
-		$user = $this->getUserViaProviderId($claims['id'], $selectedProvider);
+		$user = $this->getUserViaProviderId($userClaims->id, $selectedProvider);
 
 		if (!$user) {
-			$regForm = new OpenIDStep2Form($this->plugin, $selectedProvider, $claims);
+			$regForm = new OpenIDStep2Form($this->plugin, $selectedProvider, $userClaims);
 			$regForm->initData();
 			return $regForm->fetch($request, null, true);
 		}
@@ -111,7 +117,7 @@ class OpenIDHandler extends Handler
 
 		$request->getSession()->setSessionVar('id_token', OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token['id_token']));
 
-		self::updateUserDetails($this->plugin, $claims, $user, $contextData, $selectedProvider);
+		self::updateUserDetails($this->plugin, $userClaims, $user, $contextData, $selectedProvider);
 
 		if ($user->hasRole(
 			[
@@ -166,42 +172,41 @@ class OpenIDHandler extends Handler
 
 	public static function updateUserDetails(
 		OpenIDPlugin $plugin,
-		?array $claims,
+		?UserClaims $claims,
 		User $user,
 		ContextData $contextData,
 		string $selectedProvider,
 		bool $setProviderId = false
-	)
+	): void 
 	{
 		$contextId = $contextData->getId();
-
 		$settings = OpenIDPlugin::getOpenIDSettings($plugin, $contextId);
 
-		if (($settings['providerSync'] ?? false) && isset($claims)) {
+		if (($settings['providerSync'] ?? false) && $claims !== null) {
 			$sitePrimaryLocale = $contextData->getPrimaryLocale();
 
-			if (!empty($claims['given_name'])) {
-				$user->setGivenName($claims['given_name'] ?? '', $sitePrimaryLocale);
+			if (!empty($claims->givenName)) {
+				$user->setGivenName($claims->givenName, $sitePrimaryLocale);
 			}
 
-			if (!empty($claims['family_name'])) {
-				$user->setFamilyName($claims['family_name'] ?? '', $sitePrimaryLocale);
+			if (!empty($claims->familyName)) {
+				$user->setFamilyName($claims->familyName, $sitePrimaryLocale);
 			}
 
-			if (!empty($claims['email']) && Repo::user()->getByEmail($claims['email']) == null) {
-				$user->setEmail($claims['email']);
+			if (!empty($claims->email) && Repo::user()->getByEmail($claims->email) === null) {
+				$user->setEmail($claims->email);
 			}
 
-			if (!empty($claims['id']) && $selectedProvider == OpenIDPlugin::PROVIDER_ORCID) {
-				$user->setOrcid($claims['id']);
+			if (!empty($claims->id) && $selectedProvider === OpenIDPlugin::PROVIDER_ORCID) {
+				$user->setOrcid($claims->id);
 			}
 		}
 
 		$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, $selectedProvider);
 
-		if ($setProviderId && isset($claims['id'])) {
-			$user->setData(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $claims['id']);
-			self::updateApiKey($plugin, $contextId, $user, $claims['id'], $settings, $selectedProvider);
+		if ($setProviderId && !empty($claims->id)) {
+			$user->setData(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $claims->id);
+			self::updateApiKey($plugin, $contextId, $user, $claims->id, $settings, $selectedProvider);
 		}
 
 		Repo::user()->edit($user);
@@ -253,19 +258,14 @@ class OpenIDHandler extends Handler
 	 * An array with the access_token, id_token and/or refresh_token is returned on success, otherwise null.
 	 * The OpenID implementation differs a bit between the providers. Some use an id_token, others a refresh token.
 	 */
-	private function getTokenViaAuthCode(array $providerList, string $authorizationCode, string $selectedProvider): ?array
+	private function getTokenViaAuthCode(array $providerSettings, string $authorizationCode, string $selectedProvider): ?array
 	{
-		if (!isset($providerList[$selectedProvider])) {
-			return null;
-		}
-
-		$settings = $providerList[$selectedProvider];
 		$httpClient = Application::get()->getHttpClient();
 		$params = [
 			'code' => $authorizationCode,
 			'grant_type' => 'authorization_code',
-			'client_id' => $settings['clientId'],
-			'client_secret' => $settings['clientSecret'],
+			'client_id' => $providerSettings['clientId'],
+			'client_secret' => $providerSettings['clientSecret'],
 			'redirect_uri' => Application::get()->getRequest()->url(
 				null,
 				'openid',
@@ -278,7 +278,7 @@ class OpenIDHandler extends Handler
 		try {
 			$response = $httpClient->request(
 				'POST',
-				$settings['tokenUrl'],
+				$providerSettings['tokenUrl'],
 				[
 					'headers' => ['Accept' => 'application/json'],
 					'form_params' => $params,
@@ -317,20 +317,15 @@ class OpenIDHandler extends Handler
 	 *
 	 * If no key is found, null is returned
 	 */
-	private function getOpenIDAuthenticationCert(?array $providerList, string $selectedProvider): ?array
+	private function getOpenIDAuthenticationCert(?array $providerSettings): ?array
 	{
-		if (!isset($providerList[$selectedProvider])) {
-			return null;
-		}
-
-		$settings = $providerList[$selectedProvider];
 		$httpClient = Application::get()->getHttpClient();
 		$publicKeys = [];
 		$beginCert = '-----BEGIN CERTIFICATE-----';
 		$endCert = '-----END CERTIFICATE----- ';
 
 		try {
-			$response = $httpClient->request('GET', $settings['certUrl']);
+			$response = $httpClient->request('GET', $providerSettings['certUrl']);
 			if ($response->getStatusCode() != 200) {
 				error_log($this->plugin->getName() . ' - Guzzle Response != 200: ' . $response->getStatusCode());
 				return null;
@@ -371,7 +366,7 @@ class OpenIDHandler extends Handler
 	 * Validates the token via JWT and public key and returns the token claims data as array.
 	 * In case of an error null is returned
 	 */
-	private function validateAndExtractToken(array $token, array $publicKeys): ?array
+	private function getClaimsFromJwt(array $token, array $publicKeys): ?UserClaims
 	{
 		foreach ($publicKeys as $publicKey) {
 			foreach ($token as $t) {
@@ -380,14 +375,12 @@ class OpenIDHandler extends Handler
 						$jwtPayload = JWT::decode($t, new \Firebase\JWT\Key($publicKey, 'RS256'));
 
 						if ($jwtPayload) {
-							return [
-								'id' => $jwtPayload->sub ?? null,
-								'email' => $jwtPayload->email ?? null,
-								'username' => $jwtPayload->preferred_username ?? null,
-								'given_name' => $jwtPayload->given_name ?? null,
-								'family_name' => $jwtPayload->family_name ?? null,
-								'email_verified' => $jwtPayload->email_verified ?? null,
-							];
+							$claimsParams = (array)$jwtPayload;
+
+							$claims = new UserClaims();
+							$claims->setValues($claimsParams);
+
+							return $claims;
 						}
 					}
 				} catch (Exception $e) {
@@ -400,17 +393,16 @@ class OpenIDHandler extends Handler
 	}
 
 	/**
-	 * This function is unused at the moment.
-	 * It can be unsed to get the user details from an endpoint but usually all user data are provided in the JWT.
+	 * This function gets the user details from the UserInfo endpoint
 	 */
-	private function getClientDetails(array $token, array $settings): ?string
+	private function getClaimsFromUserInfo(array $providerSettings, array $token): ?UserClaims
 	{
 		$httpClient = Application::get()->getHttpClient();
 
 		try {
 			$response = $httpClient->request(
 				'GET',
-				$settings['userInfoUrl'],
+				$providerSettings['userInfoUrl'],
 				[
 					'headers' => [
 						'Accept' => 'application/json',
@@ -424,11 +416,38 @@ class OpenIDHandler extends Handler
 				return null;
 			}
 
-			return $response->getBody()->getContents();
+			$userInfo = json_decode($response->getBody()->getContents(), true);
+
+			$claims = new UserClaims();
+			$claims->setValues($userInfo);
+
+			return $claims;
 		} catch (GuzzleException $e) {
 			error_log($this->plugin->getName() . ' - Guzzle Exception thrown: ' . $e->getMessage());
 			return null;
 		}
+	}
+
+	private function getCompleteClaims(array $providerSettings, array $token): ?UserClaims
+	{
+		$publicKey = $this->getOpenIDAuthenticationCert($providerSettings);
+
+		if (!$publicKey) {
+			return null;
+		}
+
+		$jwtClaims = $this->getClaimsFromJwt($token, $publicKey);
+
+		if ($jwtClaims === null) {
+			return null;
+		}
+
+		if (!$jwtClaims || !$jwtClaims->isComplete()) {
+			$userInfoClaims = $this->getClaimsFromUserInfo($providerSettings, $token);
+			$jwtClaims->merge($userInfoClaims); // Merge UserInfo claims into JWT claims
+		}
+
+		return $jwtClaims;
 	}
 
 	/**
