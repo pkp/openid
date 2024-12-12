@@ -397,9 +397,6 @@ class OpenIDHandler extends Handler
 
 							return $claims;
 						}
-						// if (isset($credentials) && key_exists('id', $credentials) && !empty($credentials['id'])) {
-						// 	break 2;
-						// }
 					}
 				} catch (Exception $e) {
 					$credentials = null;
@@ -453,6 +450,8 @@ class OpenIDHandler extends Handler
 
 	private function getCompleteClaims(array $providerSettings, array $token): ?UserClaims
 	{
+		$retUserClaims = new UserClaims();
+
 		$publicKey = $this->getOpenIDAuthenticationCert($providerSettings);
 
 		if (!$publicKey) {
@@ -461,15 +460,15 @@ class OpenIDHandler extends Handler
 
 		$jwtClaims = $this->getClaimsFromJwt($token, $publicKey);
 
-		if ($jwtClaims === null) {
-			return null;
+		if ($jwtClaims != null) {
+			$retUserClaims->merge($jwtClaims);
 		}
 
-		if (!$jwtClaims || !$jwtClaims->isComplete()) {
+		if (!$retUserClaims->isComplete()) {
 			$userInfoClaims = $this->getClaimsFromUserInfo($providerSettings, $token);
-			$jwtClaims->merge($userInfoClaims); // Merge UserInfo claims into JWT claims
+			$retUserClaims->merge($userInfoClaims); // Merge UserInfo claims into JWT claims
 		}
 
-		return $jwtClaims;
+		return $retUserClaims;
 	}
 }
