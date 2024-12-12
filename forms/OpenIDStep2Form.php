@@ -16,6 +16,7 @@
 namespace APP\plugins\generic\openid\forms;
 
 use APP\core\Application;
+use APP\plugins\generic\openid\classes\UserClaims;
 use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
@@ -42,7 +43,7 @@ class OpenIDStep2Form extends Form
 	/**
 	 * OpenIDStep2Form constructor.
 	 */
-	function __construct(private OpenIDPlugin $plugin, private ?string $selectedProvider = null, private $claims = [])
+	function __construct(private OpenIDPlugin $plugin, private ?string $selectedProvider = null, private ?UserClaims $claims = null)
 	{
 		$this->contextId = OpenIDPlugin::getContextData(Application::get()->getRequest())->getId();
 
@@ -87,30 +88,28 @@ class OpenIDStep2Form extends Form
 	 */
 	function initData()
 	{
-		if (is_array($this->claims) && !empty($this->claims)) {
-			// generate username if username is orcid id
-			if ($this->claims['username'] ?? false) {
-				if (preg_match('/\d{4}-\d{4}-\d{4}-\d{4}/', $this->claims['username'])) {
-					$given = $this->claims['given_name'] ?? '';
-					$family = $this->claims['family_name'] ?? '';
-					$this->claims['username'] = mb_strtolower($given.$family, 'UTF-8');
+		if ($this->claims !== null) {
+			// Generate username if username is ORCID ID
+			if ($this->claims->username && preg_match('/\d{4}-\d{4}-\d{4}-\d{4}/', $this->claims->username)) {
+				$given = $this->claims->givenName ?? '';
+				$family = $this->claims->familyName ?? '';
+				$this->claims->username = mb_strtolower($given . $family, 'UTF-8');
+			}
+
+			// Sanitize all string values in claims
+			foreach (get_object_vars($this->claims) as $key => $value) {
+				if (is_string($value)) {
+					$this->claims->$key = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 				}
 			}
 
-			foreach ($this->claims as $key => $value) {
-				// Check if the value is a string to prevent errors
-				if (is_string($value)) {
-					$this->claims[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
-				}
-			}
-			
 			$this->_data = [
-				'selectedProvider' => $this->selectedProvider,
-				'oauthId' => OpenIDPlugin::encryptOrDecrypt($this->plugin, $this->contextId, $this->claims['id']),
-				'username' => $this->claims['username'],
-				'givenName' => $this->claims['given_name'],
-				'familyName' => $this->claims['family_name'],
-				'email' => $this->claims['email'],
+				'selectedProvider' => $this->selectedProvider ?? null,
+				'oauthId' => OpenIDPlugin::encryptOrDecrypt($this->plugin, $this->contextId, $this->claims->id),
+				'username' => $this->claims->username,
+				'givenName' => $this->claims->givenName,
+				'familyName' => $this->claims->familyName,
+				'email' => $this->claims->email,
 				'userGroupIds' => [],
 			];
 		}
@@ -224,9 +223,13 @@ class OpenIDStep2Form extends Form
 		$selectedProvider = $this->getData('selectedProvider');
 
 		$result = false;
+		$userClaims = null;
 
 		if (!empty($oauthId) && !empty($selectedProvider)) {
 			$oauthId = OpenIDPlugin::encryptOrDecrypt($this->plugin, $this->contextId, $oauthId, false);
+			$userClaims = new UserClaims();
+			$userClaims->id = $oauthId;
+
 			// prevent saving one openid:ident to multiple accounts
 			$userIds = Repo::user()->getCollector()
 				->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $oauthId])
@@ -250,11 +253,9 @@ class OpenIDStep2Form extends Form
 						$result = true;
 					}
 				} elseif ($connect) {
-					$payload = [
-						'given_name' => $this->getData('givenName'), 
-						'family_name' => $this->getData('familyName'), 
-						'id' => $oauthId
-					];
+					$userClaims->given_name = $this->getData('givenName');
+					$userClaims->family_name = $this->getData('familyName');
+
 					$username = $this->getData('usernameLogin');
 					$password = $this->getData('passwordLogin');
 					$user = Repo::user()->getByUsername($username, true);
@@ -271,7 +272,7 @@ class OpenIDStep2Form extends Form
 				if ($result && isset($user)) {
 					$contextData = OpenIDPlugin::getContextData(Application::get()->getRequest());
 
-					OpenIDHandler::updateUserDetails($this->plugin, isset($payload) ? $payload : null, $user, $contextData, $selectedProvider, true);
+					OpenIDHandler::updateUserDetails($this->plugin, $userClaims, $user, $contextData, $selectedProvider, true);
 					Validation::registerUserSession($user, $reason);
 				}
 			}
