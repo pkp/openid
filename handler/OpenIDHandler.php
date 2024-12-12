@@ -25,6 +25,8 @@ use APP\core\Application;
 use APP\core\Request;
 use APP\handler\Handler;
 use APP\plugins\generic\openid\classes\ContextData;
+use APP\plugins\generic\openid\enums\OpenIDProvider;
+use APP\plugins\generic\openid\enums\SSOError;
 use APP\plugins\generic\openid\forms\OpenIDStep2Form;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
@@ -65,7 +67,7 @@ class OpenIDHandler extends Handler
 	 */
 	function doAuthentication($args, $request, $provider = null)
 	{
-		$selectedProvider = $request->getUserVar('provider');
+		$selectedProvider = OpenIDProvider::tryFrom($request->getUserVar('provider'));
 
 		$contextData = OpenIDPlugin::getContextData($request);
 
@@ -76,7 +78,7 @@ class OpenIDHandler extends Handler
 		$errorDescription = $request->getUserVar('error_description');
 
 		if ($error) {
-			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_API_RETURNED, "{$selectedProvider}: ($error) \"$errorDescription\"");
+			return $this->handleSSOError($request, $contextPath, SSOError::API_RETURNED, "{$selectedProvider->value}: ($error) \"$errorDescription\"");
 		}
 		
 		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
@@ -84,13 +86,13 @@ class OpenIDHandler extends Handler
 		$publicKey = $this->getOpenIDAuthenticationCert($settings['provider'], $selectedProvider);
 
 		if (!$token || !$publicKey) {
-			return $this->handleSSOError($request, $contextPath, $publicKey ? OpenIDPlugin::SSO_ERROR_CONNECT_DATA : OpenIDPlugin::SSO_ERROR_CONNECT_KEY);
+			return $this->handleSSOError($request, $contextPath, $publicKey ? SSOError::CONNECT_DATA : SSOError::CONNECT_KEY);
 		}
 
 		$claims = $this->validateAndExtractToken($token, $publicKey);
 
 		if (!$claims || !is_array($claims)) {
-			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CERTIFICATION);
+			return $this->handleSSOError($request, $contextPath, SSOError::CERTIFICATION);
 		}
 
 		$user = $this->getUserViaProviderId($claims['id'], $selectedProvider);
@@ -104,12 +106,12 @@ class OpenIDHandler extends Handler
 		$reason = null;
 		if ($user->getDisabled()) {
 			$reason = $user->getDisabledReason();
-			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_USER_DISABLED, $reason);
+			return $this->handleSSOError($request, $contextPath, SSOError::USER_DISABLED, $reason);
 		}
 
 		Validation::registerUserSession($user, $reason);
 
-		$request->getSession()->setSessionVar('id_token', OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token['id_token']));
+		$request->getSession()->put('id_token', OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token['id_token']));
 
 		self::updateUserDetails($this->plugin, $claims, $user, $contextData, $selectedProvider);
 
@@ -169,7 +171,7 @@ class OpenIDHandler extends Handler
 		?array $claims,
 		User $user,
 		ContextData $contextData,
-		string $selectedProvider,
+		OpenIDProvider $selectedProvider,
 		bool $setProviderId = false
 	)
 	{
@@ -192,22 +194,22 @@ class OpenIDHandler extends Handler
 				$user->setEmail($claims['email']);
 			}
 
-			if (!empty($claims['id']) && $selectedProvider == OpenIDPlugin::PROVIDER_ORCID) {
+			if (!empty($claims['id']) && $selectedProvider == OpenIDProvider::ORCID) {
 				$user->setOrcid($claims['id']);
 			}
 		}
 
-		$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, $selectedProvider);
+		$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, $selectedProvider->value);
 
 		if ($setProviderId && isset($claims['id'])) {
 			$user->setData(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $claims['id']);
-			self::updateApiKey($plugin, $contextId, $user, $claims['id'], $settings, $selectedProvider);
+			self::updateApiKey($plugin, $contextId, $user, $claims['id'], $settings);
 		}
 
 		Repo::user()->edit($user);
 	}
 
-	private static function updateApiKey(OpenIDPlugin $plugin, int $contextId, User $user, string $providerId, array $settings, string $selectedProvider)
+	private static function updateApiKey(OpenIDPlugin $plugin, int $contextId, User $user, string $providerId, array $settings)
 	{
 		if ($settings['generateAPIKey'] ?? false) {
 			$secret = Config::getVar('security', 'api_key_secret');
@@ -227,7 +229,7 @@ class OpenIDHandler extends Handler
 	 * This is a very simple step, and it should be safe because the token is valid at this point.
 	 * If the token is invalid, the auth process stops before this function is called.
 	 */
-	private function getUserViaProviderId(string $idClaim, string $selectedProvider): ?User
+	private function getUserViaProviderId(string $idClaim, OpenIDProvider $selectedProvider): ?User
 	{
 		$userIds = Repo::user()->getCollector()
 			->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider) => $idClaim])
@@ -253,13 +255,13 @@ class OpenIDHandler extends Handler
 	 * An array with the access_token, id_token and/or refresh_token is returned on success, otherwise null.
 	 * The OpenID implementation differs a bit between the providers. Some use an id_token, others a refresh token.
 	 */
-	private function getTokenViaAuthCode(array $providerList, string $authorizationCode, string $selectedProvider): ?array
+	private function getTokenViaAuthCode(array $providerList, string $authorizationCode, OpenIDProvider $selectedProvider): ?array
 	{
-		if (!isset($providerList[$selectedProvider])) {
+		if (!isset($providerList[$selectedProvider->value])) {
 			return null;
 		}
 
-		$settings = $providerList[$selectedProvider];
+		$settings = $providerList[$selectedProvider->value];
 		$httpClient = Application::get()->getHttpClient();
 		$params = [
 			'code' => $authorizationCode,
@@ -271,7 +273,7 @@ class OpenIDHandler extends Handler
 				'openid',
 				'doAuthentication',
 				null,
-				['provider' => $selectedProvider]
+				['provider' => $selectedProvider->value]
 			),
 		];
 
@@ -317,13 +319,13 @@ class OpenIDHandler extends Handler
 	 *
 	 * If no key is found, null is returned
 	 */
-	private function getOpenIDAuthenticationCert(?array $providerList, string $selectedProvider): ?array
+	private function getOpenIDAuthenticationCert(?array $providerList, OpenIDProvider $selectedProvider): ?array
 	{
-		if (!isset($providerList[$selectedProvider])) {
+		if (!isset($providerList[$selectedProvider->value])) {
 			return null;
 		}
 
-		$settings = $providerList[$selectedProvider];
+		$settings = $providerList[$selectedProvider->value];
 		$httpClient = Application::get()->getHttpClient();
 		$publicKeys = [];
 		$beginCert = '-----BEGIN CERTIFICATE-----';
@@ -434,9 +436,9 @@ class OpenIDHandler extends Handler
 	/**
 	 * Handle SSO errors
 	 */
-	private function handleSSOError(Request $request, ?string $contextPath, string $error, $errorMsg = null)
+	private function handleSSOError(Request $request, ?string $contextPath, SSOError $error, $errorMsg = null)
 	{
-		$ssoErrors = ['sso_error' => htmlspecialchars($error, ENT_QUOTES, 'UTF-8')];
+		$ssoErrors = ['sso_error' => htmlspecialchars($error->value, ENT_QUOTES, 'UTF-8')];
 
 		if ($errorMsg) {
 			$ssoErrors['sso_error_msg'] = htmlspecialchars($errorMsg, ENT_QUOTES, 'UTF-8');
