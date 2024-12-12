@@ -41,6 +41,14 @@ class UserClaims
 	}
 
 	/**
+	 * Check if claims exist.
+	 */
+	public function isEmpty(): bool
+	{
+		return $this->id === null;
+	}
+
+	/**
 	 * Set the Claims values from an array.
 	 */
 	public function setValues(array $claimsParams): void

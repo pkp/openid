@@ -77,7 +77,7 @@ class OpenIDHandler extends Handler
 			if (isset($token)) {
 				$userClaims = $this->getCompleteClaims($providerSettings, $token);
 
-				if (isset($userClaims)) {
+				if (isset($userClaims) && !$userClaims->isEmpty()) {
 					$user = $this->getUserViaProviderId($userClaims->id, $selectedProvider);
 					if (!isset($user)) {
 						import($plugin->getPluginPath().'/forms/OpenIDStep2Form');
