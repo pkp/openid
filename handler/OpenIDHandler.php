@@ -95,7 +95,7 @@ class OpenIDHandler extends Handler
 
 		$userClaims = $this->getCompleteClaims($providerSettings, $token);
 
-		if (!$userClaims) {
+		if (!$userClaims || $userClaims->isEmpty()) {
 			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CERTIFICATION);
 		}
 
