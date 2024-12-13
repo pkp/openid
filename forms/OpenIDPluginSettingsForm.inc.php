@@ -114,7 +114,7 @@ class OpenIDPluginSettingsForm extends Form
 	 * @copydoc Form::fetch()
 	 *
 	 * @param $request
-	 * @param null $template
+	 * @param $template
 	 * @param bool $display
 	 * @return string|null
 	 */

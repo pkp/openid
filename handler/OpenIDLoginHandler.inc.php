@@ -65,6 +65,12 @@ class OpenIDLoginHandler extends Handler
 
 				if (isset($providerList)) {
 					foreach ($providerList as $name => $settings) {
+						$redirectUri = $router->url($request, null, 'openid', 'doAuthentication', null, array('provider' => $name));
+
+						if ($plugin->isEnabledSitewide()) {
+							$redirectUri = $router->url($request, 'index', 'openid', 'doAuthentication', null, array('provider' => $name));
+						}
+
 						if (key_exists('authUrl', $settings) && !empty($settings['authUrl'])
 							&& key_exists('clientId', $settings) && !empty($settings['clientId'])) {
 							if (sizeof($providerList) == 1 && !$legacyLogin && !$legacyRegister) {
@@ -72,7 +78,7 @@ class OpenIDLoginHandler extends Handler
 									$settings['authUrl'].
 									'?client_id='.$settings['clientId'].
 									'&response_type=code&scope=openid&redirect_uri='.
-									$router->url($request, null, "openid", "doAuthentication", null, array('provider' => $name))
+									urlencode($redirectUri)
 								);
 
 								return false;
@@ -98,9 +104,7 @@ class OpenIDLoginHandler extends Handler
 									$linkList[$name] = $settings['authUrl'].
 										'?client_id='.$settings['clientId'].
 										'&response_type=code&scope=openid profile email'.
-										'&redirect_uri='.urlencode(
-											$router->url($request, null, "openid", "doAuthentication", null, array('provider' => $name))
-										);
+										'&redirect_uri='.urlencode($redirectUri);
 								}
 							}
 						}
