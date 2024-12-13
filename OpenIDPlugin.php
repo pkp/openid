@@ -411,7 +411,7 @@ class OpenIDPlugin extends GenericPlugin
 	 */
 	function isEnabledSitewide()
 	{
-		parent::getSetting(PKPApplication::CONTEXT_SITE, 'enabled');
+		return parent::getSetting(PKPApplication::CONTEXT_SITE, 'enabled');
 	}
 }
 
