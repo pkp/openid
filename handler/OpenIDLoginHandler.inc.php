@@ -187,6 +187,12 @@ class OpenIDLoginHandler extends Handler
 
 			Validation::logout();
 			if (isset($settingsJson) && isset($lastProvider)) {
+				$redirectUrl = $router->url($request, $context, 'index');
+
+				if ($plugin->isEnabledSitewide()) {
+					$redirectUrl = $request->url('index');
+				}
+
 				$providerList = json_decode($settingsJson, true)['provider'];
 				$settings = $providerList[$lastProvider];
 
@@ -194,11 +200,12 @@ class OpenIDLoginHandler extends Handler
 					$request->redirectUrl(
 						$settings['logoutUrl'].
 						'?client_id='.$settings['clientId'].
-						'&redirect_uri='.$router->url($request, $context, "index")
+						'&post_logout_redirect_uri=' . urlencode($redirectUrl)
 					);
 				}
 			}
 		}
+
 		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
 	}
 
