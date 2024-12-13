@@ -70,7 +70,7 @@ class OpenIDHandler extends Handler
 		$contextId = ($context == null) ? 0 : $context->getId();
 		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
 		$selectedProvider = $provider == null ? $request->getUserVar('provider') : $provider;
-		$token = $this->_getTokenViaAuthCode($settings['provider'], $request->getUserVar('code'), $selectedProvider);
+		$token = $this->_getTokenViaAuthCode($plugin, $settings['provider'], $request->getUserVar('code'), $selectedProvider);
 		$publicKey = $this->_getOpenIDAuthenticationCert($settings['provider'], $selectedProvider);
 
 		if (isset($token) && isset($publicKey)) {
@@ -260,7 +260,7 @@ class OpenIDHandler extends Handler
 	 * @param string $selectedProvider
 	 * @return array
 	 */
-	private function _getTokenViaAuthCode(array $providerList, string $authorizationCode, string $selectedProvider)
+	private function _getTokenViaAuthCode(OpenIDPlugin $plugin, array $providerList, string $authorizationCode, string $selectedProvider)
 	{
 		$token = null;
 		if (isset($providerList) && key_exists($selectedProvider, $providerList)) {
@@ -274,13 +274,12 @@ class OpenIDHandler extends Handler
 				'client_secret' => $settings['clientSecret'],
 			];
 			if ($selectedProvider != 'microsoft') {
-				$params['redirect_uri'] = Application::get()->getRequest()->url(
-					null,
-					'openid',
-					'doAuthentication',
-					null,
-					array('provider' => $selectedProvider)
-				);
+				$redirectUri = Application::get()->getRequest()->url(null, 'openid', 'doAuthentication', null, array('provider' => $selectedProvider));
+
+				if ($plugin->isEnabledSitewide()) {
+					$redirectUri = Application::get()->getRequest()->url('index', 'openid', 'doAuthentication', null, array('provider' => $selectedProvider));
+				}
+				$params['redirect_uri'] = $redirectUri;
 			}
 			try {
 				$response = $httpClient->request(

@@ -91,7 +91,7 @@ class OpenIDPlugin extends GenericPlugin
 		return $this->getSetting($contextId, 'enabled');
 	}
 
-		/**
+	/**
 	 * @copydoc Plugin::getSetting()
 	 */
 	function getSetting($contextId, $name)
@@ -101,6 +101,14 @@ class OpenIDPlugin extends GenericPlugin
 		} else {
 			return parent::getSetting($contextId, $name);
 		}
+	}
+
+	/**
+	 * 
+	 */
+	function isEnabledSitewide()
+	{
+		return parent::getSetting(0, 'enabled');
 	}
 
 	/**
