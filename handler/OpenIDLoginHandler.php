@@ -246,9 +246,15 @@ class OpenIDLoginHandler extends Handler
 	private function redirectToProviderLogout(Request $request, array $providerSettings, ?string $contextPath, string $token): void
 	{
 		$router = $request->getRouter();
+		$redirectUrl = $router->url($request, $contextPath, "index");
+
+		if ($this->plugin->isEnabledSitewide()) {
+			$redirectUrl = $request->url('index');
+		}
+
 		$logoutUrl = $providerSettings['logoutUrl']
 			. '?client_id=' . urlencode($providerSettings['clientId'])
-			. '&post_logout_redirect_uri=' . urlencode($router->url($request, $contextPath, "index"))
+			. '&post_logout_redirect_uri=' . urlencode($redirectUrl)
 			. '&id_token_hint=' . urlencode($token);
 
 		$request->redirectUrl($logoutUrl);

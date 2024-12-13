@@ -405,5 +405,13 @@ class OpenIDPlugin extends GenericPlugin
 			? openssl_encrypt($string, $alg, $pwd, 0, $iv)
 			: openssl_decrypt($string, $alg, $pwd, 0, $iv);
 	}
+
+	/**
+	 * Returns whether the plugin is enabled sitewide
+	 */
+	function isEnabledSitewide()
+	{
+		parent::getSetting(PKPApplication::CONTEXT_SITE, 'enabled');
+	}
 }
 
