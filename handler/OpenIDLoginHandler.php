@@ -234,11 +234,18 @@ class OpenIDLoginHandler extends Handler
 	private function redirectToProviderAuth(array $providerSettings, Request $request, string $providerName): void
 	{
 		$router = $request->getRouter();
+		$redirectUri = $router->url($request, null, 'openid', 'doAuthentication', null, ['provider' => $providerName]);
+
+		if ($this->plugin->isEnabledSitewide()) {
+			$redirectUri = $router->url($request, 'index', 'openid', 'doAuthentication', null, ['provider' => $providerName]);
+		}
+
+		$router = $request->getRouter();
 		$redirectUrl = $providerSettings['authUrl'] .
 			'?client_id=' . urlencode($providerSettings['clientId']) .
 			'&response_type=code' .
 			'&scope=openid' .
-			'&redirect_uri=' . urlencode($router->url($request, null, "openid", "doAuthentication", null, ['provider' => $providerName]));
+			'&redirect_uri=' . urlencode($redirectUri);
 
 		$request->redirectUrl($redirectUrl);
 	}
@@ -246,9 +253,15 @@ class OpenIDLoginHandler extends Handler
 	private function redirectToProviderLogout(Request $request, array $providerSettings, ?string $contextPath, string $token): void
 	{
 		$router = $request->getRouter();
+		$redirectUrl = $router->url($request, $contextPath, "index");
+
+		if ($this->plugin->isEnabledSitewide()) {
+			$redirectUrl = $request->url('index');
+		}
+
 		$logoutUrl = $providerSettings['logoutUrl']
 			. '?client_id=' . urlencode($providerSettings['clientId'])
-			. '&post_logout_redirect_uri=' . urlencode($router->url($request, $contextPath, "index"))
+			. '&post_logout_redirect_uri=' . urlencode($redirectUrl)
 			. '&id_token_hint=' . urlencode($token);
 
 		$request->redirectUrl($logoutUrl);
@@ -261,8 +274,14 @@ class OpenIDLoginHandler extends Handler
 
 		foreach ($providerList as $provider => $settings) {
 			if (!empty($settings['authUrl']) && !empty($settings['clientId'])) {
+				$redirectUri = $router->url($request, null, 'openid', 'doAuthentication', null, ['provider' => $provider]);
+
+				if ($this->plugin->isEnabledSitewide()) {
+					$redirectUri = $router->url($request, 'index', 'openid', 'doAuthentication', null, ['provider' => $provider]);
+				}
+
 				$baseLink = "{$settings['authUrl']}?client_id={$settings['clientId']}&response_type=code&scope=openid profile email";
-				$linkList[$provider] = "{$baseLink}&redirect_uri=" . urlencode($router->url($request, null, "openid", "doAuthentication", null, ['provider' => $provider]));
+				$linkList[$provider] = "{$baseLink}&redirect_uri=" . urlencode($redirectUri);
 				$this->handleCustomProvider($provider, $settings, TemplateManager::getManager($request));
 			}
 		}
