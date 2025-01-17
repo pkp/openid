@@ -70,7 +70,7 @@ class OpenIDHandler extends Handler
 		$contextData = OpenIDPlugin::getContextData($request);
 
 		$contextId = $contextData->getId();
-		$contextPath = $contextData->getPath();
+		$contextPath = $contextData ? $contextData->getPath() : null; 
 
 		$error = $request->getUserVar('error');
 		$errorDescription = $request->getUserVar('error_description');
@@ -144,7 +144,8 @@ class OpenIDHandler extends Handler
 			return;
 		}
 
-		$contextPath = OpenIDPlugin::getContextData($request)->getPath();
+		$contextData = $request->getContext();
+		$contextPath = $contextData ? OpenIDPlugin::getContextData($request)->getPath() : null;
 
 		if (!$request->isPost()) {
 			return $request->redirect($contextPath, 'login');

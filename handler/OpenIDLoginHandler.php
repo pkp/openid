@@ -50,9 +50,10 @@ class OpenIDLoginHandler extends Handler
 		}
 
 		$contextData = OpenIDPlugin::getContextData($request);
+		$contextPath = $contextData ? $contextData->getPath() : null;
 
 		if (Validation::isLoggedIn()) {
-			$request->redirect($contextData->getPath(), 'index');
+			$request->redirect($contextPath, 'index');
 			return false;
 		}
 		
@@ -127,6 +128,7 @@ class OpenIDLoginHandler extends Handler
 		$contextData = OpenIDPlugin::getContextData($request);
 
 		$contextId = $contextData->getId();
+		$contextPath = $context ? $context->getPath() : null;
 
 		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
 
@@ -152,7 +154,7 @@ class OpenIDLoginHandler extends Handler
 			}
 		}
 
-		$request->redirect($contextData->getPath(), 'index');
+		$request->redirect($contextPath, 'index');
 	}
 
 	/**
