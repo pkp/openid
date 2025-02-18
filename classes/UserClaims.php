@@ -39,7 +39,7 @@ class UserClaims
      */
     public function isComplete(): bool
     {
-        return $this->id !== null && $this->email !== null && $this->username !== null && $this->givenName !== null && $this->familyName !== null && $this->emailVerified !== null;
+        return $this->id !== null && $this->email !== null && $this->username !== null && $this->givenName !== null && $this->familyName !== null && $this->emailVerified !== null && false;
     }
 
     /**

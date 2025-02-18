@@ -175,36 +175,40 @@ class OpenIDPlugin extends GenericPlugin
 		$contextId = $this->getCurrentContextId();
 
 		if ($success && $this->getEnabled($contextId)) {
-			$request = Application::get()->getRequest();
-
-			Hook::add('Schema::get::before::user', [$this, 'beforeGetSchema']);
-			Hook::add('Schema::get::user', [$this, 'addToSchema']);
-
 			$settings = OpenIDPlugin::getOpenIDSettings($this, $contextId);
-			$requestUser = $request->getUser();
 
-			$user = null;
-			if ($requestUser) {
-				$user = Repo::user()->get($request->getUser()->getId());
+			if ($settings && isset($settings['provider']) && is_array($settings['provider']) && !empty($settings['provider'])) {
+				$request = Application::get()->getRequest();
+
+				Hook::add('Schema::get::before::user', [$this, 'beforeGetSchema']);
+				Hook::add('Schema::get::user', [$this, 'addToSchema']);
+
+				$requestUser = $request->getUser();
+
+				$user = null;
+				if ($requestUser) {
+					$user = Repo::user()->get($request->getUser()->getId());
+				}
+
+				if ($user) {
+					$lastProvider = $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
+				}
+
+				if ($lastProvider && isset($settings)
+					&& ($settings['disableFields'] ?? false) && ($settings['providerSync'] ?? false)) {
+
+					$settings['disableFields']['lastProvider'] = $lastProvider;
+					$settings['disableFields']['generateAPIKey'] = $settings['generateAPIKey'];
+
+					$templateMgr = TemplateManager::getManager($request);
+					$templateMgr->assign('openIdDisableFields', $settings['disableFields']);
+
+					Hook::add('TemplateResource::getFilename', [$this, '_overridePluginTemplates']);
+				}
+
+				Hook::add('LoadHandler', [$this, 'setPageHandler']);
 			}
-
-			if ($user) {
-				$lastProvider = $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
-			}
-
-			if ($lastProvider && isset($settings)
-				&& ($settings['disableFields'] ?? false) && ($settings['providerSync'] ?? false)) {
-				
-				$settings['disableFields']['lastProvider'] = $lastProvider;
-				$settings['disableFields']['generateAPIKey'] = $settings['generateAPIKey'];
-				
-				$templateMgr = TemplateManager::getManager($request);
-				$templateMgr->assign('openIdDisableFields', $settings['disableFields']);
-				
-				Hook::add('TemplateResource::getFilename', [$this, '_overridePluginTemplates']);
-			}
-
-			Hook::add('LoadHandler', [$this, 'setPageHandler']);
+			
 		}
 
 		return $success;

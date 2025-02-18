@@ -253,8 +253,8 @@ class OpenIDStep2Form extends Form
 						$result = true;
 					}
 				} elseif ($connect) {
-					$userClaims->given_name = $this->getData('givenName');
-					$userClaims->family_name = $this->getData('familyName');
+					$userClaims->givenΝame = $this->getData('givenName');
+					$userClaims->familyΝame = $this->getData('familyName');
 
 					$username = $this->getData('usernameLogin');
 					$password = $this->getData('passwordLogin');

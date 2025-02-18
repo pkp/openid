@@ -181,19 +181,20 @@ class OpenIDHandler extends Handler
 	{
 		$contextId = $contextData->getId();
 		$settings = OpenIDPlugin::getOpenIDSettings($plugin, $contextId);
+		$disabledFields = $settings['disableFields'] ?? [];
 
 		if (($settings['providerSync'] ?? false) && $claims !== null) {
 			$sitePrimaryLocale = $contextData->getPrimaryLocale();
 
-			if (!empty($claims->givenName)) {
+			if (!empty($claims->givenName) && !array_key_exists('givenName', $disabledFields)) {
 				$user->setGivenName($claims->givenName, $sitePrimaryLocale);
 			}
 
-			if (!empty($claims->familyName)) {
+			if (!empty($claims->familyName) && !array_key_exists('familyName', $disabledFields)) {
 				$user->setFamilyName($claims->familyName, $sitePrimaryLocale);
 			}
 
-			if (!empty($claims->email) && Repo::user()->getByEmail($claims->email) === null) {
+			if (!empty($claims->email) && !array_key_exists('email', $disabledFields) && Repo::user()->getByEmail($claims->email) === null) {
 				$user->setEmail($claims->email);
 			}
 
