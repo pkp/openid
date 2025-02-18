@@ -48,6 +48,11 @@
 			</ul>
 		{/if}
 		<div {if empty($disableConnect) || $disableConnect != "1" }id="register-form"{/if} class="page_register">
+			{if $showOpenIdNotification}
+				<p class="cmp_notification">
+					{translate key="plugins.generic.openid.disables.fields.info"}
+				</p>
+			{/if}
 			<fieldset class="register">
 				<p class="cmp_notification warning">
 					{$help}
@@ -65,7 +70,7 @@
 									{translate key="common.required"}
 								</span>
 							</span>
-							<input type="text" name="givenName" id="givenName" value="{$givenName|escape}" maxlength="255" required aria-required="true">
+							<input type="text" name="givenName" id="givenName" value="{$givenName|escape}" maxlength="255" required aria-required="true" {if $openidIdentityFieldsGivenName}readonly{/if}>
 						</label>
 					</div>
 					<div class="family_name">
@@ -77,7 +82,7 @@
 									{translate key="common.required"}
 								</span>
 							</span>
-							<input type="text" name="familyName" id="familyName" value="{$familyName|escape}" maxlength="255">
+							<input type="text" name="familyName" id="familyName" value="{$familyName|escape}" maxlength="255" {if $openidIdentityFieldsFamilyName}readonly{/if}>
 						</label>
 					</div>
 					<div class="email">
@@ -89,7 +94,7 @@
 									{translate key="common.required"}
 								</span>
 							</span>
-							<input type="email" name="email" id="email" value="{$email|escape}" maxlength="90" required aria-required="true">
+							<input type="email" name="email" id="email" value="{$email|escape}" maxlength="90" required aria-required="true" {if $openidIdentityFieldsEmail}readonly{/if}>
 						</label>
 					</div>
 					<div class="username">

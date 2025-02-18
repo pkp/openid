@@ -70,11 +70,45 @@ class OpenIDStep2Form extends Form
 		$contextData = OpenIDPlugin::getContextData($request);
 
 		$templateMgr = TemplateManager::getManager($request);
+
+		// Assuming $openIdDisableFields is available in the controller
+		$disableFields = $settings['disableFields'];
+
+		$openidIdentityFieldsGivenName = false;
+		$openidIdentityFieldsFamilyName = false;
+		$openidIdentityFieldsEmail = false;
+
+		if (!empty($disableFields)) {
+			if (array_key_exists('givenName', $disableFields) && $disableFields['givenName'] == 1) {
+				$openidIdentityFieldsGivenName = true;
+			}
+			if (array_key_exists('familyName', $disableFields) && $disableFields['familyName'] == 1) {
+				$openidIdentityFieldsFamilyName = true;
+			}
+			if (array_key_exists('email', $disableFields) && $disableFields['email'] == 1) {
+				$openidIdentityFieldsEmail = true;
+			}
+		}
+
+		// Assign variables to the Smarty template
+		$templateMgr->assign('openidIdentityFieldsGivenName', $openidIdentityFieldsGivenName);
+		$templateMgr->assign('openidIdentityFieldsFamilyName', $openidIdentityFieldsFamilyName);
+		$templateMgr->assign('openidIdentityFieldsEmail', $openidIdentityFieldsEmail);
+
+		// Also check if at least one field is disabled and assign the notification flag
+		$showNotification = $openidIdentityFieldsGivenName || $openidIdentityFieldsFamilyName || $openidIdentityFieldsEmail;
+		$templateMgr->assign('showOpenIdNotification', $showNotification);
+
+
 		$templateMgr->assign([
 			'disableConnect' => $settings['disableConnect'],
 			'countries' => $countries,
 			'privacyStatement' => $contextData->getPrivacyStatement(),
 			'contextId' => $contextData->getId(),
+			'openidIdentityFieldsGivenName' => $openidIdentityFieldsGivenName,
+			'openidIdentityFieldsFamilyName' => $openidIdentityFieldsFamilyName,
+			'openidIdentityFieldsEmail' => $openidIdentityFieldsEmail,
+			'showOpenIdNotification' => $showNotification
 		]);
 
 		$userFormHelper = new UserFormHelper();
@@ -240,6 +274,9 @@ class OpenIDStep2Form extends Form
 					->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), hash('sha256', $oauthId)])
 					->getIds();
 			}
+
+			$considerDisabledFieldsInUpdate = false;
+
 			if ($userIds->isEmpty()) {
 				if ($register) {
 					$user = $this->_registerUser();
@@ -253,8 +290,8 @@ class OpenIDStep2Form extends Form
 						$result = true;
 					}
 				} elseif ($connect) {
-					$userClaims->givenΝame = $this->getData('givenName');
-					$userClaims->familyΝame = $this->getData('familyName');
+					$userClaims->givenName = $this->getData('givenName');
+					$userClaims->familyName = $this->getData('familyName');
 
 					$username = $this->getData('usernameLogin');
 					$password = $this->getData('passwordLogin');
@@ -267,12 +304,14 @@ class OpenIDStep2Form extends Form
 					if (isset($user) && Validation::verifyPassword($user->getUsername(), $password, $user->getPassword(), $rehash)) {
 						$result = true;
 					}
+
+					$considerDisabledFieldsInUpdate = true;
 				}
 
 				if ($result && isset($user)) {
 					$contextData = OpenIDPlugin::getContextData(Application::get()->getRequest());
 
-					OpenIDHandler::updateUserDetails($this->plugin, $userClaims, $user, $contextData, $selectedProvider, true);
+					OpenIDHandler::updateUserDetails($this->plugin, $userClaims, $user, $contextData, $selectedProvider, true, $considerDisabledFieldsInUpdate);
 					Validation::registerUserSession($user, $reason);
 				}
 			}
