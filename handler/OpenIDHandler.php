@@ -117,7 +117,7 @@ class OpenIDHandler extends Handler
 
 		$request->getSession()->setSessionVar('id_token', OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token['id_token']));
 
-		self::updateUserDetails($this->plugin, $userClaims, $user, $contextData, $selectedProvider);
+		self::updateUserDetails($this->plugin, $userClaims, $user, $contextData, $selectedProvider, true, true);
 
 		if ($user->hasRole(
 			[
@@ -176,12 +176,13 @@ class OpenIDHandler extends Handler
 		User $user,
 		ContextData $contextData,
 		string $selectedProvider,
-		bool $setProviderId = false
+		bool $setProviderId = false,
+		bool $considerDisabledFields = false
 	): void 
 	{
 		$contextId = $contextData->getId();
 		$settings = OpenIDPlugin::getOpenIDSettings($plugin, $contextId);
-		$disabledFields = $settings['disableFields'] ?? [];
+		$disabledFields = $considerDisabledFields ? ($settings['disableFields'] ?? []) : [];
 
 		if (($settings['providerSync'] ?? false) && $claims !== null) {
 			$sitePrimaryLocale = $contextData->getPrimaryLocale();
