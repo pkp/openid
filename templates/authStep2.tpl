@@ -25,9 +25,9 @@
 			{assign var="help" value="{translate key="plugins.generic.openid.step2.help" journalName=$siteTitle|escape}"}
 		{else}
 			{assign var="headline" value="{translate key='plugins.generic.openid.step2.headline.siteNameMissing'}"}
-			{assign var="choiceNo" value="{translate key='{translate key="plugins.generic.openid.step2.choice.no.siteNameMissing"}'}"}
-			{assign var="connect" value="{translate key='{translate key="plugins.generic.openid.step2.connect.siteNameMissing"}'}"}
-			{assign var="help" value="{translate key='{translate key="plugins.generic.openid.step2.help.siteNameMissing"}'}"}
+			{assign var="choiceNo" value="{translate key='plugins.generic.openid.step2.choice.no.siteNameMissing'}"}
+			{assign var="connect" value="{translate key='plugins.generic.openid.step2.connect.siteNameMissing'}"}
+			{assign var="help" value="{translate key='plugins.generic.openid.step2.help.siteNameMissing'}"}
 		{/if}
 
 		{if empty($disableConnect) || $disableConnect != "1"}
