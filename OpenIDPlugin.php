@@ -186,6 +186,8 @@ class OpenIDPlugin extends GenericPlugin
 				$requestUser = $request->getUser();
 
 				$user = null;
+				$lastProvider = null;
+
 				if ($requestUser) {
 					$user = Repo::user()->get($request->getUser()->getId());
 				}
