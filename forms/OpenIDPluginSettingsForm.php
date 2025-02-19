@@ -210,6 +210,7 @@ class OpenIDPluginSettingsForm extends Form
 					$provider['certUrl'] = $openIdConfig['jwks_uri'] ?? null;
 					$provider['logoutUrl'] = $openIdConfig['end_session_endpoint'] ?? null;
 					$provider['revokeUrl'] = $openIdConfig['revocation_endpoint'] ?? null;
+					$provider['introspectionUrl'] = $openIdConfig['introspection_endpoint'] ?? null;
 					$providerListResult[$name] = $provider;
 				}
 			}
