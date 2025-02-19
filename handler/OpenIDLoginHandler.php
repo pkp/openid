@@ -135,8 +135,10 @@ class OpenIDLoginHandler extends Handler
 		if ($user) {
 			$lastProviderValue = $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
 
-			$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, null);
-			Repo::user()->edit($user);
+			if ($lastProviderValue) {
+				$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, null);
+				Repo::user()->edit($user);
+			}
 		}
 
 		$tokenEncrypted = $request->getSession()->getSessionVar('id_token');
@@ -250,7 +252,7 @@ class OpenIDLoginHandler extends Handler
 		$request->redirectUrl($redirectUrl);
 	}
 
-	private function redirectToProviderLogout(Request $request, array $providerSettings, ?string $contextPath, string $token): void
+	private function redirectToProviderLogout(Request $request, array $providerSettings, ?string $contextPath, ?string $token = null): void
 	{
 		$router = $request->getRouter();
 		$redirectUrl = $router->url($request, $contextPath, "index");
