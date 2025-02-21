@@ -262,7 +262,7 @@ class OpenIDLoginHandler extends Handler
 			$redirectUrl = $request->url('index');
 		}
 
-		if ($this->isTokenValid($token, $providerSettings)) {
+		if (isset($token) && $this->isTokenValid($token, $providerSettings)) {
 			$logoutUrl = $providerSettings['logoutUrl']
 				. '?client_id=' . urlencode($providerSettings['clientId'])
 				. '&post_logout_redirect_uri=' . urlencode($redirectUrl)
