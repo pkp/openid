@@ -21,6 +21,7 @@ use APP\handler\Handler;
 use APP\plugins\generic\openid\classes\ContextData;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
+use Illuminate\Support\Facades\Http;
 use PKP\config\Config;
 use PKP\facades\Locale;
 use PKP\security\Validation;
@@ -250,7 +251,7 @@ class OpenIDLoginHandler extends Handler
 		$request->redirectUrl($redirectUrl);
 	}
 
-	private function redirectToProviderLogout(Request $request, array $providerSettings, ?string $contextPath, string $token): void
+	private function redirectToProviderLogout(Request $request, array $providerSettings, ?string $contextPath, ?string $token = null): void
 	{
 		$router = $request->getRouter();
 		$redirectUrl = $router->url($request, $contextPath, "index");
@@ -259,12 +260,40 @@ class OpenIDLoginHandler extends Handler
 			$redirectUrl = $request->url('index');
 		}
 
-		$logoutUrl = $providerSettings['logoutUrl']
-			. '?client_id=' . urlencode($providerSettings['clientId'])
-			. '&post_logout_redirect_uri=' . urlencode($redirectUrl)
-			. '&id_token_hint=' . urlencode($token);
+		if (isset($token) && $this->isTokenValid($token, $providerSettings)) {
+			$logoutUrl = $providerSettings['logoutUrl']
+				. '?client_id=' . urlencode($providerSettings['clientId'])
+				. '&post_logout_redirect_uri=' . urlencode($redirectUrl)
+				. '&id_token_hint=' . urlencode($token);
+		} else {
+			$logoutUrl = $providerSettings['logoutUrl']
+				. '?client_id=' . urlencode($providerSettings['clientId'])
+				. '&post_logout_redirect_uri=' . urlencode($redirectUrl);
+		}
 
 		$request->redirectUrl($logoutUrl);
+	}
+
+	private function isTokenValid(string $token, array $providerSettings): ?bool 
+	{
+		$introspectionUrl = $providerSettings['introspectionUrl'];
+
+		if (!isset($introspectionUrl)) {
+			return null;
+		}
+		
+		$clientId = $providerSettings['clientId'];
+		$clientSecret = $providerSettings['clientSecret'];
+
+		$response = Http::asForm()->post($introspectionUrl, [
+			'token' => $token,
+			'client_id' => $clientId,
+			'client_secret' => $clientSecret,
+		]);
+
+		$data = $response->json();
+
+		return isset($data['active']) && $data['active']; // Returns true if valid, false otherwise
 	}
 
 	private function generateProviderLinks(array $providerList, Request $request): array
