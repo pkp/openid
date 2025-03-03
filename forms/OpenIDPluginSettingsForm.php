@@ -72,12 +72,12 @@ class OpenIDPluginSettingsForm extends Form
 			$this->_data = [
 				'initProvider' => OpenIDPlugin::$publicOpenidProviders,
 				'provider' => $provider,
-				'legacyLogin' => $settings['legacyLogin'] ?? true,
-				'legacyRegister' => $settings['legacyRegister'] ?? true,
-				'disableConnect' => $settings['disableConnect'] ?? false,
+				'legacyLogin' => key_exists('legacyLogin', $settings) ? $settings['legacyLogin'] : true,
+				'legacyRegister' => key_exists('legacyRegister', $settings) ? $settings['legacyRegister'] : true,
+				'disableConnect' => key_exists('disableConnect', $settings) ? $settings['disableConnect'] : false,
 				'hashSecret' => $settings['hashSecret'],
-				'generateAPIKey' => $settings['generateAPIKey'] ?? 0,
-				'providerSync' => $settings['providerSync'] ?? false,
+				'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0,
+				'providerSync' => key_exists('providerSync', $settings) ? $settings['providerSync'] : false,
 				'disableFields' => $settings['disableFields'],
 				'microsoftAudiences' => $microsoftAudienceArray,
 				'microsoftAudienceDefault' => OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS,
@@ -92,6 +92,7 @@ class OpenIDPluginSettingsForm extends Form
 				'microsoftAudienceDefault' => OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS,
 			];
 		}
+
 		parent::initData();
 	}
 
@@ -209,6 +210,7 @@ class OpenIDPluginSettingsForm extends Form
 					$provider['certUrl'] = $openIdConfig['jwks_uri'] ?? null;
 					$provider['logoutUrl'] = $openIdConfig['end_session_endpoint'] ?? null;
 					$provider['revokeUrl'] = $openIdConfig['revocation_endpoint'] ?? null;
+					$provider['introspectionUrl'] = $openIdConfig['introspection_endpoint'] ?? null;
 					$providerListResult[$name] = $provider;
 				}
 			}
