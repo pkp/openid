@@ -49,6 +49,12 @@ class OpenIDHandler extends Handler
 	{
 	}
 
+	public function authorize($request, &$args, $roleAssignments)
+	{
+		$this->setEnforceRestrictedSite(false);
+		return parent::authorize($request, $args, $roleAssignments);
+	}
+
 	/**
 	 * This function is called via OpenID provider redirect URL.
 	 * It receives the authentication code via the get parameter and uses $this->_getTokenViaAuthCode to exchange the code into a JWT
