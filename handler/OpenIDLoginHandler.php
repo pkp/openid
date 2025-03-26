@@ -143,7 +143,7 @@ class OpenIDLoginHandler extends Handler
 			}
 		}
 
-		$tokenEncrypted = $request->getSession()->getSessionVar('id_token');
+		$tokenEncrypted = $request->getSession()->getSessionVar(OpenIDPlugin::ID_TOKEN_NAME);
 		$token = OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $tokenEncrypted, false);
 
 		Validation::logout();

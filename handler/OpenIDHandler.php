@@ -38,6 +38,7 @@ use PKP\config\Config;
 use APP\facades\Repo;
 use PKP\security\Role;
 use PKP\security\Validation;
+use PKP\session\SessionManager;
 use PKP\user\User;
 
 class OpenIDHandler extends Handler
@@ -105,9 +106,13 @@ class OpenIDHandler extends Handler
 			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CERTIFICATION);
 		}
 
-		$user = $this->getUserViaProviderId($userClaims->id, $selectedProvider);
+		$sessionManager = SessionManager::getManager();
 
+		$user = $this->getUserViaProviderId($userClaims->id, $selectedProvider);
 		if (!$user) {
+			$session = $sessionManager->getUserSession();
+			$session->setSessionVar(OpenIDPlugin::ID_TOKEN_NAME, OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token[OpenIDPlugin::ID_TOKEN_NAME]));
+
 			$regForm = new OpenIDStep2Form($this->plugin, $selectedProvider, $userClaims);
 			$regForm->initData();
 			return $regForm->fetch($request, null, true);
@@ -119,11 +124,11 @@ class OpenIDHandler extends Handler
 			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_USER_DISABLED, $reason);
 		}
 
+		self::updateUserDetails($this->plugin, $userClaims, $user, $contextData, $selectedProvider, true, true);
 		Validation::registerUserSession($user, $reason);
 
-		$request->getSession()->setSessionVar('id_token', OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token['id_token']));
-
-		self::updateUserDetails($this->plugin, $userClaims, $user, $contextData, $selectedProvider, true, true);
+		$session = $sessionManager->getUserSession();
+		$session->setSessionVar(OpenIDPlugin::ID_TOKEN_NAME, OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token[OpenIDPlugin::ID_TOKEN_NAME]));
 
 		if ($user->hasRole(
 			[
@@ -305,7 +310,7 @@ class OpenIDHandler extends Handler
 			if (isset($result['access_token'])) {
 				return [
 					'access_token' => $result['access_token'],
-					'id_token' => $result['id_token'] ?? null,
+					OpenIDPlugin::ID_TOKEN_NAME => $result[OpenIDPlugin::ID_TOKEN_NAME] ?? null,
 					'refresh_token' => $result['refresh_token'] ?? null,
 				];
 			}

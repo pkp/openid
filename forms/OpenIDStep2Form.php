@@ -23,6 +23,7 @@ use APP\template\TemplateManager;
 use PKP\core\Core;
 use PKP\security\Role;
 use PKP\security\Validation;
+use PKP\session\SessionManager;
 use PKP\user\form\UserFormHelper;
 use PKP\user\InterestManager;
 use PKP\user\User;
@@ -253,18 +254,18 @@ class OpenIDStep2Form extends Form
 		$userClaims = null;
 
 		if (!empty($oauthId) && !empty($selectedProvider)) {
-			$oauthId = OpenIDPlugin::encryptOrDecrypt($this->plugin, $this->contextId, $oauthId, false);
+			$decriptedOauthId = OpenIDPlugin::encryptOrDecrypt($this->plugin, $this->contextId, $oauthId, false);
 			$userClaims = new UserClaims();
-			$userClaims->id = $oauthId;
+			$userClaims->id = $decriptedOauthId;
 
 			// prevent saving one openid:ident to multiple accounts
 			$userIds = Repo::user()->getCollector()
-				->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $oauthId])
+				->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $decriptedOauthId])
 				->getIds();
 
 			if ($userIds->isEmpty()) {
 				$userIds = Repo::user()->getCollector()
-					->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), hash('sha256', $oauthId)])
+					->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), hash('sha256', $decriptedOauthId)])
 					->getIds();
 			}
 
@@ -275,9 +276,9 @@ class OpenIDStep2Form extends Form
 					$user = $this->_registerUser();
 					if (isset($user)) {
 						if ($selectedProvider == OpenIDPlugin::PROVIDER_ORCID) {
-							$user->setOrcid($oauthId);
+							$user->setOrcid($decriptedOauthId);
 						}
-						$user->setData(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $oauthId);
+						$user->setData(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $decriptedOauthId);
 						
 						Repo::user()->edit($user);
 						$result = true;
@@ -302,10 +303,18 @@ class OpenIDStep2Form extends Form
 				}
 
 				if ($result && isset($user)) {
+					$sessionManager = SessionManager::getManager();
+					$session = $sessionManager->getUserSession();
+					$encodedIdToken = $session->getSessionVar(OpenIDPlugin::ID_TOKEN_NAME);
+
 					$contextData = OpenIDPlugin::getContextData(Application::get()->getRequest());
 
 					OpenIDHandler::updateUserDetails($this->plugin, $userClaims, $user, $contextData, $selectedProvider, true, $considerDisabledFieldsInUpdate);
+					$reason = null;
 					Validation::registerUserSession($user, $reason);
+
+					$session = $sessionManager->getUserSession();
+					$session->setSessionVar(OpenIDPlugin::ID_TOKEN_NAME, $encodedIdToken);
 				}
 			}
 		}

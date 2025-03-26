@@ -62,6 +62,8 @@ class OpenIDPlugin extends GenericPlugin
 	 */
 	public static Collection $publicOpenidProviders;
 
+	public const ID_TOKEN_NAME = 'id_token';
+
 	public function __construct() 
 	{
 		self::$publicOpenidProviders = collect([
