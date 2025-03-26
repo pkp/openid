@@ -201,9 +201,32 @@ class OpenIDPlugin extends GenericPlugin
 					
 					$settings['disableFields']['lastProvider'] = $lastProvider;
 					$settings['disableFields']['generateAPIKey'] = $settings['generateAPIKey'];
-					
+
+					$openIdGivenNameDisabledField = false;
+					$openIdFamilyNameDisabledField = false;
+					$openIdEmailDisabledField = false;
+
+					$openIdDisableFields = $settings['disableFields'];
+
+					if ($openIdDisableFields && (key_exists('givenName', $openIdDisableFields) && $openIdDisableFields['givenName'] == 1)) {
+						$openIdGivenNameDisabledField = true;
+					}
+
+					if ($openIdDisableFields && (key_exists('familyName', $openIdDisableFields) && $openIdDisableFields['familyName'] == 1)) {
+						$openIdFamilyNameDisabledField = true;
+					}
+
+					if ($openIdDisableFields && (key_exists('email', $openIdDisableFields) && $openIdDisableFields['email'] == 1)) {
+						$openIdEmailDisabledField = true;
+					}
+
 					$templateMgr = TemplateManager::getManager($request);
-					$templateMgr->assign('openIdDisableFields', $settings['disableFields']);
+					$templateMgr->assign([
+						'openIdGivenNameDisabledField' => $openIdGivenNameDisabledField,
+						'openIdFamilyNameDisabledField' => $openIdFamilyNameDisabledField,
+						'openIdEmailDisabledField' => $openIdEmailDisabledField,
+						'openIdDisableFields' => $openIdDisableFields,
+					]);
 					
 					Hook::add('TemplateResource::getFilename', [$this, '_overridePluginTemplates']);
 				}
