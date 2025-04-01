@@ -20,6 +20,7 @@ use APP\notification\NotificationManager;
 use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
+use Exception;
 use GuzzleHttp\Exception\ClientException;
 use PKP\core\PKPApplication;
 use PKP\form\Form;
@@ -138,31 +139,40 @@ class OpenIDPluginSettingsForm extends Form
 	 */
 	function execute(...$functionArgs)
 	{
-		$request = Application::get()->getRequest();
-		$contextId = OpenIDPlugin::getContextData($request)->getId();
-		$settingsTMP = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
+		try {
+			$request = Application::get()->getRequest();
+			$contextId = OpenIDPlugin::getContextData($request)->getId();
+			$settingsTMP = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
 
-		$providerList = $this->getData('provider');
-		$providerListResult = $this->_createProviderList($providerList, $settingsTMP['provider']);
+			$providerList = $this->getData('provider');
+			$providerListResult = $this->_createProviderList($providerList, $settingsTMP['provider']);
 
-		$settings = [
-			'provider' => $providerListResult,
-			'legacyLogin' => $this->getData('legacyLogin'),
-			'legacyRegister' => $this->getData('legacyRegister'),
-			'disableConnect' => $this->getData('disableConnect'),
-			'hashSecret' => $this->getData('hashSecret'),
-			'generateAPIKey' => $this->getData('generateAPIKey'),
-			'providerSync' => $this->getData('providerSync'),
-			'disableFields' => $this->getData('disableFields'),
-		];
-		$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
+			$settings = [
+				'provider' => $providerListResult,
+				'legacyLogin' => $this->getData('legacyLogin'),
+				'legacyRegister' => $this->getData('legacyRegister'),
+				'disableConnect' => $this->getData('disableConnect'),
+				'hashSecret' => $this->getData('hashSecret'),
+				'generateAPIKey' => $this->getData('generateAPIKey'),
+				'providerSync' => $this->getData('providerSync'),
+				'disableFields' => $this->getData('disableFields'),
+			];
+			$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
 
-		$notificationMgr = new NotificationManager();
-		$notificationMgr->createTrivialNotification(
-			$request->getUser()->getId(),
-			PKPNotification::NOTIFICATION_TYPE_SUCCESS,
-			['contents' => __('common.changesSaved')]
-		);
+			$notificationMgr = new NotificationManager();
+			$notificationMgr->createTrivialNotification(
+				$request->getUser()->getId(),
+				PKPNotification::NOTIFICATION_TYPE_SUCCESS,
+				['contents' => __('common.changesSaved')]
+			);
+		} catch (Exception $e) {
+			$notificationMgr = new NotificationManager();
+			$notificationMgr->createTrivialNotification(
+				$request->getUser()->getId(),
+				PKPNotification::NOTIFICATION_TYPE_ERROR,
+				['contents' => __('plugins.generic.openid.settings.changesFailed')]
+			);
+		}
 
 		return parent::execute();
 	}
