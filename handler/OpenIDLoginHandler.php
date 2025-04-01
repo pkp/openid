@@ -60,6 +60,8 @@ class OpenIDLoginHandler extends Handler
 
 		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
 
+		$templateMgr = TemplateManager::getManager($request);
+
 		if ($settings) {
 			$providerList = $settings['provider'] ?? [];
 
@@ -67,7 +69,6 @@ class OpenIDLoginHandler extends Handler
 				return false;
 			}
 
-			$templateMgr = TemplateManager::getManager($request);
 			$linkList = $this->generateProviderLinks($providerList, $request);
 
 			if ($settings['legacyRegister'] ?? false) {
@@ -135,8 +136,10 @@ class OpenIDLoginHandler extends Handler
 		if ($user) {
 			$lastProviderValue = $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
 
-			$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, null);
-			Repo::user()->edit($user);
+			if ($lastProviderValue) {
+				$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, null);
+				Repo::user()->edit($user);
+			}
 		}
 
 		$tokenEncrypted = $request->getSession()->getSessionVar('id_token');
@@ -243,7 +246,7 @@ class OpenIDLoginHandler extends Handler
 		$request->redirectUrl($redirectUrl);
 	}
 
-	private function redirectToProviderLogout(Request $request, array $providerSettings, ?string $contextPath, string $token): void
+	private function redirectToProviderLogout(Request $request, array $providerSettings, ?string $contextPath, ?string $token = null): void
 	{
 		$router = $request->getRouter();
 		$logoutUrl = $providerSettings['logoutUrl']
