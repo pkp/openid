@@ -294,10 +294,13 @@ msgid "plugins.generic.openid.step2.headline.siteNameMissing"
 msgstr "Do you already have an account?"
 
 msgid "plugins.generic.openid.step2.choice.no.siteNameMissing"
-msgstr "No, I'm new."
+msgstr "No, I'm new to this Site."
 
 msgid "plugins.generic.openid.step2.help.siteNameMissing"
 msgstr "Additional information is required to register:"
 
 msgid "plugins.generic.openid.step2.connect.siteNameMissing"
 msgstr "Please login to your account.<br />Your information will be updated automatically."
+
+msgid "plugins.generic.openid.settings.changesFailed"
+msgstr "Changes not saved successfully"

@@ -62,6 +62,8 @@ class OpenIDPlugin extends GenericPlugin
 	 */
 	public static Collection $publicOpenidProviders;
 
+	public const ID_TOKEN_NAME = 'id_token';
+
 	public function __construct() 
 	{
 		self::$publicOpenidProviders = collect([
@@ -177,6 +179,7 @@ class OpenIDPlugin extends GenericPlugin
 		if ($success && $this->getEnabled($contextId)) {
 			Hook::add('Schema::get::before::user', [$this, 'beforeGetSchema']);
 			Hook::add('Schema::get::user', [$this, 'addToSchema']);
+			Hook::add('User::edit', [$this, 'addIdpInfoToUser']);
 
 			$settings = OpenIDPlugin::getOpenIDSettings($this, $contextId);
 			if ($settings && isset($settings['provider']) && is_array($settings['provider']) && !empty($settings['provider'])) {
@@ -190,6 +193,7 @@ class OpenIDPlugin extends GenericPlugin
 					$user = Repo::user()->get($request->getUser()->getId());
 				}
 
+				$lastProvider = null;
 				if ($user) {
 					$lastProvider = $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
 				}
@@ -199,9 +203,32 @@ class OpenIDPlugin extends GenericPlugin
 					
 					$settings['disableFields']['lastProvider'] = $lastProvider;
 					$settings['disableFields']['generateAPIKey'] = $settings['generateAPIKey'];
+
+					$openIdGivenNameDisabledField = false;
+					$openIdFamilyNameDisabledField = false;
+					$openIdEmailDisabledField = false;
+
+					$openIdDisableFields = $settings['disableFields'];
+
+					if ($openIdDisableFields && (key_exists('givenName', $openIdDisableFields) && $openIdDisableFields['givenName'] == 1)) {
+						$openIdGivenNameDisabledField = true;
+					}
+
+					if ($openIdDisableFields && (key_exists('familyName', $openIdDisableFields) && $openIdDisableFields['familyName'] == 1)) {
+						$openIdFamilyNameDisabledField = true;
+					}
+
+					if ($openIdDisableFields && (key_exists('email', $openIdDisableFields) && $openIdDisableFields['email'] == 1)) {
+						$openIdEmailDisabledField = true;
+					}
 					
 					$templateMgr = TemplateManager::getManager($request);
-					$templateMgr->assign('openIdDisableFields', $settings['disableFields']);
+					$templateMgr->assign([
+						'openIdGivenNameDisabledField' => $openIdGivenNameDisabledField,
+						'openIdFamilyNameDisabledField' => $openIdFamilyNameDisabledField,
+						'openIdEmailDisabledField' => $openIdEmailDisabledField,
+						'openIdDisableFields' => $openIdDisableFields,
+					]);
 					
 					Hook::add('TemplateResource::getFilename', [$this, '_overridePluginTemplates']);
 				}
@@ -227,17 +254,10 @@ class OpenIDPlugin extends GenericPlugin
 	{
 		$schema = &$args[0];
 
-		$settings = [
-			OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING,
-		];
+		$pluginSpecificFields = $this->getPluginSpecificFields();
 
-		$providers = OpenIDPlugin::$publicOpenidProviders;
-		foreach ($providers as $key => $value) {
-			$settings[] = OpenIDPlugin::getOpenIDUserSetting($key);
-		}
-
-		foreach ($settings as $settingName) {
-			$schema->properties->{$settingName} = (object) [
+		foreach ($pluginSpecificFields as $pluginSpecificField) {
+			$schema->properties->{$pluginSpecificField} = (object) [
 				'type' => 'string',
 				'apiSummary' => true,
 				'validation' => ['nullable'],
@@ -245,6 +265,20 @@ class OpenIDPlugin extends GenericPlugin
 		}
 
 		return false;
+	}
+
+	public function getPluginSpecificFields(): array
+	{
+		$pluginSpecificFields = [
+			OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING,
+		];
+
+		$providers = OpenIDPlugin::$publicOpenidProviders;
+		foreach ($providers as $key => $value) {
+			$pluginSpecificFields[] = OpenIDPlugin::getOpenIDUserSetting($key);
+		}
+
+		return $pluginSpecificFields;
 	}
 
 	/**
@@ -260,6 +294,37 @@ class OpenIDPlugin extends GenericPlugin
 	public function beforeGetSchema(string $hookName, bool &$forceReload): bool
 	{
 		$forceReload = true;
+
+		return false;
+	}
+
+	/**
+	 * Manage force reload of this schema.
+	 *
+	 * @param string $hookName `Schema::get::before::user`
+	 * @param array $args [
+	 *
+	 *      @option User $newUser
+	 *      @option User $user
+	 *      @option array $params
+	 * ]
+	 *
+	 */
+	public function addIdpInfoToUser(string $hookName, array $args): bool
+	{
+		$newUser = $args[0];
+
+		$dbUser = Repo::user()->get($newUser->getId());
+
+		$pluginSpecificFields = $this->getPluginSpecificFields();
+
+		foreach ($pluginSpecificFields as $pluginSpecificField) {
+			$dbUserFieldValue = $dbUser->getData($pluginSpecificField);
+			$newUserFieldValue = $newUser->getData($pluginSpecificField);
+			if (isset($dbUserFieldValue) && !isset($newUserFieldValue)) {
+				$newUser->setData($pluginSpecificField, $dbUserFieldValue);
+			}
+		}
 
 		return false;
 	}
