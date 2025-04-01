@@ -21,6 +21,7 @@ use APP\handler\Handler;
 use APP\plugins\generic\openid\classes\ContextData;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
+use Illuminate\Support\Facades\Http;
 use PKP\config\Config;
 use PKP\facades\Locale;
 use PKP\security\Validation;
@@ -237,11 +238,17 @@ class OpenIDLoginHandler extends Handler
 	private function redirectToProviderAuth(array $providerSettings, Request $request, string $providerName): void
 	{
 		$router = $request->getRouter();
+		$redirectUri = $router->url($request, null, 'openid', 'doAuthentication', null, ['provider' => $providerName]);
+
+		if ($this->plugin->isEnabledSitewide()) {
+			$redirectUri = $router->url($request, 'index', 'openid', 'doAuthentication', null, ['provider' => $providerName]);
+		}
+
 		$redirectUrl = $providerSettings['authUrl'] .
 			'?client_id=' . urlencode($providerSettings['clientId']) .
 			'&response_type=code' .
 			'&scope=openid' .
-			'&redirect_uri=' . urlencode($router->url($request, null, "openid", "doAuthentication", null, ['provider' => $providerName]));
+			'&redirect_uri=' . urlencode($redirectUri);
 
 		$request->redirectUrl($redirectUrl);
 	}
@@ -249,12 +256,46 @@ class OpenIDLoginHandler extends Handler
 	private function redirectToProviderLogout(Request $request, array $providerSettings, ?string $contextPath, ?string $token = null): void
 	{
 		$router = $request->getRouter();
-		$logoutUrl = $providerSettings['logoutUrl']
-			. '?client_id=' . urlencode($providerSettings['clientId'])
-			. '&post_logout_redirect_uri=' . urlencode($router->url($request, $contextPath, "index"))
-			. '&id_token_hint=' . urlencode($token);
+		$redirectUrl = $router->url($request, $contextPath, "index");
+
+		if ($this->plugin->isEnabledSitewide()) {
+			$redirectUrl = $request->url('index');
+		}
+
+		if (isset($token) && $this->isTokenValid($token, $providerSettings)) {
+			$logoutUrl = $providerSettings['logoutUrl']
+				. '?client_id=' . urlencode($providerSettings['clientId'])
+				. '&post_logout_redirect_uri=' . urlencode($redirectUrl)
+				. '&id_token_hint=' . urlencode($token);
+		} else {
+			$logoutUrl = $providerSettings['logoutUrl']
+				. '?client_id=' . urlencode($providerSettings['clientId'])
+				. '&post_logout_redirect_uri=' . urlencode($redirectUrl);
+		}
 
 		$request->redirectUrl($logoutUrl);
+	}
+
+	private function isTokenValid(string $token, array $providerSettings): ?bool 
+	{
+		$introspectionUrl = $providerSettings['introspectionUrl'];
+
+		if (!isset($introspectionUrl)) {
+			return null;
+		}
+		
+		$clientId = $providerSettings['clientId'];
+		$clientSecret = $providerSettings['clientSecret'];
+
+		$response = Http::asForm()->post($introspectionUrl, [
+			'token' => $token,
+			'client_id' => $clientId,
+			'client_secret' => $clientSecret,
+		]);
+
+		$data = $response->json();
+
+		return isset($data['active']) && $data['active']; // Returns true if valid, false otherwise
 	}
 
 	private function generateProviderLinks(array $providerList, Request $request): array
@@ -264,8 +305,14 @@ class OpenIDLoginHandler extends Handler
 
 		foreach ($providerList as $provider => $settings) {
 			if (!empty($settings['authUrl']) && !empty($settings['clientId'])) {
+				$redirectUri = $router->url($request, null, 'openid', 'doAuthentication', null, ['provider' => $provider]);
+
+				if ($this->plugin->isEnabledSitewide()) {
+					$redirectUri = $router->url($request, 'index', 'openid', 'doAuthentication', null, ['provider' => $provider]);
+				}
+
 				$baseLink = "{$settings['authUrl']}?client_id={$settings['clientId']}&response_type=code&scope=openid profile email";
-				$linkList[$provider] = "{$baseLink}&redirect_uri=" . urlencode($router->url($request, null, "openid", "doAuthentication", null, ['provider' => $provider]));
+				$linkList[$provider] = "{$baseLink}&redirect_uri=" . urlencode($redirectUri);
 				$this->handleCustomProvider($provider, $settings, TemplateManager::getManager($request));
 			}
 		}
