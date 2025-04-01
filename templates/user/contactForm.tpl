@@ -21,7 +21,7 @@
 
 	{csrf}
 
-	{if $openIdDisableFields && key_exists('email', $openIdDisableFields) && $openIdDisableFields['email'] == 1}
+	{if $openIdEmailDisabledField}
 		{assign var="openidContactFields" value=true }
 		<p class="cmp_notification">
 			{translate key="plugins.generic.openid.disables.fields.info"}
