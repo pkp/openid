@@ -23,10 +23,9 @@ use APP\template\TemplateManager;
 use PKP\core\Core;
 use PKP\security\Role;
 use PKP\security\Validation;
-use PKP\session\SessionManager;
 use PKP\user\form\UserFormHelper;
-use PKP\user\InterestManager;
 use PKP\user\User;
+use PKP\userGroup\UserGroup;
 use Sokil\IsoCodes\IsoCodesFactory;
 use PKP\form\Form;
 use PKP\form\validation\FormValidatorPost;
@@ -303,9 +302,8 @@ class OpenIDStep2Form extends Form
 				}
 
 				if ($result && isset($user)) {
-					$sessionManager = SessionManager::getManager();
-					$session = $sessionManager->getUserSession();
-					$encodedIdToken = $session->getSessionVar(OpenIDPlugin::ID_TOKEN_NAME);
+					$session = Application::get()->getRequest()->getSession();
+					$encodedIdToken = $session->get(OpenIDPlugin::ID_TOKEN_NAME);
 
 					$contextData = OpenIDPlugin::getContextData(Application::get()->getRequest());
 
@@ -313,8 +311,8 @@ class OpenIDStep2Form extends Form
 					$reason = null;
 					Validation::registerUserSession($user, $reason);
 
-					$session = $sessionManager->getUserSession();
-					$session->setSessionVar(OpenIDPlugin::ID_TOKEN_NAME, $encodedIdToken);
+					$session = Application::get()->getRequest()->getSession();
+					$session->put(OpenIDPlugin::ID_TOKEN_NAME, $encodedIdToken);
 				}
 			}
 		}
@@ -357,17 +355,14 @@ class OpenIDStep2Form extends Form
 		
 		if ($user->getId()) {
 			// Insert the user interests
-			$interestManager = new InterestManager();
-			$interestManager->setInterestsForUser($user, $this->getData('interests'));
+			Repo::userInterest()->setInterestsForUser($user, $this->getData('interests'));
 
 			// Save the selected roles or assign the Reader role if none selected
 			if ($contextData->IsInContext() && !$this->getData('reviewerGroup')) {
-				$defaultReaderGroups = Repo::userGroup()
-					->getCollector()
-					->filterByIsDefault(true)
-					->filterByContextIds([$contextData->getId()])
-					->filterByRoleIds([Role::ROLE_ID_READER])
-					->getMany();
+				$defaultReaderGroups = UserGroup::IsDefault(true)
+					->withContextIds([$contextData->getId()])
+					->withRoleIds([Role::ROLE_ID_READER])
+					->get();
 				
 				if ($defaultReaderGroups->isNotEmpty()) {
 					$defaultReaderGroup = $defaultReaderGroups->first();

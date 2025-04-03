@@ -143,7 +143,7 @@ class OpenIDLoginHandler extends Handler
 			}
 		}
 
-		$tokenEncrypted = $request->getSession()->getSessionVar(OpenIDPlugin::ID_TOKEN_NAME);
+		$tokenEncrypted = $request->getSession()->get(OpenIDPlugin::ID_TOKEN_NAME);
 		$token = OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $tokenEncrypted, false);
 
 		Validation::logout();
@@ -200,7 +200,7 @@ class OpenIDLoginHandler extends Handler
 
 		// Apply htmlspecialchars to encode special characters
 		$loginMessage = htmlspecialchars($request->getUserVar('loginMessage'), ENT_QUOTES, 'UTF-8');
-		$username = htmlspecialchars($request->getSession()->getSessionVar('username'), ENT_QUOTES, 'UTF-8');
+		$username = htmlspecialchars($request->getSession()->get('username'), ENT_QUOTES, 'UTF-8');
 		$remember = htmlspecialchars($request->getUserVar('remember'), ENT_QUOTES, 'UTF-8');
 		$source = htmlspecialchars($request->getUserVar('source'), ENT_QUOTES, 'UTF-8');
 

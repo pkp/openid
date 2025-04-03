@@ -163,7 +163,7 @@
 			{* Allow the user to sign up as a reviewer *}
 			{assign var=userCanRegisterReviewer value=0}
 			{foreach from=$reviewerUserGroups[$contextId] item=userGroup}
-				{if $userGroup->getPermitSelfRegistration()}
+				{if $userGroup->permitSelfRegistration}
 					{assign var=userCanRegisterReviewer value=$userCanRegisterReviewer+1}
 				{/if}
 			{/foreach}
@@ -180,12 +180,12 @@
 					<div class="fields">
 						<div id="reviewerOptinGroup" class="optin">
 							{foreach from=$reviewerUserGroups[$contextId] item=userGroup}
-								{if $userGroup->getPermitSelfRegistration()}
+								{if $userGroup->permitSelfRegistration}
 									<label>
-										{assign var="userGroupId" value=$userGroup->getId()}
+										{assign var="userGroupId" value=$userGroup->id}
 										<input type="checkbox" name="reviewerGroup[{$userGroupId}]" class="reviewerGroupInput"
 											value="1"{if in_array($userGroupId, $userGroupIds)} checked="checked"{/if}>
-										{translate key=$checkboxLocaleKey userGroup=$userGroup->getLocalizedName()}
+										{translate key=$checkboxLocaleKey userGroup=$userGroup->getLocalizedData('name')}
 									</label>
 								{/if}
 							{/foreach}
