@@ -26,7 +26,7 @@ use PKP\core\PKPApplication;
 use PKP\form\Form;
 use PKP\form\validation\FormValidatorPost;
 use PKP\form\validation\FormValidatorCSRF;
-use PKP\notification\PKPNotification;
+use PKP\notification\Notification as PKPNotification;
 
 class OpenIDPluginSettingsForm extends Form
 {

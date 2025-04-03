@@ -24,7 +24,7 @@ class ContextData
     {
     }
 
-    public function getId(): int 
+    public function getId(): ?int 
     {
         return $this->context ? $this->context->getId() : PKPApplication::CONTEXT_SITE;
     }

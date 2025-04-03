@@ -145,9 +145,17 @@ class OpenIDPlugin extends GenericPlugin
 	 */
 	function getEnabled($contextId = null)
 	{
-		if ($contextId === null) {
+		// getEnabled() was called with no arguments
+		if (func_num_args() === 0) {
 			$contextId = $this->getCurrentContextId();
 		}
+
+		// getEnabled(PKPApplication::CONTEXT_SITE) was called
+		if ($contextId === PKPApplication::CONTEXT_SITE) {
+			$contextId = PKPApplication::CONTEXT_SITE;
+		}
+
+		// Regular behavior
 		return $this->getSetting($contextId, 'enabled');
 	}
 
@@ -374,9 +382,20 @@ class OpenIDPlugin extends GenericPlugin
 	{
 		$actions = parent::getActions($request, $actionArgs);
 
-		if (($this->getEnabled(PKPApplication::CONTEXT_SITE) && $this->getCurrentContextId() != PKPApplication::CONTEXT_SITE) || (!$this->getEnabled())) {
+		$currentContextId = $this->getCurrentContextId();
+		$siteWideEnabled = $this->getEnabled(PKPApplication::CONTEXT_SITE);
+
+		if ($siteWideEnabled && $currentContextId != PKPApplication::CONTEXT_SITE) {
 			return $actions;
 		}
+
+		if (!$siteWideEnabled && !$this->getEnabled($currentContextId)) {
+			return $actions;
+		}
+
+		// if (($this->getEnabled(PKPApplication::CONTEXT_SITE) && $this->getCurrentContextId() != PKPApplication::CONTEXT_SITE) || (!$this->getEnabled($this->getCurrentContextId()))) {
+		// 	return $actions;
+		// }
 
 		$router = $request->getRouter();
 		$linkAction = new LinkAction(
@@ -430,7 +449,7 @@ class OpenIDPlugin extends GenericPlugin
 		return parent::manage($args, $request);
 	}
 
-	public static function getOpenIDSettings(OpenIDPlugin $plugin, int $contextId): ?array
+	public static function getOpenIDSettings(OpenIDPlugin $plugin, ?int $contextId = null): ?array
 	{
 		$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
 		return $settingsJson ? json_decode($settingsJson, true) : null;
@@ -452,7 +471,7 @@ class OpenIDPlugin extends GenericPlugin
 	/**
 	 * De-/Encrypt function to hide some important things.
 	 */
-	public static function encryptOrDecrypt(OpenIDPlugin $plugin, int $contextId, ?string $string, bool $encrypt = true): ?string
+	public static function encryptOrDecrypt(OpenIDPlugin $plugin, ?int $contextId, ?string $string, bool $encrypt = true): ?string
 	{
 		if (!isset($string)) {
 			return null;

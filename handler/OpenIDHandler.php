@@ -38,7 +38,6 @@ use PKP\config\Config;
 use APP\facades\Repo;
 use PKP\security\Role;
 use PKP\security\Validation;
-use PKP\session\SessionManager;
 use PKP\user\User;
 
 class OpenIDHandler extends Handler
@@ -106,13 +105,12 @@ class OpenIDHandler extends Handler
 			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CERTIFICATION);
 		}
 
-		$sessionManager = SessionManager::getManager();
-
+		$session = $request->getSession();
+		
 		$user = $this->getUserViaProviderId($userClaims->id, $selectedProvider);
 
 		if (!$user) {
-			$session = $sessionManager->getUserSession();
-			$session->setSessionVar(OpenIDPlugin::ID_TOKEN_NAME, OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token[OpenIDPlugin::ID_TOKEN_NAME]));
+			$session->put(OpenIDPlugin::ID_TOKEN_NAME, OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token[OpenIDPlugin::ID_TOKEN_NAME]));
 
 			$regForm = new OpenIDStep2Form($this->plugin, $selectedProvider, $userClaims);
 			$regForm->initData();
@@ -126,10 +124,10 @@ class OpenIDHandler extends Handler
 		}
 
 		self::updateUserDetails($this->plugin, $userClaims, $user, $contextData, $selectedProvider, true, true);
+
 		Validation::registerUserSession($user, $reason);
 
-		$session = $sessionManager->getUserSession();
-		$session->setSessionVar(OpenIDPlugin::ID_TOKEN_NAME, OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token[OpenIDPlugin::ID_TOKEN_NAME]));
+		$session->put(OpenIDPlugin::ID_TOKEN_NAME, OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token[OpenIDPlugin::ID_TOKEN_NAME]));
 
 		if ($user->hasRole(
 			[
@@ -228,7 +226,7 @@ class OpenIDHandler extends Handler
 		Repo::user()->edit($user);
 	}
 
-	private static function updateApiKey(OpenIDPlugin $plugin, int $contextId, User $user, string $providerId, array $settings, string $selectedProvider)
+	private static function updateApiKey(OpenIDPlugin $plugin, ?int $contextId, User $user, string $providerId, array $settings, string $selectedProvider)
 	{
 		if ($settings['generateAPIKey'] ?? false) {
 			$secret = Config::getVar('security', 'api_key_secret');
