@@ -53,8 +53,19 @@ class UserClaims
     /**
      * Set the Claims values from an array.
      */
-    public function setValues(array $claimsParams): void
+    public function setValues(?array $claimsParams): void
     {
+
+        if (!is_array($claimsParams)) {
+            $this->id = null;
+            $this->email = null;
+            $this->username = null;
+            $this->givenName = null;
+            $this->familyName = null;
+            $this->emailVerified = null;
+            return;
+        }
+
         $this->id = $claimsParams['sub'] ?? null;
         $this->email = $claimsParams['email'] ?? null;
         $this->username = $claimsParams['preferred_username'] ?? null;
