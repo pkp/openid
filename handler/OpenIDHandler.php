@@ -431,6 +431,17 @@ class OpenIDHandler extends Handler
 			}
 
 			$userInfo = json_decode($response->getBody()->getContents(), true);
+			if($userInfo==null){
+				try {
+					$publicKey = $this->getOpenIDAuthenticationCert($providerSettings);
+					$claims = $this->getClaimsFromJwt([$response->getBody()], $publicKey);
+
+					return $claims;
+
+				} catch (Exception $e) {
+					error_log($e->getMessage());
+				}
+			} 
 
 			$claims = new UserClaims();
 			$claims->setValues($userInfo);
