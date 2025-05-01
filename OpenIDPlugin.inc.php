@@ -1,32 +1,78 @@
 <?php
 
-import('lib.pkp.classes.plugins.GenericPlugin');
-
 /**
- * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
- *
- * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * OpenID Authentication Plugin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
+ * @file OpenIDPlugin.php
  *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
- * @file plugins/generic/openid/OpenIDPlugin.inc.php
- * @ingroup plugins_generic_openid
+ * @class OpenIDPlugin
+ *
  * @brief OpenIDPlugin class for plugin and handler registration
- *
  */
+
+use Illuminate\Support\Collection;
+
+import('lib.pkp.classes.plugins.GenericPlugin');
+import('plugins.generic.openid.classes.ContextData');
+import('plugins.generic.openid.forms.OpenIDPluginSettingsForm');
+
 class OpenIDPlugin extends GenericPlugin
 {
+	public const USER_OPENID_IDENTIFIER_SETTING_BASE = 'openid::';
+	public const USER_OPENID_LAST_PROVIDER_SETTING = self::USER_OPENID_IDENTIFIER_SETTING_BASE . 'lastProvider';
+
+	// OpenIDProviders
+	public const PROVIDER_CUSTOM = 'custom';
+	public const PROVIDER_ORCID = 'orcid';
+	public const PROVIDER_GOOGLE = 'google';
+	public const PROVIDER_MICROSOFT = 'microsoft';
+	public const PROVIDER_APPLE = 'apple';
+
+	// SSOErrors
+	public const SSO_ERROR_CONNECT_DATA = 'connect_data';
+	public const SSO_ERROR_CONNECT_KEY = 'connect_key';
+	public const SSO_ERROR_CERTIFICATION = 'cert';
+	public const SSO_ERROR_USER_DISABLED = 'disabled';
+	public const SSO_ERROR_API_RETURNED = 'api_returned';
+
+	// MicrosoftAudiences
+	public const MICROSOFT_AUDIENCE_COMMON = 'common';
+	public const MICROSOFT_AUDIENCE_CONSUMERS = 'consumers';
+	public const MICROSOFT_AUDIENCE_ORGANIZATIONS = 'organizations';
+
+	/**
+	 * List of OpenID provider.
+	 */
+	public static Collection $publicOpenidProviders;
+
+	public const ID_TOKEN_NAME = 'id_token';
+
+	public function __construct() 
+	{
+		self::$publicOpenidProviders = collect([
+			self::PROVIDER_CUSTOM => "",
+			self::PROVIDER_ORCID => ["configUrl" => "https://orcid.org/.well-known/openid-configuration"],
+			self::PROVIDER_GOOGLE => ["configUrl" => "https://accounts.google.com/.well-known/openid-configuration"],
+			self::PROVIDER_MICROSOFT => ["configUrl" => "https://login.windows.net/{audience}/v2.0/.well-known/openid-configuration"],
+			self::PROVIDER_APPLE => ["configUrl" => "https://appleid.apple.com/.well-known/openid-configuration"],
+		]);
+	}
+
+	/**
+	 * Replace the given provider's {$setting} placeholder in the configUrl with the provided value.
+	 */
+	public static function prepareMicrosoftConfigUrl(string $audience): string
+	{
+		return str_replace(
+			'{audience}', 
+			$audience, 
+			self::$publicOpenidProviders->get(self::PROVIDER_MICROSOFT)['configUrl']
+		);
+	}
+
 	function isSitePlugin()
 	{
 		return true;
@@ -130,7 +176,7 @@ class OpenIDPlugin extends GenericPlugin
 				HookRegistry::register('TemplateResource::getFilename', array($this, '_overridePluginTemplates'));
 			}
 
-			HookRegistry::register('LoadHandler', array($this, 'callbackLoadHandler'));
+			HookRegistry::register('LoadHandler', array($this, 'setPageHandler'));
 		}
 
 		return $success;
@@ -144,32 +190,36 @@ class OpenIDPlugin extends GenericPlugin
 	 * @param $args
 	 * @return false
 	 */
-	public function callbackLoadHandler($hookName, $args)
+	public function setPageHandler(string $hookName, array $params): bool
 	{
-		$page = $args[0];
-		$op = $args[1];
+		$page = $params[0];
+		$op = $params[1];
 		$request = Application::get()->getRequest();
 		$templateMgr = TemplateManager::getManager($request);
 
 		define('KEYCLOAK_PLUGIN_NAME', $this->getName());
 
+		$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
+		$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
+		$templateMgr->assign('openIDImageURL', $request->getBaseUrl().'/'.$this->getPluginPath().'/images/');
+
 		switch ("$page/$op") {
 			case 'openid/doAuthentication':
 			case 'openid/registerOrConnect':
-			case 'openid/doMicrosoftAuthentication':
-				$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
-				$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
 				define('HANDLER_CLASS', 'OpenIDHandler');
-				$args[2] = $this->getPluginPath().'/handler/OpenIDHandler.inc.php';
+				$params[2] = $this->getPluginPath().'/handler/OpenIDHandler.inc.php';
 				break;
 			case 'login/index':
 			case 'login/legacyLogin':
 			case 'login/signOut':
-				$this->_addScriptsAndHandler($templateMgr, $request, $args);
+				define('HANDLER_CLASS', 'OpenIDLoginHandler');
+				$params[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
 				break;
 			case 'user/register':
 				if (!$request->isPost()) {
-					$this->_addScriptsAndHandler($templateMgr, $request, $args);
+					define('HANDLER_CLASS', 'OpenIDLoginHandler');
+					$params[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
+					break;
 				}
 				break;
 		}
@@ -178,24 +228,17 @@ class OpenIDPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Adds settings link to plugin actions
-	 *
-	 * @param $request
-	 * @param $actionArgs
-	 * @return array with plugin actions
+	 * @copydoc Plugin::getActions($request, $actionArgs)
 	 */
 	public function getActions($request, $actionArgs)
 	{
 		$actions = parent::getActions($request, $actionArgs);
 
-		if ($this->getEnabled(0) && $this->getCurrentContextId() != 0) {
-			return $actions;
-		} else if (!$this->getEnabled()) {
+		if (($this->getEnabled(0) && $this->getCurrentContextId() != 0) || (!$this->getEnabled())) {
 			return $actions;
 		}
 
 		$router = $request->getRouter();
-		import('lib.pkp.classes.linkAction.request.AjaxModal');
 		$linkAction = new LinkAction(
 			'settings',
 			new AjaxModal(
@@ -205,11 +248,11 @@ class OpenIDPlugin extends GenericPlugin
 					null,
 					'manage',
 					null,
-					array(
+					[
 						'verb' => 'settings',
 						'plugin' => $this->getName(),
 						'category' => 'generic',
-					)
+					]
 				),
 				$this->getDisplayName()
 			),
@@ -222,17 +265,12 @@ class OpenIDPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Opens the settings if settings link is clicked
-	 *
-	 * @param $args
-	 * @param $request
-	 * @return JSONMessage
+	 * @copydoc Plugin::manage($args, $request)
 	 */
 	public function manage($args, $request)
 	{
 		switch ($request->getUserVar('verb')) {
 			case 'settings':
-				$this->import('forms/OpenIDPluginSettingsForm');
 				$form = new OpenIDPluginSettingsForm($this);
 
 				if (!$request->getUserVar('save')) {
@@ -252,18 +290,70 @@ class OpenIDPlugin extends GenericPlugin
 		return parent::manage($args, $request);
 	}
 
-	/**
-	 * @param $templateMgr
-	 * @param $request
-	 * @param $args
-	 */
-	private function _addScriptsAndHandler($templateMgr, $request, $args): void
+	// /**
+	//  * @param $templateMgr
+	//  * @param $request
+	//  * @param $args
+	//  */
+	// private function _addScriptsAndHandler($templateMgr, $request, $args): void
+	// {
+	// 	$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
+	// 	$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
+	// 	$templateMgr->assign('openIDImageURL', $request->getBaseUrl().'/'.$this->getPluginPath().'/images/');
+	// 	define('HANDLER_CLASS', 'OpenIDLoginHandler');
+	// 	$args[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
+	// }
+
+	public static function getOpenIDSettings(OpenIDPlugin $plugin, int $contextId): ?array
 	{
-		$templateMgr->addStyleSheet('OpenIDPluginStyle', $request->getBaseUrl().'/'.$this->getPluginPath().'/css/style.css');
-		$templateMgr->addJavaScript('OpenIDPluginScript', $request->getBaseUrl().'/'.$this->getPluginPath().'/js/scripts.js');
-		$templateMgr->assign('openIDImageURL', $request->getBaseUrl().'/'.$this->getPluginPath().'/images/');
-		define('HANDLER_CLASS', 'OpenIDLoginHandler');
-		$args[2] = $this->getPluginPath().'/handler/OpenIDLoginHandler.inc.php';
+		$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
+		return $settingsJson ? json_decode($settingsJson, true) : null;
+	}
+
+	public static function getContextData(PKPRequest $request): ContextData
+	{
+		$context = $request->getContext();
+		$site = $request->getSite();
+
+		return new ContextData($site, $context);
+	}
+
+	public static function getOpenIDUserSetting(string $provider): string
+	{
+		return OpenIDPlugin::USER_OPENID_IDENTIFIER_SETTING_BASE . $provider;
+	}
+
+	/**
+	 * De-/Encrypt function to hide some important things.
+	 */
+	public static function encryptOrDecrypt(OpenIDPlugin $plugin, int $contextId, ?string $string, bool $encrypt = true): ?string
+	{
+		if (!isset($string)) {
+			return null;
+		}
+
+		$settings = OpenIDPlugin::getOpenIDSettings($plugin, $contextId);
+
+		if (!isset($settings['hashSecret'])) {
+			return $string;
+		}
+
+		$pwd = $settings['hashSecret'];
+		
+		$iv = substr($pwd, 0, 16);
+		$alg = 'AES-256-CBC';
+
+		return $encrypt
+			? openssl_encrypt($string, $alg, $pwd, 0, $iv)
+			: openssl_decrypt($string, $alg, $pwd, 0, $iv);
+	}
+
+	/**
+	 * Returns whether the plugin is enabled sitewide
+	 */
+	function isEnabledSitewide()
+	{
+		return parent::getSetting(0, 'enabled');
 	}
 }
 

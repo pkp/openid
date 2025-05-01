@@ -1,32 +1,36 @@
 <?php
 
-import('classes.handler.Handler');
-
 /**
- * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
- *
- * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * OpenID Authentication Plugin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
+ * @file handler/OpenIDLoginHandler.php
  *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
- * @file plugins/generic/openid/handler/OpenIDLoginHandler.inc.php
- * @ingroup plugins_generic_openid
+ * @class OpenIDLoginHandler
+ *
  * @brief Handler to overwrite default OJS/OMP/OPS login and registration
- *
  */
+
+use Illuminate\Support\Facades\Http;
+
+import('classes.handler.Handler');
+import('plugins.generic.openid.classes.ContextData');
+
 class OpenIDLoginHandler extends Handler
 {
+	protected OpenIDPlugin $plugin;
+
+	public function __construct()
+	{
+		$this->plugin =  PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
+	}
+
+	// public function __construct(OpenIDPlugin $plugin)
+	// {
+	// 	$this->plugin = $plugin;
+	// }
 	/**
 	 * This function overwrites the default login.
 	 * There a 2 different workflows implemented:
@@ -43,105 +47,59 @@ class OpenIDLoginHandler extends Handler
 	function index($args, $request)
 	{
 		$this->setupTemplate($request);
-		if (Config::getVar('security', 'force_login_ssl') && $request->getProtocol() != 'https') {
+
+		if ($this->isSSLRequired($request)) {
 			$request->redirectSSL();
 		}
 
-		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
-		$legacyLogin = false;
+		$contextData = OpenIDPlugin::getContextData($request);
+
+		if (Validation::isLoggedIn()) {
+			$request->redirect($contextData->getPath(), 'index');
+			return false;
+		}
+		
+		$contextId = $contextData->getId();
+
+		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
+
 		$templateMgr = TemplateManager::getManager($request);
-		$context = $request->getContext();
 
-		if (!Validation::isLoggedIn()) {
-			$router = $request->getRouter();
-			$contextId = ($context == null) ? 0 : $context->getId();
-			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
+		if ($settings) {
+			$providerList = $settings['provider'] ?? [];
 
-			if ($settingsJson != null) {
-				$settings = json_decode($settingsJson, true);
-				$legacyLogin = key_exists('legacyLogin', $settings) && isset($settings['legacyLogin']) ? $settings['legacyLogin'] : false;
-				$legacyRegister = key_exists('legacyRegister', $settings) && isset($settings['legacyRegister']) ? $settings['legacyRegister'] : false;
-				$providerList = key_exists('provider', $settings) ? $settings['provider'] : null;
-
-				if (isset($providerList)) {
-					foreach ($providerList as $name => $settings) {
-						if (key_exists('authUrl', $settings) && !empty($settings['authUrl'])
-							&& key_exists('clientId', $settings) && !empty($settings['clientId'])) {
-							if (sizeof($providerList) == 1 && !$legacyLogin && !$legacyRegister) {
-								$request->redirectUrl(
-									$settings['authUrl'].
-									'?client_id='.$settings['clientId'].
-									'&response_type=code&scope=openid&redirect_uri='.
-									$router->url($request, null, "openid", "doAuthentication", null, array('provider' => $name))
-								);
-
-								return false;
-							} else {
-								if ($name == "custom") {
-									$templateMgr->assign(
-										'customBtnImg',
-										key_exists('btnImg', $settings) && isset($settings['btnImg']) ? $settings['btnImg'] : null
-									);
-									$templateMgr->assign(
-										'customBtnTxt',
-										key_exists('btnTxt', $settings)
-										&& isset($settings['btnTxt'])
-										&& isset($settings['btnTxt'][AppLocale::getLocale()])
-											? $settings['btnTxt'][AppLocale::getLocale()] : null
-									);
-								}
-								if ($name == 'microsoft') {
-									$linkList[$name] = $settings['authUrl'].
-										'?client_id='.$settings['clientId'].
-										'&response_type=code&scope=openid profile email';
-								} else {
-									$linkList[$name] = $settings['authUrl'].
-										'?client_id='.$settings['clientId'].
-										'&response_type=code&scope=openid profile email'.
-										'&redirect_uri='.urlencode(
-											$router->url($request, null, "openid", "doAuthentication", null, array('provider' => $name))
-										);
-								}
-							}
-						}
-					}
-				}
-				if ($legacyRegister) {
-					$linkList['legacyRegister'] = $router->url($request, null, "user", "registerUser");
-				}
+			if ($this->handleSingleProviderLogin($providerList, $settings, $request)) {
+				return false;
 			}
 
-			if (isset($linkList) && is_array($linkList) && sizeof($linkList) > 0) {
+			$linkList = $this->generateProviderLinks($providerList, $request);
+
+			if ($settings['legacyRegister'] ?? false) {
+				$linkList['legacyRegister'] = $request->getRouter()->url($request, null, "user", "registerUser");
+			}
+
+			if (!empty($linkList)) {
 				$templateMgr->assign('linkList', $linkList);
-				$ssoError = $request->getUserVar('sso_error');
+				$this->handleErrors($templateMgr, $request, $contextData);
+				$this->handleLegacyLogin($templateMgr, $request, $settings);
 
-				if (isset($ssoError) && !empty($ssoError)) {
-					$this->_setSSOErrorMessages($ssoError, $templateMgr, $request);
-				}
-
-				if ($legacyLogin) {
-					$this->_enableLegacyLogin($templateMgr, $request);
-				}
-			} else {
-				$templateMgr->assign('openidError', true);
-				$templateMgr->assign('errorMsg', 'plugins.generic.openid.settings.error');
+				return $templateMgr->display($this->plugin->getTemplateResource('openidLogin.tpl'));
 			}
-
-			return $templateMgr->display($plugin->getTemplateResource('openidLogin.tpl'));
 		}
 
-		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
+		// Invalid Configuration
+		$templateMgr->assign([
+			'openidError' => true,
+			'errorMsg' => 'plugins.generic.openid.settings.error'
+		]);
 
-		return false;
+		return $templateMgr->display($this->plugin->getTemplateResource('openidLogin.tpl'));
 	}
 
 	/**
 	 * Used for legacy login in case of errors or other bad things.
-	 *
-	 * @param $args
-	 * @param $request
 	 */
-	function legacyLogin($args, $request)
+	function legacyLogin(array $args, Request $request)
 	{
 		$templateMgr = TemplateManager::getManager($request);
 		$this->_enableLegacyLogin($templateMgr, $request);
@@ -153,124 +111,284 @@ class OpenIDLoginHandler extends Handler
 	/**
 	 * Overwrites the default registration, because it is not needed anymore.
 	 * User registration is done via OpenID provider.
-	 *
-	 * @param $args
-	 * @param $request
 	 */
-	function register($args, $request)
+	function register(array $args, Request $request)
 	{
 		$this->index($args, $request);
 	}
 
 	/**
 	 * Overwrites default signOut.
-	 * Performs OJS logout and if logoutUrl is provided (e.g. Apple doesn't provide this url) it redirects to the oauth logout to delete session and tokens.
-	 *
-	 * @param $args
-	 * @param $request
+	 * Performs logout and if logoutUrl is provided (e.g. Apple doesn't provide this url) it redirects to the oauth logout to delete session and tokens.
 	 */
-	function signOut($args, $request)
+	function signOut(array $args, Request $request)
 	{
-		if (Validation::isLoggedIn()) {
-			$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
-			$router = $request->getRouter();
-			$lastProvider = $request->getUser()->getSetting('openid::lastProvider');
-			$context = Application::get()->getRequest()->getContext();
-			$user = Application::get()->getRequest()->getUser();
-			$contextId = ($context == null) ? 0 : $context->getId();
-			$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
+		if (!Validation::isLoggedIn()) {
+			$request->redirect(null, 'index');
+			return;
+		}
 
-			if (isset($user)) {
+		$contextData = OpenIDPlugin::getContextData($request);
+
+		$contextId = $contextData->getId();
+
+		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
+
+		$user = Application::get()->getRequest()->getUser();
+
+		if ($user) {
+			$lastProviderValue = $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
+
+			if ($lastProviderValue) {
 				$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
-				$userSettingsDao->deleteSetting($user->getId(), 'openid::lastProvider');
-			}
-
-			Validation::logout();
-			if (isset($settingsJson) && isset($lastProvider)) {
-				$providerList = json_decode($settingsJson, true)['provider'];
-				$settings = $providerList[$lastProvider];
-
-				if (isset($settings) && key_exists('logoutUrl', $settings) && !empty($settings['logoutUrl']) && key_exists('clientId', $settings)) {
-					$request->redirectUrl(
-						$settings['logoutUrl'].
-						'?client_id='.$settings['clientId'].
-						'&redirect_uri='.$router->url($request, $context, "index")
-					);
-				}
+				$userSettingsDao->deleteSetting($user->getId(), OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
 			}
 		}
-		$request->redirect(Application::get()->getRequest()->getContext(), 'index');
+
+		$tokenEncrypted = $request->getSession()->getSessionVar(OpenIDPlugin::ID_TOKEN_NAME);
+		$token = OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $tokenEncrypted, false);
+
+		Validation::logout();
+
+		if ($settings && isset($lastProviderValue)) {
+			$providerSettings = $settings['provider'][$lastProviderValue] ?? [];
+			if (!empty($providerSettings['logoutUrl'])) {
+				$this->redirectToProviderLogout($request, $providerSettings, $contextData->getPath(), $token);
+				return;
+			}
+		}
+
+		$request->redirect($contextData->getPath(), 'index');
 	}
 
 	/**
 	 * Sets user friendly error messages, which are thrown during the OpenID auth process.
-	 *
-	 * @param $ssoError
-	 * @param $templateMgr
-	 * @param $request
 	 */
-	private function _setSSOErrorMessages($ssoError, $templateMgr, $request)
+	private function _setSSOErrorMessages(string $ssoError, string $reason, TemplateManager $templateMgr, ContextData $contextData): void
 	{
 		$templateMgr->assign('openidError', true);
-		switch ($ssoError) {
-			case 'connect_data':
-				$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.connect.desc.data');
-				break;
-			case 'connect_key':
-				$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.connect.desc.key');
-				break;
-			case 'cert':
-				$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.cert.desc');
-				break;
-			case 'disabled':
-				$reason = $request->getUserVar('sso_error_msg');
+		
+		$errorMessages = [
+			OpenIDPlugin::SSO_ERROR_CONNECT_DATA => 'plugins.generic.openid.error.openid.connect.desc.data',
+			OpenIDPlugin::SSO_ERROR_CONNECT_KEY => 'plugins.generic.openid.error.openid.connect.desc.key',
+			OpenIDPlugin::SSO_ERROR_CERTIFICATION => 'plugins.generic.openid.error.openid.cert.desc',
+			OpenIDPlugin::SSO_ERROR_USER_DISABLED => 'plugins.generic.openid.error.openid.disabled.' . (empty($reason) ? 'without' : 'with'),
+			OpenIDPlugin::SSO_ERROR_API_RETURNED => 'plugins.generic.openid.error.openid.api.returned'
+		];
+
+		$templateMgr->assign('errorMsg', $errorMessages[$ssoError] ?? '');
+		if (in_array($ssoError, [OpenIDPlugin::SSO_ERROR_USER_DISABLED, OpenIDPlugin::SSO_ERROR_API_RETURNED])) {
+			$templateMgr->assign('reason', $reason);
+			if ($ssoError == OpenIDPlugin::SSO_ERROR_USER_DISABLED) {
 				$templateMgr->assign('accountDisabled', true);
-				if (isset($reason) && !empty($reason)) {
-					$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.disabled.with');
-					$templateMgr->assign('reason', $reason);
-				} else {
-					$templateMgr->assign('errorMsg', 'plugins.generic.openid.error.openid.disabled.without');
-				}
-				break;
+			}
 		}
 
-		$context = $request->getContext();
-		$supportEmail = $context != null ? $context->getSetting('supportEmail') : null;
-		if ($supportEmail) {
-			$templateMgr->assign('supportEmail', $supportEmail);
-		}
+		$templateMgr->assign('supportEmail', $contextData->getSupportEmail());
 	}
 
 	/**
 	 * This function is used
 	 *  - if the legacy login is activated via plugin settings,
 	 *  - or an error occurred during the Auth process to ensure that the Journal Manager can log in.
-	 *
-	 * @param $templateMgr
-	 * @param $request
 	 */
-	private function _enableLegacyLogin($templateMgr, $request)
+	private function _enableLegacyLogin(TemplateManager $templateMgr, Request $request)
 	{
-		$sessionManager = SessionManager::getManager();
-		$session = $sessionManager->getUserSession();
-		$context = $request->getContext();
 		$loginUrl = $request->url(null, 'login', 'signIn');
 
 		if (Config::getVar('security', 'force_login_ssl')) {
-			$loginUrl = PKPString::regexp_replace('/^http:/', 'https:', $loginUrl);
+			$loginUrl = preg_replace('/^http:/', 'https:', $loginUrl);
 		}
 
-		$templateMgr->assign(
-			array(
-				'loginMessage' => $request->getUserVar('loginMessage'),
-				'username' => $session->getSessionVar('username'),
-				'remember' => $request->getUserVar('remember'),
-				'source' => $request->getUserVar('source'),
-				'showRemember' => Config::getVar('general', 'session_lifetime') > 0,
-				'legacyLogin' => true,
-				'loginUrl' => $loginUrl,
-				'journalName' => $context != null ? $context->getName(AppLocale::getLocale()) : null,
-			)
+		// Apply htmlspecialchars to encode special characters
+		$loginMessage = htmlspecialchars($request->getUserVar('loginMessage'), ENT_QUOTES, 'UTF-8');
+		$username = htmlspecialchars($request->getSession()->getSessionVar('username'), ENT_QUOTES, 'UTF-8');
+		$remember = htmlspecialchars($request->getUserVar('remember'), ENT_QUOTES, 'UTF-8');
+		$source = htmlspecialchars($request->getUserVar('source'), ENT_QUOTES, 'UTF-8');
+
+		$templateMgr->assign([
+			'loginMessage' => $loginMessage,
+			'username' => $username,
+			'remember' => $remember,
+			'source' => $source,
+			'showRemember' => Config::getVar('general', 'session_lifetime') > 0,
+			'legacyLogin' => true,
+			'loginUrl' => $loginUrl,
+		]);
+	}
+
+	private function isSSLRequired(Request $request): bool
+	{
+		return Config::getVar('security', 'force_login_ssl') && $request->getProtocol() != 'https';
+	}
+
+	private function handleSingleProviderLogin(array $providerList, array $settings, Request $request): bool
+	{
+		$legacyLogin = $settings['legacyLogin'] ?? false;
+		$legacyRegister = $settings['legacyRegister'] ?? false;
+
+		if (count($providerList) == 1 && !$legacyLogin && !$legacyRegister) {
+			$providerSettings = $providerList[0];
+			if (!empty($providerSettings['authUrl']) && !empty($providerSettings['clientId'])) {
+				$this->redirectToProviderAuth($providerSettings, $request, key($providerList));
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function redirectToProviderAuth(array $providerSettings, Request $request, string $providerName): void
+	{
+		$router = $request->getRouter();
+		$redirectUri = $router->url($request, null, 'openid', 'doAuthentication', null, ['provider' => $providerName]);
+
+		if ($this->plugin->isEnabledSitewide()) {
+			$redirectUri = $router->url($request, 'index', 'openid', 'doAuthentication', null, ['provider' => $providerName]);
+		}
+
+		$router = $request->getRouter();
+		$redirectUrl = $providerSettings['authUrl'] .
+			'?client_id=' . urlencode($providerSettings['clientId']) .
+			'&response_type=code' .
+			'&scope=openid' .
+			'&redirect_uri=' . urlencode($redirectUri);
+
+		$request->redirectUrl($redirectUrl);
+	}
+
+	private function redirectToProviderLogout(Request $request, array $providerSettings, ?string $contextPath, ?string $token = null): void
+	{
+		$router = $request->getRouter();
+		$redirectUrl = $router->url($request, $contextPath, "index");
+
+		if ($this->plugin->isEnabledSitewide()) {
+			$redirectUrl = $request->url('index');
+		}
+
+		$logoutUrl = $providerSettings['logoutUrl']
+			. '?client_id=' . urlencode($providerSettings['clientId'])
+			. '&post_logout_redirect_uri=' . urlencode($redirectUrl);
+
+		if (isset($token) && $this->isTokenValid($token, $providerSettings)) {
+			$logoutUrl = $logoutUrl. '&id_token_hint=' . urlencode($token);
+		}
+
+		$request->redirectUrl($logoutUrl);
+	}
+
+	/**
+	 * Validates an access token by calling the provider's introspection endpoint.
+	 *
+	 * Uses the configured client credentials and introspection URL to check whether the token is active.
+	 * Returns true if the token is valid, false if it's inactive, and null if no introspection URL is defined.
+	 *
+	 * @param string $token The access token to validate.
+	 * @param array $providerSettings An array of OpenID provider settings including 'clientId', 'clientSecret', and 'introspectionUrl'.
+	 *
+	 * @return bool|null True if the token is active, false if inactive, or null if the introspection URL is not set.
+	*/
+	private function isTokenValid(string $token, array $providerSettings): ?bool 
+	{
+		if (empty($providerSettings['introspectionUrl'])) {
+			return null;
+		}
+
+		return $this->introspectToken(
+			$providerSettings['introspectionUrl'],
+			$token,
+			$providerSettings['clientId'],
+			$providerSettings['clientSecret']
 		);
+	}
+
+	/**
+	 * Perform token introspection against an OAuth2/OpenID Connect provider.
+	 *
+	 * Sends a POST request to the given introspection endpoint with the token
+	 * and client credentials, and returns whether the token is active.
+	 *
+	 * @param string $introspectionUrl The URL of the token introspection endpoint.
+	 * @param string $token The access token to introspect.
+	 * @param string $clientId The client ID registered with the provider.
+	 * @param string $clientSecret The client secret associated with the client ID.
+	 *
+	 * @return bool True if the token is active; false otherwise.
+	*/
+	private function introspectToken(string $introspectionUrl, string $token, string $clientId, string $clientSecret): bool
+	{
+		$httpClient = Application::get()->getHttpClient();
+		$params = [
+			'token' => $token,
+			'client_id' => $clientId,
+			'client_secret' => $clientSecret,
+		];
+
+		try {
+			$response = $httpClient->request('POST', $introspectionUrl, [
+				'headers' => ['Accept' => 'application/json'],
+				'form_params' => $params,
+			]);
+
+			if ($response->getStatusCode() !== 200) {
+				error_log('Token introspection failed with status code: ' . $response->getStatusCode());
+				return false;
+			}
+
+			$data = json_decode($response->getBody()->getContents(), true);
+			return isset($data['active']) && $data['active'];
+
+		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
+			error_log('Token introspection Guzzle error: ' . $e->getMessage());
+			return false;
+		}
+	}
+
+	private function generateProviderLinks(array $providerList, Request $request): array
+	{
+		$router = $request->getRouter();
+		$linkList = [];
+
+		foreach ($providerList as $provider => $settings) {
+			if (!empty($settings['authUrl']) && !empty($settings['clientId'])) {
+				$redirectUri = $router->url($request, null, 'openid', 'doAuthentication', null, ['provider' => $provider]);
+
+				if ($this->plugin->isEnabledSitewide()) {
+					$redirectUri = $router->url($request, 'index', 'openid', 'doAuthentication', null, ['provider' => $provider]);
+				}
+
+				$baseLink = "{$settings['authUrl']}?client_id={$settings['clientId']}&response_type=code&scope=openid profile email";
+				$linkList[$provider] = "{$baseLink}&redirect_uri=" . urlencode($redirectUri);
+				$this->handleCustomProvider($provider, $settings, TemplateManager::getManager($request));
+			}
+		}
+		return $linkList;
+	}
+
+	private function handleCustomProvider(string $provider, array $settings, TemplateManager $templateMgr): void
+	{
+		if ($provider == OpenIDPlugin::PROVIDER_CUSTOM) {
+			$customBtnTxt = htmlspecialchars($settings['btnTxt'][AppLocale::getLocale()] ?? '', ENT_QUOTES, 'UTF-8');
+			$templateMgr->assign([
+				'customBtnImg' => $settings['btnImg'] ?? null,
+				'customBtnTxt' => $customBtnTxt
+			]);
+		}
+	}
+
+	private function handleErrors(TemplateManager $templateMgr, Request $request, ContextData $contextData): void
+	{
+		$ssoError = $request->getUserVar('sso_error');
+		$reason = htmlspecialchars($request->getUserVar('sso_error_msg') ?? '', ENT_QUOTES, 'UTF-8');
+
+		if ($ssoError) {
+			$this->_setSSOErrorMessages($ssoError, $reason, $templateMgr, $contextData);
+		}
+	}
+
+	private function handleLegacyLogin(TemplateManager $templateMgr, Request $request, array $settings): void
+	{
+		if ($settings['legacyLogin'] ?? false) {
+			$this->_enableLegacyLogin($templateMgr, $request);
+		}
 	}
 }

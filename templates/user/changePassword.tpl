@@ -1,9 +1,10 @@
 {**
  * templates/user/changePassword.tpl
  *
- * Copyright (c) 2014-2020 Simon Fraser University
- * Copyright (c) 2003-2020 John Willinsky
- * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+ * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * Form to change a user's password.
  *}
@@ -44,6 +45,5 @@
 		{if !$openidPWFields}
 			{fbvFormButtons submitText="common.save" }
 		{/if}
-		{*{fbvFormButtons submitText="common.save" }*}
 	{/fbvFormArea}
 </form>

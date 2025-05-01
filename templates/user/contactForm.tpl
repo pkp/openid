@@ -1,9 +1,10 @@
 {**
  * templates/user/contactForm.tpl
  *
- * Copyright (c) 2014-2020 Simon Fraser University
- * Copyright (c) 2003-2020 John Willinsky
- * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+ * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * User profile form.
  *}
@@ -20,7 +21,7 @@
 
 	{csrf}
 
-	{if $openIdDisableFields && key_exists('email', $openIdDisableFields) && $openIdDisableFields['email'] == 1}
+	{if $openIdEmailDisabledField}
 		{assign var="openidContactFields" value=true }
 		<p class="cmp_notification">
 			{translate key="plugins.generic.openid.disables.fields.info"}
