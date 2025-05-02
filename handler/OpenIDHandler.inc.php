@@ -1,5 +1,24 @@
 <?php
 
+/**
+ * @file handler/OpenIDHandler.php
+ *
+ * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
+ *
+ * @class OpenIDHandler
+ *
+ * @brief Handler for OpenID workflow:
+ *  - receive auth-code
+ *  - perform auth-code -> token exchange
+ *  - token validation via server certificate
+ *  - extract user details
+ *  - register new accounts
+ *  - connect existing accounts
+ */
+
 $loader = require('plugins/generic/openid/vendor/autoload.php');
 
 use Firebase\JWT\JWT;
@@ -8,44 +27,22 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 
 import('classes.handler.Handler');
+import('plugins.generic.openid.classes.UserClaims');
+import('plugins.generic.openid.forms.OpenIDStep2Form');
 
-/**
- * This file is part of OpenID Authentication Plugin (https://github.com/leibniz-psychology/pkp-openid).
- *
- * OpenID Authentication Plugin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * OpenID Authentication Plugin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OpenID Authentication Plugin.  If not, see <https://www.gnu.org/licenses/>.
- *
- * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
- *
- * @file plugins/generic/openid/handler/OpenIDHandler.inc.php
- * @ingroup plugins_generic_openid
- * @brief Handler for OpenID workflow:
- *  - receive auth-code
- *  - perform auth-code -> token exchange
- *  - token validation via server certificate
- *  - extract user details
- *  - register new accounts
- *  - connect existing accounts
- *
- *
- */
 class OpenIDHandler extends Handler
 {
+	protected OpenIDPlugin $plugin;
 
-
-	function doMicrosoftAuthentication($args, $request)
+	public function __construct()
 	{
-		return $this->doAuthentication($args, $request, 'microsoft');
+		$this->plugin =  PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
+	}
+
+	public function authorize($request, &$args, $roleAssignments)
+	{
+		$this->setEnforceRestrictedSite(false);
+		return parent::authorize($request, $args, $roleAssignments);
 	}
 
 	/**
@@ -61,259 +58,268 @@ class OpenIDHandler extends Handler
 	 *
 	 * @param $args
 	 * @param $request
-	 * @return bool
+	 * @return bool|void|string
 	 */
 	function doAuthentication($args, $request, $provider = null)
 	{
-		$context = $request->getContext();
-		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
-		$contextId = ($context == null) ? 0 : $context->getId();
-		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
-		$selectedProvider = $provider == null ? $request->getUserVar('provider') : $provider;
-		$token = $this->_getTokenViaAuthCode($settings['provider'], $request->getUserVar('code'), $selectedProvider);
-		$publicKey = $this->_getOpenIDAuthenticationCert($settings['provider'], $selectedProvider);
+		$selectedProvider = $request->getUserVar('provider');
 
-		if (isset($token) && isset($publicKey)) {
-			$tokenPayload = $this->_validateAndExtractToken($token, $publicKey);
-			if (isset($tokenPayload) && is_array($tokenPayload)) {
-				$tokenPayload['selectedProvider'] = $selectedProvider;
-				$user = $this->_getUserViaKeycloakId($tokenPayload);
-				if (!isset($user)) {
-					import($plugin->getPluginPath().'/forms/OpenIDStep2Form');
-					$regForm = new OpenIDStep2Form($plugin, $tokenPayload);
-					$regForm->initData();
+		$contextData = OpenIDPlugin::getContextData($request);
 
-					return $regForm->fetch($request, null, true);
-				} elseif (is_a($user, 'User') && !$user->getDisabled()) {
-					Validation::registerUserSession($user, $reason, true);
+		$contextId = $contextData->getId();
+		$contextPath = $contextData->getPath();
 
-					self::updateUserDetails($tokenPayload, $user, $request, $selectedProvider);
-					if ($user->hasRole(
-						[ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR, ROLE_ID_REVIEWER, ROLE_ID_ASSISTANT],
-						$contextId
-					)) {
-						return $request->redirect($context, 'submissions');
-					} else {
-						return $request->redirect($context, 'user', 'profile', null, $args);
-					}
-				} elseif ($user->getDisabled()) {
-					$reason = $user->getDisabledReason();
-					$ssoErrors['sso_error'] = 'disabled';
-					if ($reason != null) {
-						$ssoErrors['sso_error_msg'] = $reason;
-					}
-				}
-			} else {
-				$ssoErrors['sso_error'] = 'cert';
-			}
-		} else {
-			$ssoErrors['sso_error'] = !isset($publicKey) ? 'connect_key' : 'connect_data';
+		$error = $request->getUserVar('error');
+		$errorDescription = $request->getUserVar('error_description');
+
+		if ($error) {
+			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_API_RETURNED, "{$selectedProvider}: ($error) \"$errorDescription\"");
+		}
+		
+		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
+
+		if (!isset($settings['provider'][$selectedProvider])) {
+			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CONNECT_DATA);
 		}
 
-		return $request->redirect($context, 'login', null, null, isset($ssoErrors) ? $ssoErrors : null);
-	}
+		$providerSettings = $settings['provider'][$selectedProvider];
 
+		$token = $this->getTokenViaAuthCode($providerSettings, $request->getUserVar('code'), $selectedProvider);
+		if (!$token) {
+			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CONNECT_KEY);
+		}
+
+		$userClaims = $this->getCompleteClaims($providerSettings, $token);
+
+		if (!$userClaims || $userClaims->isEmpty()) {
+			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CERTIFICATION);
+		}
+
+		$sessionManager = SessionManager::getManager();
+
+		$user = $this->getUserViaProviderId($userClaims->id, $selectedProvider);
+		if (!$user) {
+			$session = $sessionManager->getUserSession();
+			$session->setSessionVar(OpenIDPlugin::ID_TOKEN_NAME, OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token[OpenIDPlugin::ID_TOKEN_NAME]));
+
+			$regForm = new OpenIDStep2Form($this->plugin, $selectedProvider, $userClaims);
+			$regForm->initData();
+			return $regForm->fetch($request, null, true);
+		}
+
+		$reason = null;
+		if ($user->getDisabled()) {
+			$reason = $user->getDisabledReason();
+			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_USER_DISABLED, $reason);
+		}
+
+		self::updateUserDetails($this->plugin, $userClaims, $user, $contextData, $selectedProvider, true, true);
+		Validation::registerUserSession($user, $reason);
+
+		$session = $sessionManager->getUserSession();
+		$session->setSessionVar(OpenIDPlugin::ID_TOKEN_NAME, OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token[OpenIDPlugin::ID_TOKEN_NAME]));
+
+		if ($user->hasRole(
+			[
+				ROLE_ID_SITE_ADMIN, 
+				ROLE_ID_MANAGER, 
+				ROLE_ID_SUB_EDITOR, 
+				ROLE_ID_AUTHOR, 
+				ROLE_ID_REVIEWER, 
+				ROLE_ID_ASSISTANT
+			],
+			$contextId
+		)) {
+			return $request->redirect($contextPath, 'submissions', null, $args);
+		} else {
+			return $request->redirect($contextPath, 'user', 'profile', $args);
+		}
+	}
 
 	/**
 	 * Step2 POST (Form submit) function.
 	 * OpenIDStep2Form is used to handle form initialization, validation and persistence.
-	 *
-	 * @param $args
-	 * @param $request
 	 */
-	function registerOrConnect($args, $request)
+	function registerOrConnect(array $args, Request $request)
 	{
-		$context = $request->getContext();
-
 		if (Validation::isLoggedIn()) {
 			$this->setupTemplate($request);
 			$templateMgr = TemplateManager::getManager($request);
 			$templateMgr->assign('pageTitle', 'user.login.registrationComplete');
 			$templateMgr->display('frontend/pages/userRegisterComplete.tpl');
-		} elseif (!$request->isPost()) {
-			$request->redirect($context, 'login');
-		} else {
-			$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
-			import($plugin->getPluginPath().'/forms/OpenIDStep2Form');
-			$regForm = new OpenIDStep2Form($plugin);
-			$regForm->readInputData();
-			if (!$regForm->validate()) {
-				$regForm->display($request);
-			} elseif ($regForm->execute()) {
-				$request->redirect($context, 'openid', 'registerOrConnect');
-			} else {
-				$regForm->addError('', '');
-				$regForm->display($request);
-			}
+			return;
 		}
+
+		$contextPath = OpenIDPlugin::getContextData($request)->getPath();
+
+		if (!$request->isPost()) {
+			return $request->redirect($contextPath, 'login');
+		}
+
+		$regForm = new OpenIDStep2Form($this->plugin);
+		$regForm->readInputData();
+		if (!$regForm->validate()) {
+			return $regForm->display($request);
+		}
+
+		if ($regForm->execute()) {
+			return $request->redirect($contextPath, 'openid', 'registerOrConnect');
+		}
+
+		$regForm->addError('', __('plugins.generic.openid.form.error.invalid'));
+		$regForm->display($request);
 	}
 
-	public static function updateUserDetails($payload, $user, $request, $selectedProvider, $setProviderId = false)
+	public static function updateUserDetails(
+		OpenIDPlugin $plugin,
+		?UserClaims $claims,
+		User $user,
+		ContextData $contextData,
+		string $selectedProvider,
+		bool $setProviderId = false,
+		bool $considerDisabledFields = false
+	): void 
 	{
 		$userDao = DAORegistry::getDAO('UserDAO');
-		$context = $request->getContext();
-		$contextId = ($context == null) ? 0 : $context->getId();
-		$plugin = PluginRegistry::getPlugin('generic', KEYCLOAK_PLUGIN_NAME);
-		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
-
-		if (key_exists('providerSync', $settings) && $settings['providerSync'] == 1) {
-			$site = $request->getSite();
-			$sitePrimaryLocale = $site->getPrimaryLocale();
-			$currentLocale = AppLocale::getLocale();
-			if (is_array($payload) && key_exists('given_name', $payload) && !empty($payload['given_name'])) {
-				$user->setGivenName($payload['given_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
-			}
-			if (is_array($payload) && key_exists('family_name', $payload) && !empty($payload['family_name'])) {
-				$user->setFamilyName($payload['family_name'], ($sitePrimaryLocale != $currentLocale) ? $sitePrimaryLocale : $currentLocale);
-			}
-			if (is_array($payload) && key_exists('email', $payload) && !empty($payload['email']) && $userDao->getUserByEmail($payload['email']) == null) {
-				$user->setEmail($payload['email']);
-			}
-			if ($selectedProvider == 'orcid') {
-				if (is_array($payload) && key_exists('id', $payload) && !empty($payload['id'])) {
-					$user->setOrcid($payload['id']);
-				}
-			}
-			$userDao->updateObject($user);
-		}
-
 		$userSettingsDao = DAORegistry::getDAO('UserSettingsDAO');
-		$userSettingsDao->updateSetting($user->getId(), 'openid::lastProvider', $selectedProvider, 'string');
 
-		if (is_array($payload) && key_exists('id', $payload) && !empty($payload['id'])) {
-			if ($setProviderId) {
-				$userSettingsDao->updateSetting($user->getId(), 'openid::'.$selectedProvider, $payload['id'], 'string');
+		$contextId = $contextData->getId();
+		$settings = OpenIDPlugin::getOpenIDSettings($plugin, $contextId);
+
+		$disabledFields = $considerDisabledFields ? ($settings['disableFields'] ?? []) : [];
+
+		if (($settings['providerSync'] ?? false) && $claims !== null) {
+			$sitePrimaryLocale = $contextData->getPrimaryLocale();
+
+			if (!empty($claims->givenName) && !array_key_exists('givenName', $disabledFields)) {
+				$user->setGivenName($claims->givenName, $sitePrimaryLocale);
 			}
-			$generateApiKey = isset($settings) && key_exists('generateAPIKey', $settings) ? $settings['generateAPIKey'] : false;
-			$secret = Config::getVar('security', 'api_key_secret', '');
-			if ($generateApiKey && $selectedProvider == 'custom' && $secret) {
-				$user->setData('apiKeyEnabled', true);
-				$user->setData('apiKey', self::encryptOrDecrypt($plugin, $contextId, 'encrypt', $payload['id']));
-				$userDao->updateObject($user);
+
+			if (!empty($claims->familyName) && !array_key_exists('familyName', $disabledFields)) {
+				$user->setFamilyName($claims->familyName, $sitePrimaryLocale);
+			}
+
+			if (!empty($claims->email) && !array_key_exists('email', $disabledFields) && $userDao->getUserByEmail($claims->email) === null) {
+				$user->setEmail($claims->email);
+			}
+
+			if (!empty($claims->id) && $selectedProvider === OpenIDPlugin::PROVIDER_ORCID) {
+				$user->setOrcid($claims->id);
 			}
 		}
+
+		$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, $selectedProvider);
+		$userSettingsDao->updateSetting($user->getId(), OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, $selectedProvider, 'string');
+
+		if ($setProviderId && !empty($claims->id)) {
+			$userSettingsDao->updateSetting($user->getId(), OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $claims->id, 'string');
+
+			self::updateApiKey($plugin, $contextId, $user, $claims->id, $settings, $selectedProvider);
+		}
+
+		$userDao->updateObject($user);
 	}
 
-
-	/**
-	 * De-/Encrypt function to hide some important things.
-	 *
-	 * @param $plugin
-	 * @param $contextId
-	 * @param $action
-	 * @param $string
-	 * @return string|null
-	 */
-	public static function encryptOrDecrypt($plugin, $contextId, $action, $string)
+	private static function updateApiKey(OpenIDPlugin $plugin, int $contextId, User $user, string $providerId, array $settings, string $selectedProvider)
 	{
-		$alg = 'AES-256-CBC';
-		$settings = json_decode($plugin->getSetting($contextId, 'openIDSettings'), true);
-		$result = null;
+		if ($settings['generateAPIKey'] ?? false) {
+			$secret = Config::getVar('security', 'api_key_secret');
 
-		if (key_exists('hashSecret', $settings) && !empty($settings['hashSecret'])) {
-			$pwd = $settings['hashSecret'];
-			$iv = substr($settings['hashSecret'], 0, 16);
-			if ($action == 'encrypt') {
-				$result = openssl_encrypt($string, $alg, $pwd, 0, $iv);
-			} elseif ($action == 'decrypt') {
-				$result = openssl_decrypt($string, $alg, $pwd, 0, $iv);
+			if (!$secret) {
+				error_log($plugin->getName() . ' - api_key_secret not defined in configuration file');
+				return;
 			}
-		} else {
-			$result = $string;
-		}
 
-		return $result;
+			$user->setData('apiKeyEnabled', true);
+			$user->setData('apiKey', OpenIDPlugin::encryptOrDecrypt($plugin, $contextId, $providerId));
+		}
 	}
 
 	/**
 	 * Tries to find a user via OpenID credentials via user settings openid::{provider}
 	 * This is a very simple step, and it should be safe because the token is valid at this point.
 	 * If the token is invalid, the auth process stops before this function is called.
-	 *
-	 * @param array $credentials
-	 * @return User|null
 	 */
-	private function _getUserViaKeycloakId(array $credentials)
+	private function getUserViaProviderId(string $idClaim, string $selectedProvider): ?User
 	{
+		/** @var UserDAO $userDao */
 		$userDao = DAORegistry::getDAO('UserDAO');
-		$user = $userDao->getBySetting('openid::'.$credentials['selectedProvider'], $credentials['id']);
-		if (isset($user) && is_a($user, 'User')) {
-			return $user;
+
+		$userWithSameIdClaim = $userDao->getBySetting(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $idClaim);
+		
+		if (isset($userWithSameIdClaim)) {
+			return $userWithSameIdClaim;
 		}
-		// prior versions of this plugin used hash for saving the openid identifier, but this is not recommended.
-		$user = $userDao->getBySetting('openid::'.$credentials['selectedProvider'], hash('sha256', $credentials['id']));
-		if (isset($user) && is_a($user, 'User')) {
-			return $user;
+
+		$userWithSameIdClaim = $userDao->getBySetting(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), hash('sha256', $idClaim));
+
+		if (isset($userWithSameIdClaim)) {
+			return $userWithSameIdClaim;
 		}
 
 		return null;
 	}
 
-
 	/**
-	 * This function swaps the Auth code into a JWT that contains the user_details and a signature.
-	 * An array with the access_token, id_token and/or refresh_token is returned on success, otherwise null.
-	 * The OpenID implementation differs a bit between the providers. Some use an id_token, others a refresh token.
+	 * Exchanges an authorization code for an access token (and optionally an ID or refresh token).
 	 *
-	 * @param array $providerList
-	 * @param string $authorizationCode
-	 * @param string $selectedProvider
-	 * @return array
-	 */
-	private function _getTokenViaAuthCode(array $providerList, string $authorizationCode, string $selectedProvider)
+	 * Sends a POST request to the provider's token endpoint with the authorization code and client credentials.
+	 * On success, returns an array containing the access token and optionally the ID token and/or refresh token.
+	 * Behavior may vary slightly depending on the OpenID provider (e.g., some return an ID token, others a refresh token).
+	 *
+	 * @param array $providerSettings Settings specific to the OpenID provider (e.g., clientId, clientSecret, tokenUrl).
+	 * @param string $authorizationCode The authorization code received from the OpenID provider.
+	 * @param string $selectedProvider The identifier for the selected OpenID provider (used for redirect URI).
+	 *
+	 * @return array|null Returns an associative array with 'access_token', 'id_token' (optional), and 'refresh_token' (optional), or null on failure.
+	*/
+	private function getTokenViaAuthCode(array $providerSettings, string $authorizationCode, string $selectedProvider): ?array
 	{
-		$token = null;
-		if (isset($providerList) && key_exists($selectedProvider, $providerList)) {
-			$settings = $providerList[$selectedProvider];
-			$httpClient = Application::get()->getHttpClient();
-			$response = null;
-			$params = [
-				'code' => $authorizationCode,
-				'grant_type' => 'authorization_code',
-				'client_id' => $settings['clientId'],
-				'client_secret' => $settings['clientSecret'],
-			];
-			if ($selectedProvider != 'microsoft') {
-				$params['redirect_uri'] = Application::get()->getRequest()->url(
-					null,
-					'openid',
-					'doAuthentication',
-					null,
-					array('provider' => $selectedProvider)
-				);
+		$httpClient = Application::get()->getHttpClient();
+		$params = [
+			'code' => $authorizationCode,
+			'grant_type' => 'authorization_code',
+			'client_id' => $providerSettings['clientId'],
+			'client_secret' => $providerSettings['clientSecret'],
+			'redirect_uri' => Application::get()->getRequest()->url(
+				null,
+				'openid',
+				'doAuthentication',
+				null,
+				['provider' => $selectedProvider]
+			),
+		];
+
+		try {
+			$response = $httpClient->request(
+				'POST',
+				$providerSettings['tokenUrl'],
+				[
+					'headers' => ['Accept' => 'application/json'],
+					'form_params' => $params,
+				]
+			);
+
+			if ($response->getStatusCode() != 200) {
+				error_log($this->plugin->getName() . ' - Guzzle Response != 200: ' . $response->getStatusCode());
+				return null;
 			}
-			try {
-				$response = $httpClient->request(
-					'POST',
-					$settings['tokenUrl'],
-					[
-						'headers' => [
-							'Accept' => 'application/json',
-						],
-						'form_params' => $params,
-					]
-				);
-				if ($response->getStatusCode() != 200) {
-					error_log('Guzzle Response != 200: '.$response->getStatusCode());
-				} else {
-					$result = $response->getBody()->getContents();
-					if (isset($result) && !empty($result)) {
-						$result = json_decode($result, true);
-						if (is_array($result) && !empty($result) && key_exists('access_token', $result)) {
-							$token = [
-								'access_token' => $result['access_token'],
-								'id_token' => key_exists('id_token', $result) ? $result['id_token'] : null,
-								'refresh_token' => key_exists('refresh_token', $result) ? $result['refresh_token'] : null,
-							];
-						}
-					}
-				}
-			} catch (GuzzleException $e) {
-				error_log('Guzzle Exception thrown: '.$e->getMessage());
+
+			$result = $response->getBody()->getContents();
+			$result = json_decode($result, true);
+
+			if (isset($result['access_token'])) {
+				return [
+					'access_token' => $result['access_token'],
+					OpenIDPlugin::ID_TOKEN_NAME => $result[OpenIDPlugin::ID_TOKEN_NAME] ?? null,
+					'refresh_token' => $result['refresh_token'] ?? null,
+				];
 			}
+		} catch (GuzzleException $e) {
+			error_log($this->plugin->getName() . ' - Guzzle Exception thrown: ' . $e->getMessage());
 		}
 
-		return $token;
+		return null;
 	}
 
 	/**
@@ -325,130 +331,153 @@ class OpenIDHandler extends Handler
 	 * - Other vendors provide the cert modulus and exponent and the cert has to be created via phpseclib/RSA
 	 *
 	 * If no key is found, null is returned
-	 *
-	 * @param array $providerList
-	 * @param string $selectedProvider
-	 * @return array
 	 */
-	private function _getOpenIDAuthenticationCert(array $providerList, string $selectedProvider)
+	private function getOpenIDAuthenticationCert(?array $providerSettings): ?array
 	{
-		$publicKeys = null;
-		if (isset($providerList) && key_exists($selectedProvider, $providerList)) {
-			$settings = $providerList[$selectedProvider];
-			$beginCert = '-----BEGIN CERTIFICATE-----';
-			$endCert = '-----END CERTIFICATE----- ';
-			$httpClient = Application::get()->getHttpClient();
-			$response = null;
-			try {
-				$response = $httpClient->request('GET', $settings['certUrl']);
-				if ($response->getStatusCode() != 200) {
-					error_log('Guzzle Response != 200: '.$response->getStatusCode());
-				} else {
-					$result = $response->getBody()->getContents();
-					$arr = json_decode($result, true);
-					if (key_exists('keys', $arr)) {
-						$publicKeys = array();
-						foreach ($arr['keys'] as $key) {
-							if ((key_exists('alg', $key) && $key['alg'] = 'RS256') || (key_exists('kty', $key) && $key['kty'] = 'RSA')) {
-								if (key_exists('x5c', $key) && $key['x5c'] != null && is_array($key['x5c'])) {
-									foreach ($key['x5c'] as $n) {
-										if (!empty($n)) {
-											$publicKeys[] = $beginCert.PHP_EOL.$n.PHP_EOL.$endCert;
-										}
-									}
-								} elseif (key_exists('n', $key) && key_exists('e', $key)) {
-									$rsa = new RSA();
-									$modulus = new BigInteger(JWT::urlsafeB64Decode($key['n']), 256);
-									$exponent = new BigInteger(JWT::urlsafeB64Decode($key['e']), 256);
-									$rsa->loadKey(array('n' => $modulus, 'e' => $exponent));
-									$publicKeys[] = $rsa->getPublicKey();
-								}
+		$httpClient = Application::get()->getHttpClient();
+		$publicKeys = [];
+		$beginCert = '-----BEGIN CERTIFICATE-----';
+		$endCert = '-----END CERTIFICATE----- ';
+
+		try {
+			$response = $httpClient->request('GET', $providerSettings['certUrl']);
+			if ($response->getStatusCode() != 200) {
+				error_log($this->plugin->getName() . ' - Guzzle Response != 200: ' . $response->getStatusCode());
+				return null;
+			}
+
+			$result = $response->getBody()->getContents();
+			$arr = json_decode($result, true);
+
+			if (!isset($arr['keys'])) {
+				return null;
+			}
+
+			foreach ($arr['keys'] as $key) {
+				if (($key['alg'] ?? null) == 'RS256' || ($key['kty'] ?? null) == 'RSA') {
+					if (is_array($key['x5c'] ?? null)) {
+						foreach ($key['x5c'] as $n) {
+							if (!empty($n)) {
+								$publicKeys[] = $beginCert . PHP_EOL . $n . PHP_EOL . $endCert;
 							}
 						}
+					} elseif (isset($key['n'], $key['e'])) {
+						$rsa = new RSA();
+						$modulus = new BigInteger(JWT::urlsafeB64Decode($key['n']), 256);
+						$exponent = new BigInteger(JWT::urlsafeB64Decode($key['e']), 256);
+						$rsa->loadKey(['n' => $modulus, 'e' => $exponent]);
+						$publicKeys[] = $rsa->getPublicKey();
 					}
 				}
-			} catch (GuzzleException $e) {
-				error_log('Guzzle Exception thrown: '.$e->getMessage());
 			}
+		} catch (GuzzleException $e) {
+			error_log($this->plugin->getName() . ' - Guzzle Exception thrown: ' . $e->getMessage());
 		}
 
 		return $publicKeys;
 	}
 
 	/**
-	 * Validates the token via JWT and public key and returns the token payload data as array.
+	 * Validates the token via JWT and public key and returns the token claims data as array.
 	 * In case of an error null is returned
-	 *
-	 * @param array $token
-	 * @param array $publicKeys
-	 * @return array|null
 	 */
-	private function _validateAndExtractToken(array $token, array $publicKeys)
+	private function getClaimsFromJwt(array $token, array $publicKeys): ?UserClaims
 	{
-		$credentials = null;
 		foreach ($publicKeys as $publicKey) {
 			foreach ($token as $t) {
 				try {
-					if (!empty($t)) {
-						$jwtPayload = JWT::decode($t, $publicKey, array('RS256'));
+					if ($t) {
+						$jwtPayload = JWT::decode($t, new \Firebase\JWT\Key($publicKey, 'RS256'));
 
-						if (isset($jwtPayload)) {
-							$credentials = [
-								'id' => property_exists($jwtPayload, 'sub') ? $jwtPayload->sub : null,
-								'email' => property_exists($jwtPayload, 'email') ? $jwtPayload->email : null,
-								'username' => property_exists($jwtPayload, 'preferred_username') ? $jwtPayload->preferred_username : null,
-								'given_name' => property_exists($jwtPayload, 'given_name') ? $jwtPayload->given_name : null,
-								'family_name' => property_exists($jwtPayload, 'family_name') ? $jwtPayload->family_name : null,
-								'email_verified' => property_exists($jwtPayload, 'email_verified') ? $jwtPayload->email_verified : null,
-							];
-						}
-						if (isset($credentials) && key_exists('id', $credentials) && !empty($credentials['id'])) {
-							break 2;
+						if ($jwtPayload) {
+							$claimsParams = (array)$jwtPayload;
+
+							$claims = new UserClaims();
+							$claims->setValues($claimsParams);
+
+							return $claims;
 						}
 					}
 				} catch (Exception $e) {
-					$credentials = null;
+					continue;
 				}
 			}
 		}
 
-		return $credentials;
+		return null;
 	}
 
 	/**
-	 * This function is unused at the moment.
-	 * It can be unsed to get the user details from an endpoint but usually all user data are provided in the JWT.
-	 *
-	 * @param $token
-	 * @param $settings
-	 *
-	 * @return bool|string
+	 * This function gets the user details from the UserInfo endpoint
 	 */
-	private function _getClientDetails($token, $settings)
+	private function getClaimsFromUserInfo(array $providerSettings, array $token): ?UserClaims
 	{
 		$httpClient = Application::get()->getHttpClient();
-		$response = null;
-		$result = null;
+
 		try {
 			$response = $httpClient->request(
 				'GET',
-				$settings['userInfoUrl'],
+				$providerSettings['userInfoUrl'],
 				[
 					'headers' => [
 						'Accept' => 'application/json',
-						'Authorization' => 'Bearer '.$token['access_token'],
+						'Authorization' => 'Bearer ' . $token['access_token'],
 					],
 				]
 			);
+
 			if ($response->getStatusCode() != 200) {
-				error_log('Guzzle Response != 200: '.$response->getStatusCode());
-			} else {
-				$result = $response->getBody()->getContents();
+				error_log($this->plugin->getName() . ' - Guzzle Response != 200: ' . $response->getStatusCode());
+				return null;
 			}
+
+			$userInfo = json_decode($response->getBody()->getContents(), true);
+
+			$claims = new UserClaims();
+			$claims->setValues($userInfo);
+
+			return $claims;
 		} catch (GuzzleException $e) {
-			error_log('Guzzle Exception thrown: '.$e->getMessage());
+			error_log($this->plugin->getName() . ' - Guzzle Exception thrown: ' . $e->getMessage());
+			return null;
+		}
+	}
+
+	private function getCompleteClaims(array $providerSettings, array $token): ?UserClaims
+	{
+		$retUserClaims = new UserClaims();
+
+		$publicKey = $this->getOpenIDAuthenticationCert($providerSettings);
+
+		if (!$publicKey) {
+			return null;
 		}
 
-		return $result;
+		$jwtClaims = $this->getClaimsFromJwt($token, $publicKey);
+
+		if ($jwtClaims != null) {
+			$retUserClaims->merge($jwtClaims);
+		}
+
+		if (!$retUserClaims->isComplete()) {
+			$userInfoClaims = $this->getClaimsFromUserInfo($providerSettings, $token);
+			$retUserClaims->merge($userInfoClaims); // Merge UserInfo claims into JWT claims
+		}
+
+		return $retUserClaims;
+	}
+
+	/**
+	 * Handle SSO errors
+	 */
+	private function handleSSOError(Request $request, ?string $contextPath, string $error, $errorMsg = null)
+	{
+		$ssoErrors = ['sso_error' => htmlspecialchars($error, ENT_QUOTES, 'UTF-8')];
+
+		if ($errorMsg) {
+			$ssoErrors['sso_error_msg'] = htmlspecialchars($errorMsg, ENT_QUOTES, 'UTF-8');
+		}
+
+		return $request->redirect($contextPath, 'login', null, null, $ssoErrors);
 	}
 }

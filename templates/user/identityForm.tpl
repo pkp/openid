@@ -1,9 +1,10 @@
 {**
  * templates/user/identityForm.tpl
  *
- * Copyright (c) 2014-2020 Simon Fraser University
- * Copyright (c) 2003-2020 John Willinsky
- * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+ * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * User profile form.
  *}
@@ -32,7 +33,7 @@
 	{* Help Link *}
 	{help file="user-profile" class="pkp_help_tab"}
 	{csrf}
-	{if $openIdDisableFields && ((key_exists('givenName', $openIdDisableFields) && $openIdDisableFields['givenName'] == 1) || (key_exists('familyName', $openIdDisableFields) && $openIdDisableFields['familyName'] == 1))}
+	{if ($openIdGivenNameDisabledField || $openIdFamilyNameDisabledField)}
 		{assign var="openidIdentityFields" value=true }
 		<p class="cmp_notification">
 			{translate key="plugins.generic.openid.disables.fields.info"}
@@ -48,8 +49,8 @@
 
 	{fbvFormArea id="userFormCompactLeft"}
 		{fbvFormSection title="user.name"}
-			{fbvElement type="text" label="user.givenName" multilingual="true" required="true" id="givenName" value=$givenName maxlength="255" inline=true size=$fbvStyles.size.MEDIUM readonly=$openidIdentityFields}
-			{fbvElement type="text" label="user.familyName" multilingual="true" id="familyName" value=$familyName maxlength="255" inline=true size=$fbvStyles.size.MEDIUM readonly=$openidIdentityFields}
+			{fbvElement type="text" label="user.givenName" multilingual="true" required="true" id="givenName" value=$givenName maxlength="255" inline=true size=$fbvStyles.size.MEDIUM readonly=$openIdGivenNameDisabledField}
+			{fbvElement type="text" label="user.familyName" multilingual="true" id="familyName" value=$familyName maxlength="255" inline=true size=$fbvStyles.size.MEDIUM readonly=$openIdFamilyNameDisabledField}
 		{/fbvFormSection}
 	{/fbvFormArea}
 
