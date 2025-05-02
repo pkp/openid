@@ -13,8 +13,6 @@
  * @brief Handler to overwrite default OJS/OMP/OPS login and registration
  */
 
-use Illuminate\Support\Facades\Http;
-
 import('classes.handler.Handler');
 import('plugins.generic.openid.classes.ContextData');
 

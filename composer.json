@@ -1,7 +1,6 @@
 {
 	"require": {
-		"phpseclib/phpseclib": "~2.0"
-	},
-	"require-dev": {
+		"phpseclib/phpseclib": "~2.0",
+		"firebase/php-jwt": "5.*"
 	}
 }
