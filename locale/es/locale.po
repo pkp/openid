@@ -346,6 +346,9 @@ msgstr ""
 msgid "plugins.generic.openid.select.legacy"
 msgstr "Iniciar sesión con su cuenta en {$journalName}"
 
+msgid "plugins.generic.openid.select.provider.login"
+msgstr "Iniciar sesión con "
+
 msgid "plugins.generic.openid.select.provider.help"
 msgstr "Iniciar sesión o registrarse con:"
 

@@ -78,18 +78,28 @@
 		{foreach from=$initProvider item=settings key=name}
 			<div class="showContent">
 				{fbvFormSection list=true style="padding: 0;" class="provider_list"}
-					{fbvElement type="checkbox" id="provider[{$name}][active]" checked=$provider[{$name}]['active']  value=1 label="plugins.generic.openid.settings.{$name}.enable" class="strong"}
+
+					{if "plugins.generic.openid.settings.{$name}.enable"|translate != "##plugins.generic.openid.settings.{$name}.enable##"}
+						{fbvElement type="checkbox" id="provider[{$name}][active]" checked=$provider[{$name}]['active']  value=1 label="plugins.generic.openid.settings.{$name}.enable" class="strong"}
+					{else}
+						{fbvElement type="checkbox" id="provider[{$name}][active]" checked=$provider[{$name}]['active']  value=1 label={$name|replace:'custom':''|capitalize:true|trim} class="strong"}
+					{/if}
 					<div class="hiddenContent">
 						{assign var='providerSuffix' value="?provider="|cat:$name}
 						<p>
-							{translate key="plugins.generic.openid.settings.{$name}.desc"}
+							{if "plugins.generic.openid.settings.{$name}.desc"|translate != "##plugins.generic.openid.settings.{$name}.desc##"}
+								{translate key="plugins.generic.openid.settings.{$name}.desc"}
+							{else}
+								{translate key="plugins.generic.openid.settings.custom.desc"}
+							{/if}
+						
 							&nbsp;
 							<strong>
 								{$redirectUrl|escape}{$providerSuffix}
 							</strong>
 						</p>
-						{if $name eq 'custom'}
-							{fbvElement type="text" id="provider[{$name}][configUrl]" value=$provider[{$name}]['configUrl'] maxlength="250" label="plugins.generic.openid.settings.configUrl.desc"}
+						{if $name|strstr:'custom' !== false}
+							{fbvElement type="text" id="provider[{$name}][configUrl]" value=$provider[{$name}]['configUrl']|default:$settings['configUrl'] maxlength="250" label="plugins.generic.openid.settings.configUrl.desc"}
 							<div style="clear: both;">&nbsp;</div>
 							<div>
 								<div><strong>{translate key="plugins.generic.openid.settings.btn.settings"}</strong></div>
@@ -146,6 +156,16 @@
 		{fbvFormSection list=true}
 		{fbvElement type="checkbox" id="generateAPIKey" checked=$generateAPIKey value=true label="plugins.generic.openid.settings.generateAPIKey.check"}
 			<label class="sub_label">{translate key="plugins.generic.openid.settings.generateAPIKey.desc"}</label>
+		{/fbvFormSection}
+		{fbvFormSection list=true}
+		<div class="showContent">
+		{fbvElement type="checkbox" id="newProviderCheckbox" checked=false  value=true label="plugins.generic.openid.select.provider.add" class="strong"}
+		<div class="hiddenContent">
+			{fbvElement type="text" id="newProviderName" value="" maxlength="250" label="plugins.generic.openid.settings.btnTxt.desc"}
+			{fbvElement type="text" id="newProviderConfigUrl" value="" maxlength="250" label="plugins.generic.openid.settings.configUrl.desc"}
+						
+		</div>
+		</div>
 		{/fbvFormSection}
 	{/fbvFormArea}
 	{fbvFormButtons}

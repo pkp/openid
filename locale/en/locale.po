@@ -253,6 +253,9 @@ msgstr "Sign in or register"
 msgid "plugins.generic.openid.select.legacy"
 msgstr "Sign in with your account at {$journalName}"
 
+msgid "plugins.generic.openid.select.provider.login"
+msgstr "Sign in with "
+
 msgid "plugins.generic.openid.select.provider.help"
 msgstr "Sign in or register with:"
 
@@ -273,6 +276,9 @@ msgstr "Sign in with Apple"
 
 msgid "plugins.generic.openid.select.provider.legacyRegister"
 msgstr "Register Account (without Oauth)"
+
+msgid "plugins.generic.openid.select.provider.add"
+msgstr "Add new custom provider"
 
 # disabled fields info
 msgid "plugins.generic.openid.disables.fields.info"

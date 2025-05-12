@@ -30,6 +30,8 @@ use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
 use PKP\core\JSONMessage;
 use APP\template\TemplateManager;
+use APP\plugins\generic\openid\classes\OpenIDProvider;
+
 
 require_once(dirname(__FILE__) . '/vendor/autoload.php');
 
@@ -73,6 +75,31 @@ class OpenIDPlugin extends GenericPlugin
 			self::PROVIDER_MICROSOFT => ["configUrl" => "https://login.windows.net/{audience}/v2.0/.well-known/openid-configuration"],
 			self::PROVIDER_APPLE => ["configUrl" => "https://appleid.apple.com/.well-known/openid-configuration"],
 		]);
+
+		$this->addToPublicOpenidProviders();
+	}
+
+
+	function addToPublicOpenidProviders(){
+		if (!file_exists(dirname(__FILE__,1).'/openidproviders.json')) {
+			return;
+		}
+
+		$data = json_decode(file_get_contents(dirname(__FILE__,1).'/openidproviders.json'), true);
+		if ($data==null) {
+			error_log("error on openidproviders.json malformed JSON");
+			return;
+		}
+
+		$openidproviders = array_map(fn($item) => new OpenIDProvider($item["name"],$item["configUrl"]), $data);
+		
+		foreach ($openidproviders as $provider) {
+			if (!self::$publicOpenidProviders->has($provider->name)) {
+				self::$publicOpenidProviders->put(
+					$provider->name , ["configUrl" => $provider->configUrl]
+				);
+			}
+		}
 	}
 
 	/**
@@ -481,5 +508,6 @@ class OpenIDPlugin extends GenericPlugin
 	{
 		return parent::getSetting(PKPApplication::CONTEXT_SITE, 'enabled');
 	}
+
 }
 
