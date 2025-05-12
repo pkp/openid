@@ -25,9 +25,14 @@ use Illuminate\Support\Facades\Http;
 use PKP\config\Config;
 use PKP\facades\Locale;
 use PKP\security\Validation;
+use Illuminate\Support\Collection;
 
 class OpenIDLoginHandler extends Handler
 {
+
+	public static Collection $customBtnImg;
+	public static Collection $customBtnTxt;
+
 	public function __construct(protected OpenIDPlugin $plugin)
 	{
 	}
@@ -300,6 +305,9 @@ class OpenIDLoginHandler extends Handler
 	{
 		$router = $request->getRouter();
 		$linkList = [];
+		
+		self::$customBtnImg = collect([]);
+		self::$customBtnTxt = collect([]);
 
 		foreach ($providerList as $provider => $settings) {
 			if (!empty($settings['authUrl']) && !empty($settings['clientId'])) {
@@ -314,17 +322,27 @@ class OpenIDLoginHandler extends Handler
 				$this->handleCustomProvider($provider, $settings, TemplateManager::getManager($request));
 			}
 		}
+		if(self::$customBtnTxt->isNotEmpty()){
+			TemplateManager::getManager($request)->assign([
+				'customBtnImg' => self::$customBtnImg,
+				'customBtnTxt' => self::$customBtnTxt
+			]);
+		}
+		
+
 		return $linkList;
 	}
 
+	 
+
+
 	private function handleCustomProvider(string $provider, array $settings, TemplateManager $templateMgr): void
-	{
-		if ($provider == OpenIDPlugin::PROVIDER_CUSTOM) {
+	{	
+		if(str_contains($provider, OpenIDPlugin::PROVIDER_CUSTOM)){
 			$customBtnTxt = htmlspecialchars($settings['btnTxt'][Locale::getLocale()] ?? '', ENT_QUOTES, 'UTF-8');
-			$templateMgr->assign([
-				'customBtnImg' => $settings['btnImg'] ?? null,
-				'customBtnTxt' => $customBtnTxt
-			]);
+
+			self::$customBtnImg->put($provider,$settings['btnImg'] ?? null);
+			self::$customBtnTxt->put($provider,$customBtnTxt);
 		}
 	}
 

@@ -27,6 +27,8 @@ use PKP\form\Form;
 use PKP\form\validation\FormValidatorPost;
 use PKP\form\validation\FormValidatorCSRF;
 use PKP\notification\PKPNotification;
+use APP\plugins\generic\openid\classes\OpenIDProvider;
+use PKP\linkAction\request\NullAction;
 
 class OpenIDPluginSettingsForm extends Form
 {
@@ -112,6 +114,9 @@ class OpenIDPluginSettingsForm extends Form
 				'generateAPIKey',
 				'providerSync',
 				'disableFields',
+				'newProviderCheckbox',
+				'newProviderName',
+				'newProviderConfigUrl'
 			]
 		);
 		parent::readInputData();
@@ -157,6 +162,32 @@ class OpenIDPluginSettingsForm extends Form
 				'providerSync' => $this->getData('providerSync'),
 				'disableFields' => $this->getData('disableFields'),
 			];
+	
+			if ($this->getData('newProviderCheckbox')) {
+				if ($this->getData('newProviderName')=="" || $this->getData('newProviderConfigUrl')=="") {
+					return;	
+				}
+
+				$name = "custom".$this->getData('newProviderName');
+				$configUrl = $this->getData('newProviderConfigUrl');
+				
+
+				if (file_exists(dirname(__FILE__,1).'/../openidproviders.json')) {
+					$data = json_decode(file_get_contents(dirname(__FILE__,1).'/../openidproviders.json'), true);
+					if($data==null){
+						error_log("error on openidproviders.json malformed JSON");
+						return;
+					}
+					$openidproviders = array_map(fn($item) => new OpenIDProvider($item["name"],$item["configUrl"]), $data);
+					array_push($openidproviders,new OpenIDProvider($name,$configUrl));
+				}else{
+					$openidproviders=[new OpenIDProvider($name,$configUrl)];
+				}
+			
+				file_put_contents(dirname(__FILE__,1).'/../openidproviders.json', json_encode($openidproviders));
+
+			}
+
 			$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
 
 			$notificationMgr = new NotificationManager();
