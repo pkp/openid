@@ -9,3 +9,4 @@ docker/ojs/
 /docker/ojs/
 docker/volumes/
 /docker/volumes/
+openidproviders.json
