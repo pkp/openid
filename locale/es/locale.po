@@ -331,6 +331,9 @@ msgstr "<strong>Apellidos</strong> solo de lectura"
 msgid "plugins.generic.openid.settings.features.disable.email"
 msgstr "<strong>Correo electrónico</strong> solo de lectura"
 
+msgid "plugins.generic.openid.settings.name"
+msgstr "Introduce un nombre para tu configuración personalizada"
+
 msgid "plugins.generic.openid.error.openid.disabled.without"
 msgstr ""
 "<strong>Esta cuenta se ha desactivado sin ningún motivo específico. Para "
@@ -345,6 +348,9 @@ msgstr ""
 
 msgid "plugins.generic.openid.select.legacy"
 msgstr "Iniciar sesión con su cuenta en {$journalName}"
+
+msgid "plugins.generic.openid.select.provider.login"
+msgstr "Iniciar sesión con "
 
 msgid "plugins.generic.openid.select.provider.help"
 msgstr "Iniciar sesión o registrarse con:"

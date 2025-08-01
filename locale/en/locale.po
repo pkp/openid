@@ -227,6 +227,9 @@ msgstr "<strong>Family name</strong> readonly"
 msgid "plugins.generic.openid.settings.features.disable.email"
 msgstr "<strong>Email</strong> readonly"
 
+msgid "plugins.generic.openid.settings.name"
+msgstr "Insert a name for your custom configuration"
+
 # error messages
 msgid "plugins.generic.openid.error.openid.connect.desc.key"
 msgstr "<strong>An error occurred while verifying your data.</strong><br />The service may not be available right now.<br />Please try again later and <a href='mailto:{$supportEmail}'>contact technical support</a> if the problem still exists."
@@ -253,6 +256,9 @@ msgstr "Sign in or register"
 msgid "plugins.generic.openid.select.legacy"
 msgstr "Sign in with your account at {$journalName}"
 
+msgid "plugins.generic.openid.select.provider.login"
+msgstr "Sign in with "
+
 msgid "plugins.generic.openid.select.provider.help"
 msgstr "Sign in or register with:"
 
@@ -273,6 +279,9 @@ msgstr "Sign in with Apple"
 
 msgid "plugins.generic.openid.select.provider.legacyRegister"
 msgstr "Register Account (without Oauth)"
+
+msgid "plugins.generic.openid.select.provider.add"
+msgstr "Add new custom provider"
 
 # disabled fields info
 msgid "plugins.generic.openid.disables.fields.info"
