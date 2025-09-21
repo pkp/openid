@@ -366,7 +366,7 @@ class OpenIDStep2Form extends Form
 				
 				if ($defaultReaderGroups->isNotEmpty()) {
 					$defaultReaderGroup = $defaultReaderGroups->first();
-					Repo::userGroup()->assignUserToGroup($user->getId(), $defaultReaderGroup->getId());
+					Repo::userGroup()->assignUserToGroup($user->getId(), $defaultReaderGroup->id);
 				}
 			} else {
 				$userFormHelper = new UserFormHelper();
