@@ -349,7 +349,14 @@ class OpenIDStep2Form extends Form
 
 		$user->setDateRegistered(Core::getCurrentDate());
 		$user->setInlineHelp(1);
-		$user->setPassword(Validation::encryptCredentials($this->getData('username'), openssl_random_pseudo_bytes(16)));
+		
+		$generatedPassword = base64_encode(random_bytes(16));
+
+		// Hash the generated password
+		$hashedPassword = Validation::encryptCredentials($this->getData('username'), $generatedPassword);
+
+		// Store the hash on the user
+		$user->setPassword($hashedPassword);
 
 		Repo::user()->add($user);
 		
