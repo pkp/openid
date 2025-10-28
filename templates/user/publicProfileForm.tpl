@@ -9,9 +9,6 @@
  * Public user profile form.
  *}
 
-{* Help Link *}
-{help file="user-profile" class="pkp_help_tab"}
-
 <script type="text/javascript">
 	$(function() {ldelim}
 		// Attach the form handler.
