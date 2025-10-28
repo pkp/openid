@@ -17,9 +17,6 @@
 </script>
 
 <form class="pkp_form" id="apiProfileForm" method="post" action="{url op="saveAPIProfile"}" enctype="multipart/form-data">
-	{* Help Link *}
-	{help file="user-profile" class="pkp_help_tab"}
-
 	{csrf}
 	{if isset($openIdDisableFields) && !empty($openIdDisableFields) && key_exists('generateAPIKey', $openIdDisableFields)
 		&& $openIdDisableFields['generateAPIKey'] == 1 && key_exists('lastProvider', $openIdDisableFields) && $openIdDisableFields['lastProvider'] == 'custom'}
