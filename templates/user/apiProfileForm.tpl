@@ -19,7 +19,7 @@
 <form class="pkp_form" id="apiProfileForm" method="post" action="{url op="saveAPIProfile"}" enctype="multipart/form-data">
 	{csrf}
 	{if isset($openIdDisableFields) && !empty($openIdDisableFields) && key_exists('generateAPIKey', $openIdDisableFields)
-		&& $openIdDisableFields['generateAPIKey'] == 1 && key_exists('lastProvider', $openIdDisableFields) && $openIdDisableFields['lastProvider'] == 'custom'}
+		&& $openIdDisableFields['generateAPIKey'] == 1 && key_exists('lastProvider', $openIdDisableFields) && !empty($openIdDisableFields['lastProvider'])}
 		{assign var="openidApiFields" value=true }
 		<p class="cmp_notification">
 			{translate key="plugins.generic.openid.disables.fields.info.api"}

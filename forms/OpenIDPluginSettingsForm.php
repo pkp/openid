@@ -17,7 +17,6 @@ namespace APP\plugins\generic\openid\forms;
 
 use APP\core\Application;
 use APP\notification\NotificationManager;
-use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
 use Exception;
@@ -146,6 +145,7 @@ class OpenIDPluginSettingsForm extends Form
 
 			$providerList = $this->getData('provider');
 			$providerListResult = $this->_createProviderList($providerList, $settingsTMP['provider']);
+
 
 			$settings = [
 				'provider' => $providerListResult,

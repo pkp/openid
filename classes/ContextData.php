@@ -16,6 +16,7 @@ namespace APP\plugins\generic\openid\classes;
 
 use PKP\context\Context;
 use PKP\core\PKPApplication;
+use APP\core\Application;
 use PKP\site\Site;
 
 class ContextData
@@ -26,7 +27,7 @@ class ContextData
 
     public function getId(): ?int 
     {
-        return $this->context ? $this->context->getId() : PKPApplication::CONTEXT_SITE;
+        return $this->context ? $this->context->getId() : Application::SITE_CONTEXT_ID;
     }
 
     public function getSupportEmail(): ?string

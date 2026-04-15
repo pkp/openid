@@ -20,6 +20,7 @@ use APP\plugins\generic\openid\classes\UserClaims;
 use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
+use PKP\config\Config;
 use PKP\core\Core;
 use PKP\security\Role;
 use PKP\security\Validation;
@@ -49,6 +50,18 @@ class OpenIDStep2Form extends Form
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
+
+		// Add captcha validation (same as native registration)
+		if (Config::getVar('captcha', 'recaptcha') && Config::getVar('captcha', 'captcha_on_register')) {
+			$this->addCheck(new \PKP\form\validation\FormValidatorReCaptcha($this, 'recaptcha', Config::getVar('captcha', 'recaptcha_private_key')));
+		}
+		if (Config::getVar('captcha', 'altcha') && Config::getVar('captcha', 'altcha_on_register')) {
+			$this->addCheck(new \PKP\form\validation\FormValidatorAltcha(
+				$this,
+				Application::get()->getRequest()->getRemoteAddr(),
+				'common.captcha.error.missing-input-response'
+			));
+		}
 
 		parent::__construct($plugin->getTemplateResource('authStep2.tpl'));
 	}
@@ -107,6 +120,20 @@ class OpenIDStep2Form extends Form
 		$userFormHelper = new UserFormHelper();
 		$userFormHelper->assignRoleContent($templateMgr, $request);
 
+		// Add captcha support (same as native registration)
+		if (Config::getVar('captcha', 'recaptcha') && Config::getVar('captcha', 'captcha_on_register')) {
+			$templateMgr->assign('recaptchaPublicKey', Config::getVar('captcha', 'recaptcha_public_key'));
+			$templateMgr->addJavaScript(
+				'recaptcha',
+				'https://www.recaptcha.net/recaptcha/api.js?hl=' . \PKP\facades\Locale::getLocale(),
+				['contexts' => 'frontend']
+			);
+		}
+		if (Config::getVar('captcha', 'altcha') && Config::getVar('captcha', 'altcha_on_register')) {
+			\PKP\form\validation\FormValidatorAltcha::addAltchaJavascript($templateMgr);
+			\PKP\form\validation\FormValidatorAltcha::insertFormChallenge($templateMgr);
+		}
+
 		return parent::fetch($request, $template, $display);
 	}
 
@@ -137,6 +164,7 @@ class OpenIDStep2Form extends Form
 				'givenName' => $this->claims->givenName,
 				'familyName' => $this->claims->familyName,
 				'email' => $this->claims->email,
+				'affiliation' => $affiliation,
 				'userGroupIds' => [],
 			];
 		}
@@ -349,30 +377,22 @@ class OpenIDStep2Form extends Form
 
 		$user->setDateRegistered(Core::getCurrentDate());
 		$user->setInlineHelp(1);
-		
 		$generatedPassword = base64_encode(random_bytes(16));
-
-		// Hash the generated password
-		$hashedPassword = Validation::encryptCredentials($this->getData('username'), $generatedPassword);
-
-		// Store the hash on the user
-		$user->setPassword($hashedPassword);
+		$user->setPassword(Validation::encryptCredentials($this->getData('username'), $generatedPassword));
 
 		Repo::user()->add($user);
-		
+
 		if ($user->getId()) {
 			// Insert the user interests
 			Repo::userInterest()->setInterestsForUser($user, $this->getData('interests'));
 
 			// Save the selected roles or assign the Reader role if none selected
 			if ($contextData->IsInContext() && !$this->getData('reviewerGroup')) {
-				$defaultReaderGroups = UserGroup::IsDefault(true)
-					->withContextIds([$contextData->getId()])
-					->withRoleIds([Role::ROLE_ID_READER])
-					->get();
-				
-				if ($defaultReaderGroups->isNotEmpty()) {
-					$defaultReaderGroup = $defaultReaderGroups->first();
+				$defaultReaderGroup = Repo::userGroup()->getByRoleIds(
+					[Role::ROLE_ID_READER], $contextData->getId(), true
+				)->first();
+
+				if ($defaultReaderGroup) {
 					Repo::userGroup()->assignUserToGroup($user->getId(), $defaultReaderGroup->id);
 				}
 			} else {

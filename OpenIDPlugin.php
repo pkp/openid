@@ -111,8 +111,8 @@ class OpenIDPlugin extends GenericPlugin
 
 	function getCanEnable()
 	{
-		// this plugin can't be enabled if it is already configured for the context == PKPApplication::CONTEXT_SITE
-		if ($this->getCurrentContextId() != PKPApplication::CONTEXT_SITE && $this->getSetting(PKPApplication::CONTEXT_SITE, 'enabled')) {
+		// this plugin can't be enabled if it is already configured for the context == Application::SITE_CONTEXT_ID
+		if ($this->getCurrentContextId() != Application::SITE_CONTEXT_ID && $this->getSetting(Application::SITE_CONTEXT_ID, 'enabled')) {
 			return false;
 		}
 		return true;
@@ -123,8 +123,8 @@ class OpenIDPlugin extends GenericPlugin
 	 */
 	function getCanDisable()
 	{
-		// this plugin can't be disabled if it is already configured for the context == PKPApplication::CONTEXT_SITE
-		if ($this->getCurrentContextId() != PKPApplication::CONTEXT_SITE && $this->getSetting(PKPApplication::CONTEXT_SITE, 'enabled')) {
+		// this plugin can't be disabled if it is already configured for the context == Application::SITE_CONTEXT_ID
+		if ($this->getCurrentContextId() != Application::SITE_CONTEXT_ID && $this->getSetting(Application::SITE_CONTEXT_ID, 'enabled')) {
 			return false;
 		}
 
@@ -150,9 +150,9 @@ class OpenIDPlugin extends GenericPlugin
 			$contextId = $this->getCurrentContextId();
 		}
 
-		// getEnabled(PKPApplication::CONTEXT_SITE) was called
-		if ($contextId === PKPApplication::CONTEXT_SITE) {
-			$contextId = PKPApplication::CONTEXT_SITE;
+		// getEnabled(Application::SITE_CONTEXT_ID) was called
+		if ($contextId === Application::SITE_CONTEXT_ID) {
+			$contextId = Application::SITE_CONTEXT_ID;
 		}
 
 		// Regular behavior
@@ -164,8 +164,8 @@ class OpenIDPlugin extends GenericPlugin
 	 */
 	function getSetting($contextId, $name)
 	{
-		if (parent::getSetting(PKPApplication::CONTEXT_SITE, 'enabled')) {
-			return parent::getSetting(PKPApplication::CONTEXT_SITE, $name);
+		if (parent::getSetting(Application::SITE_CONTEXT_ID, 'enabled')) {
+			return parent::getSetting(Application::SITE_CONTEXT_ID, $name);
 		} else {
 			return parent::getSetting($contextId, $name);
 		}
@@ -238,7 +238,7 @@ class OpenIDPlugin extends GenericPlugin
 						'openIdDisableFields' => $openIdDisableFields,
 					]);
 					
-					Hook::add('TemplateResource::getFilename', [$this, '_overridePluginTemplates']);
+					Hook::add('View::resolveName', [$this, '_overridePluginTemplates']);
 				}
 
 				Hook::add('LoadHandler', [$this, 'setPageHandler']);
@@ -334,6 +334,25 @@ class OpenIDPlugin extends GenericPlugin
 			}
 		}
 
+		// Server-side protection: if fields are managed by IdP, reject any changes
+		$lastProvider = $dbUser->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
+		if ($lastProvider) {
+			$contextId = $this->getCurrentContextId();
+			$settings = OpenIDPlugin::getOpenIDSettings($this, $contextId);
+			if (($settings['providerSync'] ?? false) && ($settings['disableFields'] ?? false)) {
+				$df = $settings['disableFields'];
+				if (!empty($df['givenName'])) {
+					$newUser->setData('givenName', $dbUser->getData('givenName'));
+				}
+				if (!empty($df['familyName'])) {
+					$newUser->setData('familyName', $dbUser->getData('familyName'));
+				}
+				if (!empty($df['email'])) {
+					$newUser->setEmail($dbUser->getEmail());
+				}
+			}
+		}
+
 		return false;
 	}
 
@@ -383,9 +402,9 @@ class OpenIDPlugin extends GenericPlugin
 		$actions = parent::getActions($request, $actionArgs);
 
 		$currentContextId = $this->getCurrentContextId();
-		$siteWideEnabled = $this->getEnabled(PKPApplication::CONTEXT_SITE);
+		$siteWideEnabled = $this->getEnabled(Application::SITE_CONTEXT_ID);
 
-		if ($siteWideEnabled && $currentContextId != PKPApplication::CONTEXT_SITE) {
+		if ($siteWideEnabled && $currentContextId != Application::SITE_CONTEXT_ID) {
 			return $actions;
 		}
 
@@ -455,7 +474,10 @@ class OpenIDPlugin extends GenericPlugin
 		return $settingsJson ? json_decode($settingsJson, true) : null;
 	}
 
-	public static function getContextData(PKPRequest $request): ContextData
+	
+
+
+public static function getContextData(PKPRequest $request): ContextData
 	{
 		$context = $request->getContext();
 		$site = $request->getSite();
@@ -498,7 +520,7 @@ class OpenIDPlugin extends GenericPlugin
 	 */
 	function isEnabledSitewide()
 	{
-		return parent::getSetting(PKPApplication::CONTEXT_SITE, 'enabled');
+		return parent::getSetting(Application::SITE_CONTEXT_ID, 'enabled');
 	}
 }
 
