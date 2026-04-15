@@ -146,6 +146,13 @@ class OpenIDPluginSettingsForm extends Form
 			$providerList = $this->getData('provider');
 			$providerListResult = $this->_createProviderList($providerList, $settingsTMP['provider']);
 
+			// Encrypt client secrets before storing
+			foreach ($providerListResult as &$provider) {
+				if (!empty($provider['clientSecret'])) {
+					$provider['clientSecret'] = OpenIDPlugin::encryptSecret($provider['clientSecret']);
+				}
+			}
+			unset($provider);
 
 			$settings = [
 				'provider' => $providerListResult,

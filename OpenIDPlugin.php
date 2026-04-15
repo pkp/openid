@@ -22,6 +22,9 @@ use APP\plugins\generic\openid\forms\OpenIDPluginSettingsForm;
 use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\handler\OpenIDLoginHandler;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Contracts\Encryption\EncryptException;
 use PKP\core\PKPApplication;
 use PKP\core\PKPRequest;
 use PKP\linkAction\LinkAction;
@@ -471,11 +474,57 @@ class OpenIDPlugin extends GenericPlugin
 	public static function getOpenIDSettings(OpenIDPlugin $plugin, ?int $contextId = null): ?array
 	{
 		$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
-		return $settingsJson ? json_decode($settingsJson, true) : null;
+		$settings = $settingsJson ? json_decode($settingsJson, true) : null;
+
+		// Decrypt client secrets
+		if ($settings && isset($settings["provider"]) && is_array($settings["provider"])) {
+			foreach ($settings["provider"] as &$provider) {
+				if (!empty($provider["clientSecret"])) {
+					$provider["clientSecret"] = self::decryptSecret($provider["clientSecret"]);
+				}
+			}
+			unset($provider);
+		}
+
+		return $settings;
 	}
 
 	
+	/**
+	 * Encrypt a client secret for storage in the database.
+	 * Uses Laravel Crypt facade (AES-256-CBC with random IV via app_key).
+	 * Requires app_key in config.inc.php. Logs warning on failure.
+	 */
+	public static function encryptSecret(string $value): string
+	{
+		try {
+			return Crypt::encryptString($value);
+		} catch (EncryptException $e) {
+			error_log("openidplugin WARNING: Failed to encrypt client secret. Error: " . $e->getMessage());
+			return $value;
+		} catch (\Exception $e) {
+			error_log("openidplugin WARNING: Unexpected encryption failure — app_key may be missing from config.inc.php. Error: " . $e->getMessage());
+			return $value;
+		}
+	}
 
+	/**
+	 * Decrypt a client secret from the database.
+	 * Handles both encrypted and legacy plaintext values gracefully.
+	 * Note: clientId is intentionally NOT encrypted (public in auth URL).
+	 */
+	public static function decryptSecret(string $value): string
+	{
+		try {
+			return Crypt::decryptString($value);
+		} catch (DecryptException $e) {
+			// Expected for legacy plaintext values — not logged to avoid noise
+			return $value;
+		} catch (\Exception $e) {
+			error_log("openidplugin WARNING: Failed to decrypt client secret — app_key may have changed. Error: " . $e->getMessage());
+			return $value;
+		}
+	}
 
 public static function getContextData(PKPRequest $request): ContextData
 	{
