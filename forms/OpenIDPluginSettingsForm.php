@@ -17,7 +17,6 @@ namespace APP\plugins\generic\openid\forms;
 
 use APP\core\Application;
 use APP\notification\NotificationManager;
-use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
 use Exception;
@@ -30,231 +29,261 @@ use PKP\notification\Notification as PKPNotification;
 
 class OpenIDPluginSettingsForm extends Form
 {
-	private const HIDDEN_CHARS = '******';
+    private const HIDDEN_CHARS = '******';
 
-	/**
-	 * OpenIDPluginSettingsForm constructor.
-	 */
-	public function __construct(private OpenIDPlugin $plugin)
-	{
-		parent::__construct($plugin->getTemplateResource('settings.tpl'));
+    /**
+     * OpenIDPluginSettingsForm constructor.
+     */
+    public function __construct(private OpenIDPlugin $plugin)
+    {
+        parent::__construct($plugin->getTemplateResource('settings.tpl'));
 
-		$this->addCheck(new FormValidatorPost($this));
-		$this->addCheck(new FormValidatorCSRF($this));
-	}
+        $this->addCheck(new FormValidatorPost($this));
+        $this->addCheck(new FormValidatorCSRF($this));
+    }
 
-	/**
-	 * @copydoc Form::initData()
-	 */
-	function initData()
-	{
-		$request = Application::get()->getRequest();
-		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, OpenIDPlugin::getContextData($request)->getId());
-		$provider = $settings['provider'];
+    /**
+     * @copydoc Form::initData()
+     */
+    function initData()
+    {
+        $request = Application::get()->getRequest();
+        $settings = OpenIDPlugin::getOpenIDSettings($this->plugin, OpenIDPlugin::getContextData($request)->getId());
+        $provider = $settings['provider'];
 
-		if ($provider && is_array($provider)) {
-			foreach ($provider as &$prov) {
-				if (!empty($prov['clientId'])) {
-					$prov['clientId'] = self::HIDDEN_CHARS;
-				}
-				if (!empty($prov['clientSecret'])) {
-					$prov['clientSecret'] = self::HIDDEN_CHARS;
-				}
-			}
-		}
+        if ($provider && is_array($provider)) {
+            foreach ($provider as &$prov) {
+                if (!empty($prov['clientId'])) {
+                    $prov['clientId'] = self::HIDDEN_CHARS;
+                }
+                if (!empty($prov['clientSecret'])) {
+                    $prov['clientSecret'] = self::HIDDEN_CHARS;
+                }
+            }
+        }
 
-		$microsoftAudienceArray = [
-			OpenIDPlugin::MICROSOFT_AUDIENCE_COMMON => OpenIDPlugin::MICROSOFT_AUDIENCE_COMMON,
-			OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS => OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS,
-			OpenIDPlugin::MICROSOFT_AUDIENCE_ORGANIZATIONS => OpenIDPlugin::MICROSOFT_AUDIENCE_ORGANIZATIONS,
-		];
+        $microsoftAudienceArray = [
+            OpenIDPlugin::MICROSOFT_AUDIENCE_COMMON => OpenIDPlugin::MICROSOFT_AUDIENCE_COMMON,
+            OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS => OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS,
+            OpenIDPlugin::MICROSOFT_AUDIENCE_ORGANIZATIONS => OpenIDPlugin::MICROSOFT_AUDIENCE_ORGANIZATIONS,
+        ];
 
-		if (isset($settings)) {
-			$this->_data = [
-				'initProvider' => OpenIDPlugin::$publicOpenidProviders,
-				'provider' => $provider,
-				'legacyLogin' => key_exists('legacyLogin', $settings) ? $settings['legacyLogin'] : true,
-				'legacyRegister' => key_exists('legacyRegister', $settings) ? $settings['legacyRegister'] : true,
-				'disableConnect' => key_exists('disableConnect', $settings) ? $settings['disableConnect'] : false,
-				'hashSecret' => $settings['hashSecret'],
-				'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0,
-				'providerSync' => key_exists('providerSync', $settings) ? $settings['providerSync'] : false,
-				'disableFields' => $settings['disableFields'],
-				'microsoftAudiences' => $microsoftAudienceArray,
-				'microsoftAudienceDefault' => OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS,
-			];
-		} else {
-			$this->_data = [
-				'initProvider' => OpenIDPlugin::$publicOpenidProviders,
-				'legacyLogin' => true,
-				'legacyRegister' => false,
-				'generateAPIKey' => false,
-				'microsoftAudiences' => $microsoftAudienceArray,
-				'microsoftAudienceDefault' => OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS,
-			];
-		}
+        if (isset($settings)) {
+            $this->_data = [
+                'initProvider' => OpenIDPlugin::$publicOpenidProviders,
+                'provider' => $provider,
+                'legacyLogin' => key_exists('legacyLogin', $settings) ? $settings['legacyLogin'] : true,
+                'legacyRegister' => key_exists('legacyRegister', $settings) ? $settings['legacyRegister'] : true,
+                'disableConnect' => key_exists('disableConnect', $settings) ? $settings['disableConnect'] : false,
+                'hashSecret' => $settings['hashSecret'],
+                'generateAPIKey' => $settings['generateAPIKey'] ? $settings['generateAPIKey'] : 0,
+                'providerSync' => key_exists('providerSync', $settings) ? $settings['providerSync'] : false,
+                'disableFields' => $settings['disableFields'],
+                'microsoftAudiences' => $microsoftAudienceArray,
+                'microsoftAudienceDefault' => OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS,
+            ];
+        } else {
+            $this->_data = [
+                'initProvider' => OpenIDPlugin::$publicOpenidProviders,
+                'legacyLogin' => true,
+                'legacyRegister' => false,
+                'generateAPIKey' => false,
+                'microsoftAudiences' => $microsoftAudienceArray,
+                'microsoftAudienceDefault' => OpenIDPlugin::MICROSOFT_AUDIENCE_CONSUMERS,
+            ];
+        }
 
-		parent::initData();
-	}
+        parent::initData();
+    }
 
-	/**
-	 * @copydoc Form::readInputData()
-	 */
-	function readInputData()
-	{
-		$this->readUserVars(
-			[
-				'provider',
-				'legacyLogin',
-				'legacyRegister',
-				'disableConnect',
-				'hashSecret',
-				'generateAPIKey',
-				'providerSync',
-				'disableFields',
-			]
-		);
-		parent::readInputData();
-	}
+    /**
+     * @copydoc Form::readInputData()
+     */
+    function readInputData()
+    {
+        $this->readUserVars(
+            [
+                'provider',
+                'legacyLogin',
+                'legacyRegister',
+                'disableConnect',
+                'hashSecret',
+                'generateAPIKey',
+                'providerSync',
+                'disableFields',
+            ]
+        );
+        parent::readInputData();
+    }
 
-	/**
-	 * @copydoc Form::fetch()
-	 */
-	public function fetch($request, $template = null, $display = false)
-	{
-		$redirectURL = $request->getDispatcher()
-			->url($request, PKPApplication::ROUTE_PAGE, OpenIDPlugin::getContextData($request)->getPath(), 'openid', 'doAuthentication');
-		
-		$templateMgr = TemplateManager::getManager($request);
-		$templateMgr->assign([
-			'pluginName' => $this->plugin->getName(),
-			'redirectUrl' => $redirectURL,
-		]);
+    /**
+     * @copydoc Form::fetch()
+     */
+    public function fetch($request, $template = null, $display = false)
+    {
+        $redirectURL = $request->getDispatcher()
+            ->url($request, PKPApplication::ROUTE_PAGE, OpenIDPlugin::getContextData($request)->getPath(), 'openid', 'doAuthentication');
+        
+        $templateMgr = TemplateManager::getManager($request);
+        $templateMgr->assign([
+            'pluginName' => $this->plugin->getName(),
+            'redirectUrl' => $redirectURL,
+        ]);
 
-		return parent::fetch($request, $template, $display);
-	}
+        return parent::fetch($request, $template, $display);
+    }
 
-	/**
-	 * @copydoc Form::execute()
-	 */
-	function execute(...$functionArgs)
-	{
-		try {
-			$request = Application::get()->getRequest();
-			$contextId = OpenIDPlugin::getContextData($request)->getId();
-			$settingsTMP = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
+    /**
+     * @copydoc Form::execute()
+     */
+    function execute(...$functionArgs)
+    {
+        try {
+            $request = Application::get()->getRequest();
+            $contextId = OpenIDPlugin::getContextData($request)->getId();
+            $settingsTMP = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
 
-			$providerList = $this->getData('provider');
-			$providerListResult = $this->_createProviderList($providerList, $settingsTMP['provider']);
+            $providerList = $this->getData('provider');
+            $providerListResult = $this->_createProviderList($providerList, $settingsTMP['provider']);
 
-			$settings = [
-				'provider' => $providerListResult,
-				'legacyLogin' => $this->getData('legacyLogin'),
-				'legacyRegister' => $this->getData('legacyRegister'),
-				'disableConnect' => $this->getData('disableConnect'),
-				'hashSecret' => $this->getData('hashSecret'),
-				'generateAPIKey' => $this->getData('generateAPIKey'),
-				'providerSync' => $this->getData('providerSync'),
-				'disableFields' => $this->getData('disableFields'),
-			];
-			$this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
+            // Encrypt client secrets before storing
+            foreach ($providerListResult as &$provider) {
+                if (!empty($provider['clientSecret'])) {
+                    $provider['clientSecret'] = OpenIDPlugin::encryptSecret($provider['clientSecret']);
+                }
+            }
+            unset($provider);
 
-			$notificationMgr = new NotificationManager();
-			$notificationMgr->createTrivialNotification(
-				$request->getUser()->getId(),
-				PKPNotification::NOTIFICATION_TYPE_SUCCESS,
-				['contents' => __('common.changesSaved')]
-			);
-		} catch (Exception $e) {
-			$notificationMgr = new NotificationManager();
-			$notificationMgr->createTrivialNotification(
-				$request->getUser()->getId(),
-				PKPNotification::NOTIFICATION_TYPE_ERROR,
-				['contents' => __('plugins.generic.openid.settings.changesFailed')]
-			);
-		}
+            $settings = [
+                'provider' => $providerListResult,
+                'legacyLogin' => $this->getData('legacyLogin'),
+                'legacyRegister' => $this->getData('legacyRegister'),
+                'disableConnect' => $this->getData('disableConnect'),
+                'hashSecret' => $this->getData('hashSecret'),
+                'generateAPIKey' => $this->getData('generateAPIKey'),
+                'providerSync' => $this->getData('providerSync'),
+                'disableFields' => $this->getData('disableFields'),
+            ];
+            $this->plugin->updateSetting($contextId, 'openIDSettings', json_encode($settings), 'string');
 
-		return parent::execute();
-	}
+            $notificationMgr = new NotificationManager();
+            $notificationMgr->createTrivialNotification(
+                $request->getUser()->getId(),
+                PKPNotification::NOTIFICATION_TYPE_SUCCESS,
+                ['contents' => __('common.changesSaved')]
+            );
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            // Provider discovery endpoint unreachable
+            $url = $e->getRequest()->getUri();
+            error_log('openidplugin: Cannot reach provider discovery endpoint: ' . $url);
+            $notificationMgr = new NotificationManager();
+            $notificationMgr->createTrivialNotification(
+                $request->getUser()->getId(),
+                PKPNotification::NOTIFICATION_TYPE_ERROR,
+                ['contents' => __('plugins.generic.openid.settings.error.unreachable', ['url' => (string)$url])]
+            );
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            // Provider returned an error (4xx)
+            $url = $e->getRequest()->getUri();
+            $status = $e->getResponse()->getStatusCode();
+            error_log('openidplugin: Provider returned HTTP ' . $status . ' for: ' . $url);
+            $notificationMgr = new NotificationManager();
+            $notificationMgr->createTrivialNotification(
+                $request->getUser()->getId(),
+                PKPNotification::NOTIFICATION_TYPE_ERROR,
+                ['contents' => __('plugins.generic.openid.settings.error.provider', ['url' => (string)$url, 'status' => $status])]
+            );
+        } catch (Exception $e) {
+            error_log('openidplugin: Settings save failed: ' . $e->getMessage());
+            $notificationMgr = new NotificationManager();
+            $notificationMgr->createTrivialNotification(
+                $request->getUser()->getId(),
+                PKPNotification::NOTIFICATION_TYPE_ERROR,
+                ['contents' => __('plugins.generic.openid.settings.error.generic', ['error' => $e->getMessage()])]
+            );
+        }
 
-	/**
-	 * Creates a complete list of the provider with all necessary endpoint URL's.
-	 * Therefore this->_loadOpenIdConfig is called, to get the URL's via openid-configuration endpoint.
-	 * This function is called when the settings are executed to refresh the auth, token, cert and logout/revoke URL's.
-	 *
-	 * @return array complete list of enabled provider including all necessary endpoint URL's
-	 */
-	private function _createProviderList(?array $providerList, ?array $providerListDB): array
-	{
-		$providerListResult = [];
+        return parent::execute();
+    }
 
-		if (isset($providerList) && is_array($providerList)) {
-			foreach ($providerList as $name => &$provider) { // Note: Use reference to modify $provider directly
-				if (!($provider['active'] ?? false)) {
-					continue;
-				}
+    /**
+     * Creates a complete list of the provider with all necessary endpoint URL's.
+     * Therefore this->_loadOpenIdConfig is called, to get the URL's via openid-configuration endpoint.
+     * This function is called when the settings are executed to refresh the auth, token, cert and logout/revoke URL's.
+     *
+     * @return array complete list of enabled provider including all necessary endpoint URL's
+     */
+    private function _createProviderList(?array $providerList, ?array $providerListDB): array
+    {
+        $providerListResult = [];
 
-				$providerDB = $providerListDB[$name] ?? null;
-				if (is_array($providerListDB) && $providerDB) {
-					// Simplified checks and assignments for clientId and clientSecret
-					$provider['clientId'] = $provider['clientId'] ?? '';
-					if (empty($provider['clientId']) || $provider['clientId'] == self::HIDDEN_CHARS) {
-						$provider['clientId'] = !empty($providerDB['clientId']) ? $providerDB['clientId'] : '';
-					}
+        if (isset($providerList) && is_array($providerList)) {
+            foreach ($providerList as $name => &$provider) { // Note: Use reference to modify $provider directly
+                if (!($provider['active'] ?? false)) {
+                    continue;
+                }
 
-					$provider['clientSecret'] = $provider['clientSecret'] ?? '';
-					if (empty($provider['clientSecret']) || $provider['clientSecret'] == self::HIDDEN_CHARS) {
-						$provider['clientSecret'] = !empty($providerDB['clientSecret']) ? $providerDB['clientSecret'] : '';
-					}
-				}
+                $providerDB = $providerListDB[$name] ?? null;
+                if (is_array($providerListDB) && $providerDB) {
+                    // Simplified checks and assignments for clientId and clientSecret
+                    $provider['clientId'] = $provider['clientId'] ?? '';
+                    if (empty($provider['clientId']) || $provider['clientId'] == self::HIDDEN_CHARS) {
+                        $provider['clientId'] = !empty($providerDB['clientId']) ? $providerDB['clientId'] : '';
+                    }
 
-				if ($name == OpenIDPlugin::PROVIDER_MICROSOFT) {
-					$provider['configUrl'] = OpenIDPlugin::prepareMicrosoftConfigUrl($provider['audience']);
-				}
+                    $provider['clientSecret'] = $provider['clientSecret'] ?? '';
+                    if (empty($provider['clientSecret']) || $provider['clientSecret'] == self::HIDDEN_CHARS) {
+                        $provider['clientSecret'] = !empty($providerDB['clientSecret']) ? $providerDB['clientSecret'] : '';
+                    }
+                }
 
-				$openIdConfig = $this->_loadOpenIdConfig($provider['configUrl'] ?? '');
-				if (is_array($openIdConfig)) {
-					$provider['authUrl'] = $openIdConfig['authorization_endpoint'] ?? null;
-					$provider['tokenUrl'] = $openIdConfig['token_endpoint'] ?? null;
-					$provider['userInfoUrl'] = $openIdConfig['userinfo_endpoint'] ?? null;
-					$provider['certUrl'] = $openIdConfig['jwks_uri'] ?? null;
-					$provider['logoutUrl'] = $openIdConfig['end_session_endpoint'] ?? null;
-					$provider['revokeUrl'] = $openIdConfig['revocation_endpoint'] ?? null;
-					$provider['introspectionUrl'] = $openIdConfig['introspection_endpoint'] ?? null;
-					$providerListResult[$name] = $provider;
-				}
-			}
-			unset($provider); // Unset reference to avoid potential issues later
-		}
+                if ($name == OpenIDPlugin::PROVIDER_MICROSOFT) {
+                    $provider['configUrl'] = OpenIDPlugin::prepareMicrosoftConfigUrl($provider['audience']);
+                }
 
-		return $providerListResult;
-	}
+                $openIdConfig = $this->_loadOpenIdConfig($provider['configUrl'] ?? '');
+                if (is_array($openIdConfig)) {
+                    $provider['authUrl'] = $openIdConfig['authorization_endpoint'] ?? null;
+                    $provider['tokenUrl'] = $openIdConfig['token_endpoint'] ?? null;
+                    $provider['userInfoUrl'] = $openIdConfig['userinfo_endpoint'] ?? null;
+                    $provider['certUrl'] = $openIdConfig['jwks_uri'] ?? null;
+                    $provider['logoutUrl'] = $openIdConfig['end_session_endpoint'] ?? null;
+                    $provider['revokeUrl'] = $openIdConfig['revocation_endpoint'] ?? null;
+                    $provider['introspectionUrl'] = $openIdConfig['introspection_endpoint'] ?? null;
+                    $providerListResult[$name] = $provider;
+                }
+            }
+            unset($provider); // Unset reference to avoid potential issues later
+        }
 
-	/**
-	 * Calls the .well-known/openid-configuration which is provided in the $configURL and returns the result on success
-	 *
-	 * @return mixed|null
-	 */
-	private function _loadOpenIdConfig(string $configUrl)
-	{
-		$headers = [
-			'Accept' => 'application/json',
-		];
+        return $providerListResult;
+    }
 
-		$httpClient = Application::get()->getHttpClient();
-		try {
-			$response = $httpClient->request(
-				'GET',
-				$configUrl,
-				[
-					'headers' => $headers,
-					'allow_redirects' => ['strict' => true],
-				]
-			);
-		} catch (ClientException $exception) {
-			return null;
-		}
+    /**
+     * Calls the .well-known/openid-configuration which is provided in the $configURL and returns the result on success
+     *
+     * @return mixed|null
+     */
+    private function _loadOpenIdConfig(string $configUrl)
+    {
+        $headers = [
+            'Accept' => 'application/json',
+        ];
 
-		return json_decode($response->getBody()->getContents(), true);
-	}
+        $httpClient = Application::get()->getHttpClient();
+        try {
+            $response = $httpClient->request(
+                'GET',
+                $configUrl,
+                [
+                    'headers' => $headers,
+                    'allow_redirects' => ['strict' => true],
+                ]
+            );
+        } catch (ClientException $exception) {
+            return null;
+        }
+
+        return json_decode($response->getBody()->getContents(), true);
+    }
 }
