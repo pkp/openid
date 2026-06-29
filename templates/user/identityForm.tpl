@@ -2,9 +2,9 @@
  * templates/user/identityForm.tpl
  *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
- * Copyright (c) 2024 Simon Fraser University
- * Copyright (c) 2024 John Willinsky
- * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
+ * Copyright (c) 2014-2021 Simon Fraser University
+ * Copyright (c) 2003-2021 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * User profile form.
  *}
@@ -16,22 +16,10 @@
 	{rdelim});
 </script>
 
-<style>
-	.cmp_notification {
-		display: block;
-		width: 100%;
-		padding: 20px;
-		margin-bottom: 40px;
-		background: #ddd;
-		border-left: 5px solid #007ab2;
-		font-size: 14px;
-		line-height: 20px;
-	}
-</style>
-
 <form class="pkp_form" id="identityForm" method="post" action="{url op="saveIdentity"}" enctype="multipart/form-data">
 	{* Help Link *}
 	{help file="user-profile" class="pkp_help_tab"}
+
 	{csrf}
 	{if ($openIdGivenNameDisabledField || $openIdFamilyNameDisabledField)}
 		{assign var="openidIdentityFields" value=true }
@@ -59,7 +47,7 @@
 	{/fbvFormSection}
 
 	<p>
-		{capture assign="privacyUrl"}{url router=$smarty.const.ROUTE_PAGE page="about" op="privacy"}{/capture}
+		{capture assign="privacyUrl"}{url router=\PKP\core\PKPApplication::ROUTE_PAGE page="about" op="privacy"}{/capture}
 		{translate key="user.privacyLink" privacyUrl=$privacyUrl}
 	</p>
 

@@ -2,12 +2,13 @@
  * templates/user/contactForm.tpl
  *
  * Copyright (c) 2020 Leibniz Institute for Psychology Information (https://leibniz-psychology.org/)
- * Copyright (c) 2024 Simon Fraser University
- * Copyright (c) 2024 John Willinsky
- * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
+ * Copyright (c) 2014-2021 Simon Fraser University
+ * Copyright (c) 2003-2021 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * User profile form.
  *}
+
 <script>
 	$(function() {ldelim}
 		// Attach the form handler.
@@ -44,18 +45,18 @@
 	{if count($availableLocales) > 1}
 		{fbvFormSection title="user.workingLanguages" list=true}
 			{foreach from=$availableLocales key=localeKey item=localeName}
-				{if $userLocales && in_array($localeKey, $userLocales)}
+				{if $locales && in_array($localeKey, $locales)}
 					{assign var="checked" value=true}
 				{else}
 					{assign var="checked" value=false}
 				{/if}
-				{fbvElement type="checkbox" name="userLocales[]" id="userLocales-$localeKey" value=$localeKey checked=$checked label=$localeName translate=false}
+				{fbvElement type="checkbox" name="locales[]" id="locales-$localeKey" value=$localeKey checked=$checked label=$localeName|escape translate=false}
 			{/foreach}
 		{/fbvFormSection}
 	{/if}
 
 	<p>
-		{capture assign="privacyUrl"}{url router=$smarty.const.ROUTE_PAGE page="about" op="privacy"}{/capture}
+		{capture assign="privacyUrl"}{url router=\PKP\core\PKPApplication::ROUTE_PAGE page="about" op="privacy"}{/capture}
 		{translate key="user.privacyLink" privacyUrl=$privacyUrl}
 	</p>
 
