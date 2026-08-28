@@ -145,7 +145,7 @@ class OpenIDPluginSettingsForm extends Form
 			$settingsTMP = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
 
 			$providerList = $this->getData('provider');
-			$providerListResult = $this->_createProviderList($providerList, $settingsTMP['provider']);
+			$providerListResult = $this->_createProviderList($providerList, $settingsTMP['provider'] ?? null);
 
 			$settings = [
 				'provider' => $providerListResult,
@@ -166,6 +166,7 @@ class OpenIDPluginSettingsForm extends Form
 				['contents' => __('common.changesSaved')]
 			);
 		} catch (Exception $e) {
+			error_log('OpenID plugin settings save failed: ' . $e->getMessage());
 			$notificationMgr = new NotificationManager();
 			$notificationMgr->createTrivialNotification(
 				$request->getUser()->getId(),
