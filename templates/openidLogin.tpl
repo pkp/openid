@@ -39,6 +39,7 @@
 			<li class="page_login">
 				<form class="cmp_form cmp_form login" id="login" method="post" action="{$loginUrl}">
 					{csrf}
+					<input type="hidden" name="source" value="{$source|default:""|escape}" />
 					<fieldset class="fields">
 						<div class="username">
 							<label>
