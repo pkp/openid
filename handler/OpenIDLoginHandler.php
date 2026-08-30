@@ -17,109 +17,62 @@ namespace APP\plugins\generic\openid\handler;
 
 use APP\core\Request;
 use APP\facades\Repo;
-use APP\handler\Handler;
 use APP\plugins\generic\openid\classes\ContextData;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
 use Illuminate\Support\Facades\Http;
-use PKP\config\Config;
+use PKP\core\PKPApplication;
+use PKP\core\PKPRequest;
 use PKP\facades\Locale;
+use PKP\orcid\OrcidManager;
+use PKP\pages\login\LoginHandler;
 use PKP\security\Validation;
 
-class OpenIDLoginHandler extends Handler
+class OpenIDLoginHandler extends LoginHandler
 {
 	public function __construct(protected OpenIDPlugin $plugin)
 	{
+		parent::__construct();
 	}
 
 	/**
-	 * This function overwrites the default login.
-	 * There a 2 different workflows implemented:
-	 * - If only one OpenID provider is configured and legacy login is disabled, the user is automatically redirected to the sign-in page of that provider.
-	 * - If more than one provider is configured, a login page is shown within the OJS/OMP/OPS and the user can select his preferred OpenID provider for login/registration.
-	 *
-	 * In case of an error or incorrect configuration, a link to the default login page is provided to prevent a complete system lockout.
-	 *
 	 * @see PKPHandler::index($args, $request)
 	 */
 	function index($args, $request)
 	{
-		$this->setupTemplate($request);
+		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, OpenIDPlugin::getContextData($request)->getId());
 
-		if ($this->isSSLRequired($request)) {
-			$request->redirectSSL();
-		}
-
-		$contextData = OpenIDPlugin::getContextData($request);
-
-		if (Validation::isLoggedIn()) {
-			$request->redirect($contextData->getPath(), 'index');
+		if ($settings && !Validation::isLoggedIn()
+			&& $this->handleSingleProviderLogin($settings['provider'] ?? [], $settings, $request)) {
 			return false;
 		}
-		
-		$contextId = $contextData->getId();
 
-		$settings = OpenIDPlugin::getOpenIDSettings($this->plugin, $contextId);
-
-		$templateMgr = TemplateManager::getManager($request);
-
-		if ($settings) {
-			$providerList = $settings['provider'] ?? [];
-
-			if ($this->handleSingleProviderLogin($providerList, $settings, $request)) {
-				return false;
-			}
-
-			$linkList = $this->generateProviderLinks($providerList, $request);
-
-			if ($settings['legacyRegister'] ?? false) {
-				$linkList['legacyRegister'] = $request->getRouter()->url($request, null, "user", "registerUser");
-			}
-
-			if (!empty($linkList)) {
-				$templateMgr->assign('linkList', $linkList);
-				$this->handleErrors($templateMgr, $request, $contextData);
-				$this->handleLegacyLogin($templateMgr, $request, $settings);
-
-				return $templateMgr->display($this->plugin->getTemplateResource('openidLogin.tpl'));
-			}
-		}
-
-		// Invalid Configuration
-		$templateMgr->assign([
-			'openidError' => true,
-			'errorMsg' => 'plugins.generic.openid.settings.error'
-		]);
-
-		return $templateMgr->display($this->plugin->getTemplateResource('openidLogin.tpl'));
+		return parent::index($args, $request);
 	}
 
-	/**
-	 * Used for legacy login in case of errors or other bad things.
-	 */
 	function legacyLogin(array $args, Request $request)
 	{
-		$templateMgr = TemplateManager::getManager($request);
-		$this->_enableLegacyLogin($templateMgr, $request);
-		$templateMgr->assign('disableUserReg', true);
-
-		return $templateMgr->display('frontend/pages/userLogin.tpl');
+		return parent::index($args, $request);
 	}
 
-	/**
-	 * Overwrites the default registration, because it is not needed anymore.
-	 * User registration is done via OpenID provider.
-	 */
-	function register(array $args, Request $request)
+	public function signIn(array $args, PKPRequest $request): void
 	{
-		$this->index($args, $request);
+		$username = $request->getUserVar('username');
+		$user = $username ? Repo::user()->getByUsername($username, true) : null;
+
+		if ($user && $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING)) {
+			$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, null);
+			Repo::user()->edit($user);
+		}
+
+		parent::signIn($args, $request);
 	}
 
 	/**
 	 * Overwrites default signOut.
 	 * Performs logout and if logoutUrl is provided (e.g. Apple doesn't provide this url) it redirects to the oauth logout to delete session and tokens.
 	 */
-	function signOut(array $args, Request $request)
+	function signOut($args, $request)
 	{
 		if (!Validation::isLoggedIn()) {
 			$request->redirect(null, 'index');
@@ -162,7 +115,7 @@ class OpenIDLoginHandler extends Handler
 	/**
 	 * Sets user friendly error messages, which are thrown during the OpenID auth process.
 	 */
-	private function _setSSOErrorMessages(string $ssoError, string $reason, TemplateManager $templateMgr, ContextData $contextData): void
+	public static function setSSOErrorMessages(string $ssoError, string $reason, TemplateManager $templateMgr, ContextData $contextData): void
 	{
 		$templateMgr->assign('openidError', true);
 		
@@ -185,40 +138,6 @@ class OpenIDLoginHandler extends Handler
 		$templateMgr->assign('supportEmail', $contextData->getSupportEmail());
 	}
 
-	/**
-	 * This function is used
-	 *  - if the legacy login is activated via plugin settings,
-	 *  - or an error occurred during the Auth process to ensure that the Journal Manager can log in.
-	 */
-	private function _enableLegacyLogin(TemplateManager $templateMgr, Request $request)
-	{
-		$loginUrl = $request->url(null, 'login', 'signIn');
-
-		if (Config::getVar('security', 'force_login_ssl')) {
-			$loginUrl = preg_replace('/^http:/', 'https:', $loginUrl);
-		}
-
-		// Apply htmlspecialchars to encode special characters
-		$loginMessage = htmlspecialchars($request->getUserVar('loginMessage'), ENT_QUOTES, 'UTF-8');
-		$username = htmlspecialchars($request->getSession()->get('username'), ENT_QUOTES, 'UTF-8');
-		$remember = htmlspecialchars($request->getUserVar('remember'), ENT_QUOTES, 'UTF-8');
-		$source = htmlspecialchars($request->getUserVar('source'), ENT_QUOTES, 'UTF-8');
-
-		$templateMgr->assign([
-			'loginMessage' => $loginMessage,
-			'username' => $username,
-			'remember' => $remember,
-			'source' => $source,
-			'showRemember' => Config::getVar('general', 'session_lifetime') > 0,
-			'legacyLogin' => true,
-			'loginUrl' => $loginUrl,
-		]);
-	}
-
-	private function isSSLRequired(Request $request): bool
-	{
-		return Config::getVar('security', 'force_login_ssl') && $request->getProtocol() != 'https';
-	}
 
 	private function handleSingleProviderLogin(array $providerList, array $settings, Request $request): bool
 	{
@@ -226,29 +145,22 @@ class OpenIDLoginHandler extends Handler
 		$legacyRegister = $settings['legacyRegister'] ?? false;
 
 		if (count($providerList) == 1 && !$legacyLogin && !$legacyRegister) {
-			$providerSettings = $providerList[0];
+			$providerSettings = reset($providerList);
+
 			if (!empty($providerSettings['authUrl']) && !empty($providerSettings['clientId'])) {
-				$this->redirectToProviderAuth($providerSettings, $request, key($providerList));
+				$this->redirectToProviderAuth($providerSettings, $request, (string) key($providerList));
+
 				return true;
 			}
 		}
+
 		return false;
 	}
 
 	private function redirectToProviderAuth(array $providerSettings, Request $request, string $providerName): void
 	{
-		$router = $request->getRouter();
-		$redirectUri = $router->url($request, null, 'openid', 'doAuthentication', null, ['provider' => $providerName]);
-
-		if ($this->plugin->isEnabledSitewide()) {
-			$redirectUri = $router->url($request, 'index', 'openid', 'doAuthentication', null, ['provider' => $providerName]);
-		}
-
-		$redirectUrl = $providerSettings['authUrl'] .
-			'?client_id=' . urlencode($providerSettings['clientId']) .
-			'&response_type=code' .
-			'&scope=openid' .
-			'&redirect_uri=' . urlencode($redirectUri);
+		$redirectUri = self::generateRedirectUri($this->plugin, $request, $providerName);
+		$redirectUrl = self::generateAuthorizationUrl($providerSettings, $redirectUri, $providerName, $request);
 
 		$request->redirectUrl($redirectUrl);
 	}
@@ -295,28 +207,92 @@ class OpenIDLoginHandler extends Handler
 		return isset($data['active']) && $data['active']; // Returns true if valid, false otherwise
 	}
 
-	private function generateProviderLinks(array $providerList, Request $request): array
-	{
+	public static function generateProviderLinks(
+		OpenIDPlugin $plugin,
+		array $providerList,
+		PKPRequest $request,
+		TemplateManager $templateMgr,
+		bool $includeLegacyRegister = false
+	): array {
 		$router = $request->getRouter();
 		$linkList = [];
 
 		foreach ($providerList as $provider => $settings) {
 			if (!empty($settings['authUrl']) && !empty($settings['clientId'])) {
-				$redirectUri = $router->url($request, null, 'openid', 'doAuthentication', null, ['provider' => $provider]);
-
-				if ($this->plugin->isEnabledSitewide()) {
-					$redirectUri = $router->url($request, 'index', 'openid', 'doAuthentication', null, ['provider' => $provider]);
-				}
-
-				$baseLink = "{$settings['authUrl']}?client_id={$settings['clientId']}&response_type=code&scope=openid profile email";
-				$linkList[$provider] = "{$baseLink}&redirect_uri=" . urlencode($redirectUri);
-				$this->handleCustomProvider($provider, $settings, TemplateManager::getManager($request));
+				$redirectUri = self::generateRedirectUri($plugin, $request, (string) $provider);
+				$linkList[$provider] = self::generateAuthorizationUrl($settings, $redirectUri, (string) $provider, $request);
+				self::handleCustomProvider($provider, $settings, $templateMgr);
 			}
 		}
+
+		if ($includeLegacyRegister && !empty($linkList)) {
+			$linkList['legacyRegister'] = $router->url($request, null, 'user', 'registerUser');
+		}
+
 		return $linkList;
 	}
 
-	private function handleCustomProvider(string $provider, array $settings, TemplateManager $templateMgr): void
+	public static function generateRedirectUri(OpenIDPlugin $plugin, PKPRequest $request, string $providerName): string
+	{
+		return $request->getDispatcher()->url(
+			$request,
+			PKPApplication::ROUTE_PAGE,
+			newContext: $plugin->isEnabledSitewide() ? 'index' : OpenIDPlugin::getContextData($request)->getPath(),
+			handler: 'openid',
+			op: 'doAuthentication',
+			params: ['provider' => $providerName],
+			urlLocaleForPage: '',
+		);
+	}
+
+	public static function generateAuthorizationUrl(array $providerSettings, string $redirectUri, string $providerName, PKPRequest $request): string
+	{
+		$state = bin2hex(random_bytes(16));
+		$nonce = bin2hex(random_bytes(16));
+		$codeVerifier = self::base64UrlEncode(random_bytes(64));
+
+		$session = $request->getSession();
+		$pending = $session->get(OpenIDPlugin::SESSION_AUTH_REQUEST);
+		$pending = is_array($pending) ? $pending : [];
+
+		$pending[$providerName] = [
+			'state' => $state,
+			'nonce' => $nonce,
+			'codeVerifier' => $codeVerifier,
+			'redirectUri' => $redirectUri,
+		];
+
+		$session->put(OpenIDPlugin::SESSION_AUTH_REQUEST, $pending);
+
+		return $providerSettings['authUrl'] . '?' . http_build_query([
+			'client_id' => $providerSettings['clientId'],
+			'response_type' => 'code',
+			'scope' => self::generateScope($providerName),
+			'redirect_uri' => $redirectUri,
+			'state' => $state,
+			'nonce' => $nonce,
+			'code_challenge' => self::base64UrlEncode(hash('sha256', $codeVerifier, true)),
+			'code_challenge_method' => 'S256',
+		]);
+	}
+
+	private static function generateScope(string $providerName): string
+	{
+		$scope = 'openid profile email';
+
+		if ($providerName === OpenIDPlugin::PROVIDER_ORCID) {
+			$scope .= ' ' . OrcidManager::ORCID_API_SCOPE_PUBLIC;
+		}
+
+		return $scope;
+	}
+
+	private static function base64UrlEncode(string $bytes): string
+	{
+		return rtrim(strtr(base64_encode($bytes), '+/', '-_'), '=');
+	}
+
+	private static function handleCustomProvider(string $provider, array $settings, TemplateManager $templateMgr): void
 	{
 		if ($provider == OpenIDPlugin::PROVIDER_CUSTOM) {
 			$customBtnTxt = htmlspecialchars($settings['btnTxt'][Locale::getLocale()] ?? '', ENT_QUOTES, 'UTF-8');
@@ -327,20 +303,4 @@ class OpenIDLoginHandler extends Handler
 		}
 	}
 
-	private function handleErrors(TemplateManager $templateMgr, Request $request, ContextData $contextData): void
-	{
-		$ssoError = $request->getUserVar('sso_error');
-		$reason = htmlspecialchars($request->getUserVar('sso_error_msg') ?? '', ENT_QUOTES, 'UTF-8');
-
-		if ($ssoError) {
-			$this->_setSSOErrorMessages($ssoError, $reason, $templateMgr, $contextData);
-		}
-	}
-
-	private function handleLegacyLogin(TemplateManager $templateMgr, Request $request, array $settings): void
-	{
-		if ($settings['legacyLogin'] ?? false) {
-			$this->_enableLegacyLogin($templateMgr, $request);
-		}
-	}
 }

@@ -259,12 +259,12 @@ class OpenIDStep2Form extends Form
 
 			// prevent saving one openid:ident to multiple accounts
 			$userIds = Repo::user()->getCollector()
-				->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $decriptedOauthId])
+				->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider) => $decriptedOauthId])
 				->getIds();
 
 			if ($userIds->isEmpty()) {
 				$userIds = Repo::user()->getCollector()
-					->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), hash('sha256', $oauthId)])
+					->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider) => hash('sha256', $decriptedOauthId)])
 					->getIds();
 			}
 
@@ -274,9 +274,6 @@ class OpenIDStep2Form extends Form
 				if ($register) {
 					$user = $this->_registerUser();
 					if (isset($user)) {
-						if ($selectedProvider == OpenIDPlugin::PROVIDER_ORCID) {
-							$user->setOrcid($decriptedOauthId);
-						}
 						$user->setData(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $decriptedOauthId);
 						
 						Repo::user()->edit($user);
@@ -357,6 +354,8 @@ class OpenIDStep2Form extends Form
 
 		// Store the hash on the user
 		$user->setPassword($hashedPassword);
+
+		$user->setData(OpenIDPlugin::USER_OPENID_GENERATED_PASSWORD_SETTING, true);
 
 		Repo::user()->add($user);
 		

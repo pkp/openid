@@ -17,26 +17,35 @@ namespace APP\plugins\generic\openid;
 
 use APP\core\Application;
 use APP\facades\Repo;
+use APP\plugins\generic\openid\classes\AuthPageHooksHelper;
 use APP\plugins\generic\openid\classes\ContextData;
+use APP\plugins\generic\openid\classes\UserSchemaHelper;
 use APP\plugins\generic\openid\forms\OpenIDPluginSettingsForm;
 use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\handler\OpenIDLoginHandler;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Crypt;
 use PKP\core\PKPApplication;
 use PKP\core\PKPRequest;
+use PKP\form\FormBuilderVocabulary;
 use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\AjaxModal;
 use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
 use PKP\core\JSONMessage;
+use PKP\user\form\ChangePasswordForm;
+use PKP\user\form\ContactForm;
+use PKP\user\form\IdentityForm;
+use PKP\user\User;
 use APP\template\TemplateManager;
-
-require_once(dirname(__FILE__) . '/vendor/autoload.php');
 
 class OpenIDPlugin extends GenericPlugin
 {
 	public const USER_OPENID_IDENTIFIER_SETTING_BASE = 'openid::';
 	public const USER_OPENID_LAST_PROVIDER_SETTING = self::USER_OPENID_IDENTIFIER_SETTING_BASE . 'lastProvider';
+
+	public const USER_OPENID_GENERATED_PASSWORD_SETTING = self::USER_OPENID_IDENTIFIER_SETTING_BASE . 'generatedPassword';
 
 	// OpenIDProviders
 	public const PROVIDER_CUSTOM = 'custom';
@@ -63,6 +72,10 @@ class OpenIDPlugin extends GenericPlugin
 	public static Collection $publicOpenidProviders;
 
 	public const ID_TOKEN_NAME = 'id_token';
+
+	private ?AuthPageHooksHelper $authPageHooks = null;
+
+	public const SESSION_AUTH_REQUEST = 'openid::authRequest';
 
 	public function __construct() 
 	{
@@ -185,9 +198,8 @@ class OpenIDPlugin extends GenericPlugin
 		$contextId = $this->getCurrentContextId();
 
 		if ($success && $this->getEnabled($contextId)) {
-			Hook::add('Schema::get::before::user', [$this, 'beforeGetSchema']);
-			Hook::add('Schema::get::user', [$this, 'addToSchema']);
-			Hook::add('User::edit', [$this, 'addIdpInfoToUser']);
+			$userSchemaHelper = new UserSchemaHelper($this);
+			$userSchemaHelper->register();
 
 			$settings = OpenIDPlugin::getOpenIDSettings($this, $contextId);
 			if ($settings && isset($settings['provider']) && is_array($settings['provider']) && !empty($settings['provider'])) {
@@ -206,135 +218,101 @@ class OpenIDPlugin extends GenericPlugin
 					$lastProvider = $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING);
 				}
 
+				if ($lastProvider) {
+					TemplateManager::getManager($request)->addStyleSheet(
+						'OpenIDPluginStyle',
+						$request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/style.css',
+						['contexts' => ['frontend', 'backend']]
+					);
+
+					$this->lockPassword($request);
+				}
+
 				if ($lastProvider && isset($settings)
 					&& ($settings['disableFields'] ?? false) && ($settings['providerSync'] ?? false)) {
-					
-					$settings['disableFields']['lastProvider'] = $lastProvider;
-					$settings['disableFields']['generateAPIKey'] = $settings['generateAPIKey'];
 
-					$openIdGivenNameDisabledField = false;
-					$openIdFamilyNameDisabledField = false;
-					$openIdEmailDisabledField = false;
-
-					$openIdDisableFields = $settings['disableFields'];
-
-					if ($openIdDisableFields && (key_exists('givenName', $openIdDisableFields) && $openIdDisableFields['givenName'] == 1)) {
-						$openIdGivenNameDisabledField = true;
-					}
-
-					if ($openIdDisableFields && (key_exists('familyName', $openIdDisableFields) && $openIdDisableFields['familyName'] == 1)) {
-						$openIdFamilyNameDisabledField = true;
-					}
-
-					if ($openIdDisableFields && (key_exists('email', $openIdDisableFields) && $openIdDisableFields['email'] == 1)) {
-						$openIdEmailDisabledField = true;
-					}
-					
-					$templateMgr = TemplateManager::getManager($request);
-					$templateMgr->assign([
-						'openIdGivenNameDisabledField' => $openIdGivenNameDisabledField,
-						'openIdFamilyNameDisabledField' => $openIdFamilyNameDisabledField,
-						'openIdEmailDisabledField' => $openIdEmailDisabledField,
-						'openIdDisableFields' => $openIdDisableFields,
-					]);
-					
-					Hook::add('TemplateResource::getFilename', [$this, '_overridePluginTemplates']);
+					$this->protectManagedProfileFields($request, $settings);
 				}
 
 				Hook::add('LoadHandler', [$this, 'setPageHandler']);
+				$this->authPageHooks()->register($request, $settings);
 			}
 		}
 
 		return $success;
 	}
 
-	/**
-	 * Add properties for OpenId to the User entity for storage in the database.
-	 *
-	 * @param string $hookName `Schema::get::user`
-	 * @param array $args [
-	 *
-	 *      @option stdClass $schema
-	 * ]
-	 *
-	 */
-	public function addToSchema(string $hookName, array $args): bool
+	private function lockPassword(PKPRequest $request): void
 	{
-		$schema = &$args[0];
+		$templateMgr = TemplateManager::getManager($request);
+		$passwordFields = ['oldPassword', 'password', 'password2'];
 
-		$pluginSpecificFields = $this->getPluginSpecificFields();
+		$templateMgr->setFieldsDisabled(ChangePasswordForm::class, ...$passwordFields);
+		$templateMgr->hideFields(ChangePasswordForm::class, FormBuilderVocabulary::FIELD_FORM_BUTTONS);
 
-		foreach ($pluginSpecificFields as $pluginSpecificField) {
-			$schema->properties->{$pluginSpecificField} = (object) [
-				'type' => 'string',
-				'apiSummary' => true,
-				'validation' => ['nullable'],
-			];
+		Hook::add('User::ChangePassword::BeforeFields', $this->noticeCallback('plugins.generic.openid.disables.fields.info.password'));
+	}
+
+	/** Whether the provider owns this profile field. */
+	private function isFieldManaged(array $settings, string $field): bool
+	{
+		return ($settings['disableFields'][$field] ?? null) == 1;
+	}
+
+	private function protectManagedProfileFields(PKPRequest $request, array $settings): void
+	{
+		$templateMgr = TemplateManager::getManager($request);
+
+		$identityFields = [];
+		if ($this->isFieldManaged($settings, 'givenName')) {
+			$identityFields[] = 'givenName';
 		}
 
-		return false;
-	}
-
-	public function getPluginSpecificFields(): array
-	{
-		$pluginSpecificFields = [
-			OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING,
-		];
-
-		$providers = OpenIDPlugin::$publicOpenidProviders;
-		foreach ($providers as $key => $value) {
-			$pluginSpecificFields[] = OpenIDPlugin::getOpenIDUserSetting($key);
+		if ($this->isFieldManaged($settings, 'familyName')) {
+			$identityFields[] = 'familyName';
 		}
 
-		return $pluginSpecificFields;
+		if (!empty($identityFields)) {
+			$templateMgr->setFieldsReadonly(IdentityForm::class, ...$identityFields);
+		}
+
+		if ($this->isFieldManaged($settings, 'email')) {
+			$templateMgr->setFieldsReadonly(ContactForm::class, 'email');
+		}
+
+		$apiKeyManaged = ($settings['generateAPIKey'] ?? null) == 1;
+		if ($apiKeyManaged) {
+			$this->authPageHooks()->inheritFormTemplate('apiprofileform', 'user/apiProfileForm.tpl', 'hideApiKeyActions');
+		}
+
+		if (!empty($identityFields)) {
+			Hook::add('User::Identity::BeforeFields', $this->noticeCallback('plugins.generic.openid.disables.fields.info'));
+		}
+
+		if ($this->isFieldManaged($settings, 'email')) {
+			Hook::add('User::Contact::BeforeFields', $this->noticeCallback('plugins.generic.openid.disables.fields.info'));
+		}
+
+		if ($apiKeyManaged) {
+			Hook::add('User::APIProfile::BeforeFields', $this->noticeCallback('plugins.generic.openid.disables.fields.info.api'));
+		}
 	}
 
-	/**
-	 * Manage force reload of this schema.
-	 *
-	 * @param string $hookName `Schema::get::before::user`
-	 * @param array $args [
-	 *
-	 *      @option bool $forceReload
-	 * ]
-	 *
-	 */
-	public function beforeGetSchema(string $hookName, bool &$forceReload): bool
+	private function noticeCallback(string ...$localeKeys): callable
 	{
-		$forceReload = true;
-
-		return false;
-	}
-
-	/**
-	 * Manage force reload of this schema.
-	 *
-	 * @param string $hookName `Schema::get::before::user`
-	 * @param array $args [
-	 *
-	 *      @option User $newUser
-	 *      @option User $user
-	 *      @option array $params
-	 * ]
-	 *
-	 */
-	public function addIdpInfoToUser(string $hookName, array $args): bool
-	{
-		$newUser = $args[0];
-
-		$dbUser = Repo::user()->get($newUser->getId());
-
-		$pluginSpecificFields = $this->getPluginSpecificFields();
-
-		foreach ($pluginSpecificFields as $pluginSpecificField) {
-			$dbUserFieldValue = $dbUser->getData($pluginSpecificField);
-			$newUserFieldValue = $newUser->getData($pluginSpecificField);
-			if (isset($dbUserFieldValue) && !isset($newUserFieldValue)) {
-				$newUser->setData($pluginSpecificField, $dbUserFieldValue);
+		return function (string $hookName, array $args) use ($localeKeys): bool {
+			$output = &$args[2];
+			foreach ($localeKeys as $localeKey) {
+				$output .= '<p class="cmp_notification">' . __($localeKey) . '</p>';
 			}
-		}
 
-		return false;
+			return false;
+		};
+	}
+
+	private function authPageHooks(): AuthPageHooksHelper
+	{
+		return $this->authPageHooks ??= new AuthPageHooksHelper($this);
 	}
 
 	/**
@@ -361,15 +339,10 @@ class OpenIDPlugin extends GenericPlugin
 				return true;
 			case 'login/index':
 			case 'login/legacyLogin':
+			case 'login/signIn':
 			case 'login/signOut':
 				$handler = new OpenIDLoginHandler($this);
 				return true;
-			case 'user/register':
-				if (!$request->isPost()) {
-					$handler = new OpenIDLoginHandler($this);
-					return true;
-				}
-				break;
 		}
 
 		return false;
@@ -452,7 +425,51 @@ class OpenIDPlugin extends GenericPlugin
 	public static function getOpenIDSettings(OpenIDPlugin $plugin, ?int $contextId = null): ?array
 	{
 		$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
-		return $settingsJson ? json_decode($settingsJson, true) : null;
+		$settings = $settingsJson ? json_decode($settingsJson, true) : null;
+
+		if (is_array($settings['provider'] ?? null)) {
+			foreach ($settings['provider'] as &$provider) {
+				if (!empty($provider['clientSecret'])) {
+					$provider['clientSecret'] = self::decryptSecret($provider['clientSecret']);
+				}
+			}
+
+			unset($provider);
+		}
+
+		return $settings;
+	}
+
+	public static function encryptSecret(string $value): string
+	{
+		return Crypt::encryptString($value);
+	}
+
+	public static function decryptSecret(string $value): string
+	{
+		if (!self::looksEncrypted($value)) {
+			return $value;
+		}
+
+		try {
+			return Crypt::decryptString($value);
+		} catch (DecryptException $e) {
+			error_log('openidplugin - stored client secret could not be decrypted; app_key may have changed since it was saved. Re-enter the secret in the plugin settings.');
+
+			return '';
+		}
+	}
+
+	private static function looksEncrypted(string $value): bool
+	{
+		$decoded = base64_decode($value, true);
+		if ($decoded === false) {
+			return false;
+		}
+
+		$payload = json_decode($decoded, true);
+
+		return is_array($payload) && isset($payload['iv'], $payload['value'], $payload['mac']);
 	}
 
 	public static function getContextData(PKPRequest $request): ContextData
