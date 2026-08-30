@@ -30,10 +30,10 @@ use APP\plugins\generic\openid\forms\OpenIDStep2Form;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
 use Exception;
+use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use GuzzleHttp\Exception\GuzzleException;
-use phpseclib\Crypt\RSA;
-use phpseclib\Math\BigInteger;
 use PKP\config\Config;
 use APP\facades\Repo;
 use PKP\security\Role;
@@ -57,9 +57,6 @@ class OpenIDHandler extends Handler
 
 	/**
 	 * This function is called via OpenID provider redirect URL.
-	 * It receives the authentication code via the get parameter and uses $this->_getTokenViaAuthCode to exchange the code into a JWT
-	 * The JWT is validated with the public key of the server fetched by $this->_getOpenIDAuthenticationCert.
-	 * If the JWT and the key are successfully retrieved, the JWT is validated and extracted using $this->_validateAndExtractToken.
 	 *
 	 * If no user was found with the provided OpenID identifier a second step is called to connect a local account with the OpenID account, or to register a
 	 * new OJS account. It is possible for a user to connect his/her OJS account to more than one OpenID provider.
@@ -94,12 +91,34 @@ class OpenIDHandler extends Handler
 
 		$providerSettings = $settings['provider'][$selectedProvider];
 
-		$token = $this->getTokenViaAuthCode($providerSettings, $request->getUserVar('code'), $selectedProvider);
+		$session = $request->getSession();
+		$pending = $session->get(OpenIDPlugin::SESSION_AUTH_REQUEST);
+		$pending = is_array($pending) ? $pending : [];
+		$authRequest = $pending[$selectedProvider] ?? null;
+
+		unset($pending[$selectedProvider]);
+		$session->put(OpenIDPlugin::SESSION_AUTH_REQUEST, $pending);
+
+		if (!is_array($authRequest)
+			|| !is_string($request->getUserVar('state'))
+			|| !hash_equals((string) $authRequest['state'], (string) $request->getUserVar('state'))) {
+			error_log($this->plugin->getName() . ' - authorization state did not match the session');
+
+			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CONNECT_DATA);
+		}
+
+		$token = $this->getTokenViaAuthCode(
+			$providerSettings,
+			$request->getUserVar('code'),
+			$authRequest['redirectUri'],
+			$authRequest['codeVerifier']
+		);
+
 		if (!$token) {
 			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CONNECT_KEY);
 		}
 
-		$userClaims = $this->getCompleteClaims($providerSettings, $token);
+		$userClaims = $this->getCompleteClaims($providerSettings, $token, $authRequest['nonce']);
 
 		if (!$userClaims || $userClaims->isEmpty()) {
 			return $this->handleSSOError($request, $contextPath, OpenIDPlugin::SSO_ERROR_CERTIFICATION);
@@ -272,7 +291,7 @@ class OpenIDHandler extends Handler
 	 * An array with the access_token, id_token and/or refresh_token is returned on success, otherwise null.
 	 * The OpenID implementation differs a bit between the providers. Some use an id_token, others a refresh token.
 	 */
-	private function getTokenViaAuthCode(array $providerSettings, string $authorizationCode, string $selectedProvider): ?array
+	private function getTokenViaAuthCode(array $providerSettings, string $authorizationCode, string $redirectUri, string $codeVerifier): ?array
 	{
 		$httpClient = Application::get()->getHttpClient();
 		$params = [
@@ -280,13 +299,8 @@ class OpenIDHandler extends Handler
 			'grant_type' => 'authorization_code',
 			'client_id' => $providerSettings['clientId'],
 			'client_secret' => $providerSettings['clientSecret'],
-			'redirect_uri' => Application::get()->getRequest()->url(
-				null,
-				'openid',
-				'doAuthentication',
-				null,
-				['provider' => $selectedProvider]
-			),
+			'redirect_uri' => $redirectUri,
+			'code_verifier' => $codeVerifier,
 		];
 
 		try {
@@ -322,88 +336,85 @@ class OpenIDHandler extends Handler
 	}
 
 	/**
-	 * This function uses the certs endpoint of the openid provider to get the server certificate.
-	 * There are provider-specific differences in case of the certificate.
+	 * Fetch the provider's signing keys from its JWKS endpoint.
 	 *
-	 * E.g.
-	 * - Keycloak uses x5c as certificate format which included the cert.
-	 * - Other vendors provide the cert modulus and exponent and the cert has to be created via phpseclib/RSA
-	 *
-	 * If no key is found, null is returned
+	 * @return array<string, Key> Empty if it cannot be retrieved or parsed
 	 */
-	private function getOpenIDAuthenticationCert(?array $providerSettings): ?array
+	private function getSigningKeys(array $providerSettings): array
 	{
-		$httpClient = Application::get()->getHttpClient();
-		$publicKeys = [];
-		$beginCert = '-----BEGIN CERTIFICATE-----';
-		$endCert = '-----END CERTIFICATE----- ';
-
 		try {
-			$response = $httpClient->request('GET', $providerSettings['certUrl']);
+			$response = Application::get()->getHttpClient()->request('GET', $providerSettings['certUrl'] ?? '');
+
 			if ($response->getStatusCode() != 200) {
-				error_log($this->plugin->getName() . ' - Guzzle Response != 200: ' . $response->getStatusCode());
-				return null;
+				error_log($this->plugin->getName() . ' - JWKS request returned ' . $response->getStatusCode());
+
+				return [];
 			}
 
-			$result = $response->getBody()->getContents();
-			$arr = json_decode($result, true);
-
-			if (!isset($arr['keys'])) {
-				return null;
-			}
-
-			foreach ($arr['keys'] as $key) {
-				if (($key['alg'] ?? null) == 'RS256' || ($key['kty'] ?? null) == 'RSA') {
-					if (is_array($key['x5c'] ?? null)) {
-						foreach ($key['x5c'] as $n) {
-							if (!empty($n)) {
-								$publicKeys[] = $beginCert . PHP_EOL . $n . PHP_EOL . $endCert;
-							}
-						}
-					} elseif (isset($key['n'], $key['e'])) {
-						$rsa = new RSA();
-						$modulus = new BigInteger(JWT::urlsafeB64Decode($key['n']), 256);
-						$exponent = new BigInteger(JWT::urlsafeB64Decode($key['e']), 256);
-						$rsa->loadKey(['n' => $modulus, 'e' => $exponent]);
-						$publicKeys[] = $rsa->getPublicKey();
-					}
-				}
-			}
+			return JWK::parseKeySet(json_decode($response->getBody()->getContents(), true) ?? [], 'RS256');
 		} catch (GuzzleException $e) {
-			error_log($this->plugin->getName() . ' - Guzzle Exception thrown: ' . $e->getMessage());
+			error_log($this->plugin->getName() . ' - JWKS request failed: ' . $e->getMessage());
+		} catch (Exception $e) {
+			error_log($this->plugin->getName() . ' - JWKS could not be parsed: ' . $e->getMessage());
 		}
 
-		return $publicKeys;
+		return [];
 	}
 
 	/**
-	 * Validates the token via JWT and public key and returns the token claims data as array.
-	 * In case of an error null is returned
+	 * Validate the id_token and return its claims. Signature, `exp` and `nbf` come from
+	 * JWT::decode(), `iss`, `aud`, `azp` and `nonce` are checked here.
+	 *
+	 * @param array<string, Key> $keys Indexed by kid
 	 */
-	private function getClaimsFromJwt(array $token, array $publicKeys): ?UserClaims
+	private function getClaimsFromIdToken(string $idToken, array $keys, array $providerSettings, ?string $expectedNonce): ?UserClaims
 	{
-		foreach ($publicKeys as $publicKey) {
-			foreach ($token as $t) {
-				try {
-					if ($t) {
-						$jwtPayload = JWT::decode($t, new \Firebase\JWT\Key($publicKey, 'RS256'));
+		try {
+			$payload = (array) JWT::decode($idToken, $keys);
+		} catch (Exception $e) {
+			error_log($this->plugin->getName() . ' - id_token rejected: ' . $e->getMessage());
 
-						if ($jwtPayload) {
-							$claimsParams = (array)$jwtPayload;
-
-							$claims = new UserClaims();
-							$claims->setValues($claimsParams);
-
-							return $claims;
-						}
-					}
-				} catch (Exception $e) {
-					continue;
-				}
-			}
+			return null;
 		}
 
-		return null;
+		$expectedIssuer = $providerSettings['issuer'] ?? null;
+
+		// Microsoft multi-tenant discovery returns the issuer with a {tenantid} placeholder
+		if ($expectedIssuer && str_contains($expectedIssuer, '{tenantid}')) {
+			$expectedIssuer = str_replace('{tenantid}', (string) ($payload['tid'] ?? ''), $expectedIssuer);
+		}
+
+		if ($expectedIssuer && ($payload['iss'] ?? null) !== $expectedIssuer) {
+			error_log($this->plugin->getName() . ' - id_token issuer mismatch');
+
+			return null;
+		}
+
+		$clientId = $providerSettings['clientId'] ?? '';
+		$audiences = (array) ($payload['aud'] ?? []);
+
+		if (!in_array($clientId, $audiences, true)) {
+			error_log($this->plugin->getName() . ' - id_token was not issued for this client');
+
+			return null;
+		}
+
+		if (count($audiences) > 1 && ($payload['azp'] ?? null) !== $clientId) {
+			error_log($this->plugin->getName() . ' - id_token azp mismatch');
+
+			return null;
+		}
+
+		if ($expectedNonce !== null && !hash_equals($expectedNonce, (string) ($payload['nonce'] ?? ''))) {
+			error_log($this->plugin->getName() . ' - id_token nonce mismatch');
+
+			return null;
+		}
+
+		$claims = new UserClaims();
+		$claims->setValues($payload);
+
+		return $claims;
 	}
 
 	/**
@@ -442,21 +453,32 @@ class OpenIDHandler extends Handler
 		}
 	}
 
-	private function getCompleteClaims(array $providerSettings, array $token): ?UserClaims
+	private function getCompleteClaims(array $providerSettings, array $token, ?string $expectedNonce = null): ?UserClaims
 	{
 		$retUserClaims = new UserClaims();
 
-		$publicKey = $this->getOpenIDAuthenticationCert($providerSettings);
-
-		if (!$publicKey) {
+		if (empty($token[OpenIDPlugin::ID_TOKEN_NAME])) {
+			error_log($this->plugin->getName() . ' - provider returned no id_token');
 			return null;
 		}
 
-		$jwtClaims = $this->getClaimsFromJwt($token, $publicKey);
-
-		if ($jwtClaims != null) {
-			$retUserClaims->merge($jwtClaims);
+		$keys = $this->getSigningKeys($providerSettings);
+		if (empty($keys)) {
+			return null;
 		}
+
+		$jwtClaims = $this->getClaimsFromIdToken(
+			$token[OpenIDPlugin::ID_TOKEN_NAME],
+			$keys,
+			$providerSettings,
+			$expectedNonce
+		);
+
+		if ($jwtClaims === null) {
+			return null;
+		}
+
+		$retUserClaims->merge($jwtClaims);
 
 		if (!$retUserClaims->isComplete()) {
 			$userInfoClaims = $this->getClaimsFromUserInfo($providerSettings, $token);

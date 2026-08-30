@@ -21,7 +21,9 @@ use APP\plugins\generic\openid\classes\ContextData;
 use APP\plugins\generic\openid\forms\OpenIDPluginSettingsForm;
 use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\handler\OpenIDLoginHandler;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Crypt;
 use PKP\core\PKPApplication;
 use PKP\core\PKPRequest;
 use PKP\linkAction\LinkAction;
@@ -30,8 +32,6 @@ use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
 use PKP\core\JSONMessage;
 use APP\template\TemplateManager;
-
-require_once(dirname(__FILE__) . '/vendor/autoload.php');
 
 class OpenIDPlugin extends GenericPlugin
 {
@@ -63,6 +63,8 @@ class OpenIDPlugin extends GenericPlugin
 	public static Collection $publicOpenidProviders;
 
 	public const ID_TOKEN_NAME = 'id_token';
+
+	public const SESSION_AUTH_REQUEST = 'openid::authRequest';
 
 	public function __construct() 
 	{
@@ -452,7 +454,51 @@ class OpenIDPlugin extends GenericPlugin
 	public static function getOpenIDSettings(OpenIDPlugin $plugin, ?int $contextId = null): ?array
 	{
 		$settingsJson = $plugin->getSetting($contextId, 'openIDSettings');
-		return $settingsJson ? json_decode($settingsJson, true) : null;
+		$settings = $settingsJson ? json_decode($settingsJson, true) : null;
+
+		if (is_array($settings['provider'] ?? null)) {
+			foreach ($settings['provider'] as &$provider) {
+				if (!empty($provider['clientSecret'])) {
+					$provider['clientSecret'] = self::decryptSecret($provider['clientSecret']);
+				}
+			}
+
+			unset($provider);
+		}
+
+		return $settings;
+	}
+
+	public static function encryptSecret(string $value): string
+	{
+		return Crypt::encryptString($value);
+	}
+
+	public static function decryptSecret(string $value): string
+	{
+		if (!self::looksEncrypted($value)) {
+			return $value;
+		}
+
+		try {
+			return Crypt::decryptString($value);
+		} catch (DecryptException $e) {
+			error_log('openidplugin - stored client secret could not be decrypted; app_key may have changed since it was saved. Re-enter the secret in the plugin settings.');
+
+			return '';
+		}
+	}
+
+	private static function looksEncrypted(string $value): bool
+	{
+		$decoded = base64_decode($value, true);
+		if ($decoded === false) {
+			return false;
+		}
+
+		$payload = json_decode($decoded, true);
+
+		return is_array($payload) && isset($payload['iv'], $payload['value'], $payload['mac']);
 	}
 
 	public static function getContextData(PKPRequest $request): ContextData

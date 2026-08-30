@@ -147,6 +147,14 @@ class OpenIDPluginSettingsForm extends Form
 			$providerList = $this->getData('provider');
 			$providerListResult = $this->_createProviderList($providerList, $settingsTMP['provider'] ?? null);
 
+			foreach ($providerListResult as &$provider) {
+				if (!empty($provider['clientSecret'])) {
+					$provider['clientSecret'] = OpenIDPlugin::encryptSecret($provider['clientSecret']);
+				}
+			}
+
+			unset($provider);
+
 			$settings = [
 				'provider' => $providerListResult,
 				'legacyLogin' => $this->getData('legacyLogin'),
@@ -215,6 +223,7 @@ class OpenIDPluginSettingsForm extends Form
 
 				$openIdConfig = $this->_loadOpenIdConfig($provider['configUrl'] ?? '');
 				if (is_array($openIdConfig)) {
+					$provider['issuer'] = $openIdConfig['issuer'] ?? null;
 					$provider['authUrl'] = $openIdConfig['authorization_endpoint'] ?? null;
 					$provider['tokenUrl'] = $openIdConfig['token_endpoint'] ?? null;
 					$provider['userInfoUrl'] = $openIdConfig['userinfo_endpoint'] ?? null;
