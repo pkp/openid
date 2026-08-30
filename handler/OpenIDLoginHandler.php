@@ -55,13 +55,17 @@ class OpenIDLoginHandler extends LoginHandler
 		return parent::index($args, $request);
 	}
 
-	/**
-	 * Overwrites the default registration, because it is not needed anymore.
-	 * User registration is done via OpenID provider.
-	 */
-	function register(array $args, Request $request)
+	public function signIn(array $args, PKPRequest $request): void
 	{
-		$this->index($args, $request);
+		$username = $request->getUserVar('username');
+		$user = $username ? Repo::user()->getByUsername($username, true) : null;
+
+		if ($user && $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING)) {
+			$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, null);
+			Repo::user()->edit($user);
+		}
+
+		parent::signIn($args, $request);
 	}
 
 	/**

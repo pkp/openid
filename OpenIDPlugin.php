@@ -330,8 +330,7 @@ class OpenIDPlugin extends GenericPlugin
 
 		foreach ($pluginSpecificFields as $pluginSpecificField) {
 			$dbUserFieldValue = $dbUser->getData($pluginSpecificField);
-			$newUserFieldValue = $newUser->getData($pluginSpecificField);
-			if (isset($dbUserFieldValue) && !isset($newUserFieldValue)) {
+			if (isset($dbUserFieldValue) && !$newUser->hasData($pluginSpecificField)) {
 				$newUser->setData($pluginSpecificField, $dbUserFieldValue);
 			}
 		}
@@ -363,6 +362,7 @@ class OpenIDPlugin extends GenericPlugin
 				return true;
 			case 'login/index':
 			case 'login/legacyLogin':
+			case 'login/signIn':
 			case 'login/signOut':
 				$handler = new OpenIDLoginHandler($this);
 				return true;

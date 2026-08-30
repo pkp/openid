@@ -259,12 +259,12 @@ class OpenIDStep2Form extends Form
 
 			// prevent saving one openid:ident to multiple accounts
 			$userIds = Repo::user()->getCollector()
-				->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $decriptedOauthId])
+				->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider) => $decriptedOauthId])
 				->getIds();
 
 			if ($userIds->isEmpty()) {
 				$userIds = Repo::user()->getCollector()
-					->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), hash('sha256', $oauthId)])
+					->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider) => hash('sha256', $decriptedOauthId)])
 					->getIds();
 			}
 

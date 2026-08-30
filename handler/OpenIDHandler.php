@@ -255,8 +255,10 @@ class OpenIDHandler extends Handler
 				return;
 			}
 
-			$user->setData('apiKeyEnabled', true);
-			$user->setData('apiKey', OpenIDPlugin::encryptOrDecrypt($plugin, $contextId, $providerId));
+			if (!$user->getData('apiKey')) {
+				$user->setData('apiKeyEnabled', true);
+				$user->setData('apiKey', OpenIDPlugin::encryptOrDecrypt($plugin, $contextId, $providerId));
+			}
 		}
 	}
 
@@ -276,7 +278,7 @@ class OpenIDHandler extends Handler
 		}
 
 		$userIds = Repo::user()->getCollector()
-			->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider), hash('sha256', $idClaim)])
+			->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider) => hash('sha256', $idClaim)])
 			->getIds();
 
 		if ($userIds->isNotEmpty()) {

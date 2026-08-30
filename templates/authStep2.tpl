@@ -77,7 +77,7 @@
 									{translate key="common.required"}
 								</span>
 							</span>
-							<input type="text" name="familyName" id="familyName" value="{$familyName|escape}" maxlength="255">
+							<input type="text" name="familyName" id="familyName" value="{$familyName|escape}" maxlength="255" required aria-required="true">
 						</label>
 					</div>
 					<div class="email">

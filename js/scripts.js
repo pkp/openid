@@ -1,3 +1,5 @@
+document.querySelectorAll("#oauth [required]").forEach(e => e.dataset.wasRequired = "1");
+
 let pageOauth = document.querySelector('.page_oauth');
 let returnTo = document.querySelector('.page_oauth #returnTo');
 if (pageOauth !== undefined && pageOauth != null) {
@@ -20,19 +22,22 @@ if (pageOauth !== undefined && pageOauth != null) {
 
 }
 
+function applyRequired(panelId, active) {
+	document.querySelectorAll("#oauth #" + panelId + " input, #oauth #" + panelId + " select")
+		.forEach(e => e.required = active && e.dataset.wasRequired === "1");
+}
+
 function showRegisterForm() {
 	document.querySelector("#oauth #register-form").style.display = "block";
 	document.querySelector("#oauth #login-form").style.display = "none";
-	document.querySelectorAll("#oauth #register-form input:not(#emailConsent, .reviewerGroupInput)").forEach(e => e.required = true);
-	document.querySelectorAll("#oauth #register-form select").forEach(e => e.required = true);
-	document.querySelectorAll("#oauth #login-form input").forEach(e => e.required = false);
+	applyRequired("register-form", true);
+	applyRequired("login-form", false);
 }
 
 function showLoginForm() {
 	document.querySelector("#oauth #register-form").style.display = "none";
 	document.querySelector("#oauth #login-form").style.display = "block";
-	document.querySelectorAll("#oauth #register-form input").forEach(e => e.required = false);
-	document.querySelectorAll("#oauth #register-form select").forEach(e => e.required = false);
-	document.querySelectorAll("#oauth #login-form input").forEach(e => e.required = true);
+	applyRequired("register-form", false);
+	applyRequired("login-form", true);
 }
 
