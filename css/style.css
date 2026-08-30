@@ -18,6 +18,9 @@
 #openid-provider-list {
 	padding: 0;
 	width: 400px;
+	max-width: 100%;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #openid-provider-list li {
@@ -34,12 +37,14 @@
 }
 
 #openid-provider-list li:not([class="page_login"]) a img {
-	margin: 9px 6px 0 12px;
+	margin: 0 6px 0 12px;
 	max-height: 22px;
 	max-width: 22px;
 }
 
 #openid-provider-list li:not([class="page_login"]) a > div {
+	display: flex;
+	align-items: center;
 	min-width: 215px;
 	min-height: 42px;
 	max-height: 42px;
@@ -50,11 +55,6 @@
 	border: 1px solid rgba(0, 0, 0, 0.4);
 	border-top-color: #bbbbbb;
 	border-radius: 3px;
-}
-
-#openid-provider-list li:not([class="page_login"]) a > div > span {
-	position: relative;
-	bottom: 6px;
 }
 
 .margin-top-30 {
@@ -115,4 +115,16 @@
 
 .page_oauth{
 	min-height: 65vh;
+}
+
+/* Notice on profile forms whose fields are managed by the IdP */
+.cmp_notification {
+	display: block;
+	width: 100%;
+	padding: 20px;
+	margin-bottom: 40px;
+	background: #ddd;
+	border-left: 5px solid #007ab2;
+	font-size: 14px;
+	line-height: 20px;
 }

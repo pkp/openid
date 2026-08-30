@@ -355,6 +355,8 @@ class OpenIDStep2Form extends Form
 		// Store the hash on the user
 		$user->setPassword($hashedPassword);
 
+		$user->setData(OpenIDPlugin::USER_OPENID_GENERATED_PASSWORD_SETTING, true);
+
 		Repo::user()->add($user);
 		
 		if ($user->getId()) {
