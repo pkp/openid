@@ -24,6 +24,7 @@ namespace APP\plugins\generic\openid\handler;
 use APP\core\Application;
 use APP\core\Request;
 use APP\handler\Handler;
+use APP\notification\NotificationManager;
 use APP\plugins\generic\openid\classes\ContextData;
 use APP\plugins\generic\openid\classes\UserClaims;
 use APP\plugins\generic\openid\forms\OpenIDStep2Form;
@@ -35,6 +36,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use GuzzleHttp\Exception\GuzzleException;
 use PKP\config\Config;
+use PKP\notification\Notification;
 use APP\facades\Repo;
 use PKP\security\Role;
 use PKP\security\Validation;
@@ -229,10 +231,10 @@ class OpenIDHandler extends Handler
 			if (!empty($claims->email) && !array_key_exists('email', $disabledFields) && Repo::user()->getByEmail($claims->email) === null) {
 				$user->setEmail($claims->email);
 			}
+		}
 
-			if (!empty($claims->id) && $selectedProvider === OpenIDPlugin::PROVIDER_ORCID) {
-				$user->setOrcid($claims->id);
-			}
+		if ($selectedProvider === OpenIDPlugin::PROVIDER_ORCID && $claims && !empty($claims->id)) {
+			self::prefillOrcid($user, $settings['provider'][$selectedProvider] ?? [], $claims->id);
 		}
 
 		$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, $selectedProvider);
@@ -243,6 +245,72 @@ class OpenIDHandler extends Handler
 		}
 
 		Repo::user()->edit($user);
+	}
+
+	private static function notifyOrcidConflict(User $user, string $incomingUri): void
+	{
+		error_log(sprintf(
+			'openid - user %d signed in with %s but keeps the verified %s',
+			$user->getId(),
+			$incomingUri,
+			$user->getOrcid()
+		));
+
+		$notificationManager = new NotificationManager();
+		$notificationManager->createTrivialNotification(
+			$user->getId(),
+			Notification::NOTIFICATION_TYPE_WARNING,
+			['contents' => __('plugins.generic.openid.orcid.conflict', [
+				'storedOrcid' => htmlspecialchars($user->getOrcid(), ENT_QUOTES, 'UTF-8'),
+				'incomingOrcid' => htmlspecialchars($incomingUri, ENT_QUOTES, 'UTF-8'),
+			])]
+		);
+	}
+
+	/**
+	 * Fill the ORCID ID after authentication.
+	 */
+	private static function prefillOrcid(User $user, array $providerSettings, string $orcidId): void
+	{
+		$incoming = self::generateOrcidUri($providerSettings, $orcidId);
+		$stored = (string) $user->getOrcid();
+
+		if ($stored === '') {
+			$user->setOrcid($incoming);
+
+			return;
+		}
+
+		if (self::bareOrcid($stored) !== self::bareOrcid($incoming) && $user->hasVerifiedOrcid()) {
+			self::notifyOrcidConflict($user, $incoming);
+		}
+	}
+
+	private static function generateOrcidUri(array $providerSettings, string $orcidId): string
+	{
+		if (preg_match('#^https?://#i', $orcidId)) {
+			return $orcidId;
+		}
+
+		$issuer = rtrim((string) ($providerSettings['issuer'] ?? ''), '/');
+
+		if ($issuer === '' && !empty($providerSettings['configUrl'])) {
+			$parts = parse_url($providerSettings['configUrl']);
+
+			if (!empty($parts['scheme']) && !empty($parts['host'])) {
+				$issuer = $parts['scheme'] . '://' . $parts['host'];
+			}
+		}
+
+		return $issuer === '' ? $orcidId : $issuer . '/' . $orcidId;
+	}
+
+	/**
+	 * The ID without the environment prefix, so sandbox and production compare equal.
+	 */
+	private static function bareOrcid(string $value): string
+	{
+		return preg_match('#(\d{4}-\d{4}-\d{4}-\d{3}[\dX])#', $value, $matches) ? $matches[1] : $value;
 	}
 
 	private static function updateApiKey(OpenIDPlugin $plugin, ?int $contextId, User $user, string $providerId, array $settings, string $selectedProvider)

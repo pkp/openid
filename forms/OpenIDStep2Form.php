@@ -274,9 +274,6 @@ class OpenIDStep2Form extends Form
 				if ($register) {
 					$user = $this->_registerUser();
 					if (isset($user)) {
-						if ($selectedProvider == OpenIDPlugin::PROVIDER_ORCID) {
-							$user->setOrcid($decriptedOauthId);
-						}
 						$user->setData(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $decriptedOauthId);
 						
 						Repo::user()->edit($user);

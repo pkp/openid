@@ -278,6 +278,9 @@ msgstr "Register Account (without Oauth)"
 msgid "plugins.generic.openid.disables.fields.info"
 msgstr "Some information is provided by an authenticated account used to login and cannot be edited.<br /> The data will be synced whenever you log out and login again."
 
+msgid "plugins.generic.openid.orcid.conflict"
+msgstr "Your account already has a different authenticated ORCID iD ({$storedOrcid}), so the details from {$incomingOrcid} were not applied. To change them, remove the ORCID iD from your profile and sign in again."
+
 msgid "plugins.generic.openid.disables.fields.info.orcid"
 msgstr "The ORCID is automatically provided by your authenticated ORCID account."
 
