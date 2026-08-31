@@ -23,9 +23,11 @@ use APP\plugins\generic\openid\classes\UserSchemaHelper;
 use APP\plugins\generic\openid\forms\OpenIDPluginSettingsForm;
 use APP\plugins\generic\openid\handler\OpenIDHandler;
 use APP\plugins\generic\openid\handler\OpenIDLoginHandler;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Event;
 use PKP\core\PKPApplication;
 use PKP\core\PKPRequest;
 use PKP\form\FormBuilderVocabulary;
@@ -76,6 +78,8 @@ class OpenIDPlugin extends GenericPlugin
 	private ?AuthPageHooksHelper $authPageHooks = null;
 
 	public const SESSION_AUTH_REQUEST = 'openid::authRequest';
+
+	public const SESSION_PENDING_LINK = 'openid::pendingLink';
 
 	public function __construct() 
 	{
@@ -235,11 +239,27 @@ class OpenIDPlugin extends GenericPlugin
 				}
 
 				Hook::add('LoadHandler', [$this, 'setPageHandler']);
+				Event::listen(Login::class, [$this, 'clearProviderOnLocalLogin']);
 				$this->authPageHooks()->register($request, $settings);
 			}
 		}
 
 		return $success;
+	}
+
+	/**
+	 * Forget the provider once the user signs in with a local password.
+	 */
+	public function clearProviderOnLocalLogin(Login $event): void
+	{
+		$user = $event->user;
+
+		if (!$user instanceof User || !$user->getData(self::USER_OPENID_LAST_PROVIDER_SETTING)) {
+			return;
+		}
+
+		$user->setData(self::USER_OPENID_LAST_PROVIDER_SETTING, null);
+		Repo::user()->edit($user);
 	}
 
 	private function lockPassword(PKPRequest $request): void
@@ -339,7 +359,6 @@ class OpenIDPlugin extends GenericPlugin
 				return true;
 			case 'login/index':
 			case 'login/legacyLogin':
-			case 'login/signIn':
 			case 'login/signOut':
 				$handler = new OpenIDLoginHandler($this);
 				return true;
