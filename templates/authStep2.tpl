@@ -14,8 +14,6 @@
 	{include file="frontend/components/breadcrumbs.tpl" currentTitleKey="plugins.generic.openid.step2.title"}
 	<form class="cmp_form cmp_form oauth" id="oauth" method="post" action="{url page="openid" op="registerOrConnect"}">
 		{csrf}
-		<input type="hidden" name="oauthId" id="oauthId" value="{$oauthId}">
-		<input type="hidden" name="selectedProvider" id="selectedProvider" value="{$selectedProvider}">
 		<input type="hidden" name="returnTo" id="returnTo" value="{$returnTo}">
 
 		{if $siteTitle}

@@ -133,6 +133,12 @@ class OpenIDHandler extends Handler
 		if (!$user) {
 			$session->put(OpenIDPlugin::ID_TOKEN_NAME, OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token[OpenIDPlugin::ID_TOKEN_NAME]));
 
+			// The identity stays on the server, the form only collects the account details
+			$session->put(OpenIDPlugin::SESSION_PENDING_LINK, [
+				'provider' => $selectedProvider,
+				'id' => $userClaims->id,
+			]);
+
 			$regForm = new OpenIDStep2Form($this->plugin, $selectedProvider, $userClaims);
 			$regForm->initData();
 			return $regForm->fetch($request, null, true);
@@ -184,6 +190,10 @@ class OpenIDHandler extends Handler
 		$contextPath = OpenIDPlugin::getContextData($request)->getPath();
 
 		if (!$request->isPost()) {
+			return $request->redirect($contextPath, 'login');
+		}
+
+		if (!is_array($request->getSession()->get(OpenIDPlugin::SESSION_PENDING_LINK))) {
 			return $request->redirect($contextPath, 'login');
 		}
 
@@ -552,7 +562,16 @@ class OpenIDHandler extends Handler
 
 		if (!$retUserClaims->isComplete()) {
 			$userInfoClaims = $this->getClaimsFromUserInfo($providerSettings, $token);
-			$retUserClaims->merge($userInfoClaims); // Merge UserInfo claims into JWT claims
+
+			if ($userInfoClaims) {
+				if ($userInfoClaims->id !== $jwtClaims->id) {
+					error_log($this->plugin->getName() . ' - UserInfo describes a different subject than the id_token');
+
+					return null;
+				}
+
+				$retUserClaims->merge($userInfoClaims); // Merge UserInfo claims into JWT claims
+			}
 		}
 
 		return $retUserClaims;

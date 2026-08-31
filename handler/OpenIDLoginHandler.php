@@ -55,19 +55,6 @@ class OpenIDLoginHandler extends LoginHandler
 		return parent::index($args, $request);
 	}
 
-	public function signIn(array $args, PKPRequest $request): void
-	{
-		$username = $request->getUserVar('username');
-		$user = $username ? Repo::user()->getByUsername($username, true) : null;
-
-		if ($user && $user->getData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING)) {
-			$user->setData(OpenIDPlugin::USER_OPENID_LAST_PROVIDER_SETTING, null);
-			Repo::user()->edit($user);
-		}
-
-		parent::signIn($args, $request);
-	}
-
 	/**
 	 * Overwrites default signOut.
 	 * Performs logout and if logoutUrl is provided (e.g. Apple doesn't provide this url) it redirects to the oauth logout to delete session and tokens.

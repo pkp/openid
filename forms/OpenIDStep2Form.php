@@ -131,8 +131,6 @@ class OpenIDStep2Form extends Form
 			}
 
 			$this->_data = [
-				'selectedProvider' => $this->selectedProvider ?? null,
-				'oauthId' => OpenIDPlugin::encryptOrDecrypt($this->plugin, $this->contextId, $this->claims->id),
 				'username' => $this->claims->username,
 				'givenName' => $this->claims->givenName,
 				'familyName' => $this->claims->familyName,
@@ -150,8 +148,6 @@ class OpenIDStep2Form extends Form
 		parent::readInputData();
 		$this->readUserVars(
 			[
-				'selectedProvider',
-				'oauthId',
 				'username',
 				'email',
 				'givenName',
@@ -246,25 +242,28 @@ class OpenIDStep2Form extends Form
 	{
 		$register = is_string($this->getData('register'));
 		$connect = is_string($this->getData('connect'));
-		$oauthId = $this->getData('oauthId');
-		$selectedProvider = $this->getData('selectedProvider');
+		$session = Application::get()->getRequest()->getSession();
+		$pendingLink = $session->get(OpenIDPlugin::SESSION_PENDING_LINK);
+		$pendingLink = is_array($pendingLink) ? $pendingLink : [];
+
+		$oauthId = $pendingLink['id'] ?? null;
+		$selectedProvider = $pendingLink['provider'] ?? null;
 
 		$result = false;
 		$userClaims = null;
 
 		if (!empty($oauthId) && !empty($selectedProvider)) {
-			$decriptedOauthId = OpenIDPlugin::encryptOrDecrypt($this->plugin, $this->contextId, $oauthId, false);
 			$userClaims = new UserClaims();
-			$userClaims->id = $decriptedOauthId;
+			$userClaims->id = $oauthId;
 
 			// prevent saving one openid:ident to multiple accounts
 			$userIds = Repo::user()->getCollector()
-				->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider) => $decriptedOauthId])
+				->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider) => $oauthId])
 				->getIds();
 
 			if ($userIds->isEmpty()) {
 				$userIds = Repo::user()->getCollector()
-					->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider) => hash('sha256', $decriptedOauthId)])
+					->filterBySettings([OpenIDPlugin::getOpenIDUserSetting($selectedProvider) => hash('sha256', $oauthId)])
 					->getIds();
 			}
 
@@ -274,7 +273,7 @@ class OpenIDStep2Form extends Form
 				if ($register) {
 					$user = $this->_registerUser();
 					if (isset($user)) {
-						$user->setData(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $decriptedOauthId);
+						$user->setData(OpenIDPlugin::getOpenIDUserSetting($selectedProvider), $oauthId);
 						
 						Repo::user()->edit($user);
 						$result = true;
@@ -299,7 +298,8 @@ class OpenIDStep2Form extends Form
 				}
 
 				if ($result && isset($user)) {
-					$session = Application::get()->getRequest()->getSession();
+					$session->forget(OpenIDPlugin::SESSION_PENDING_LINK);
+
 					$encodedIdToken = $session->get(OpenIDPlugin::ID_TOKEN_NAME);
 
 					$contextData = OpenIDPlugin::getContextData(Application::get()->getRequest());
