@@ -21,6 +21,7 @@ use APP\plugins\generic\openid\classes\ContextData;
 use APP\plugins\generic\openid\OpenIDPlugin;
 use APP\template\TemplateManager;
 use Illuminate\Support\Facades\Http;
+use PKP\config\Config;
 use PKP\core\PKPApplication;
 use PKP\core\PKPRequest;
 use PKP\facades\Locale;
@@ -52,7 +53,26 @@ class OpenIDLoginHandler extends LoginHandler
 
 	function legacyLogin(array $args, Request $request)
 	{
+		$this->addRecaptchaScript($request);
+
 		return parent::index($args, $request);
+	}
+
+	/**
+	 * Registers the reCAPTCHA script for ops other than
+	 * login/index and login/signIn, which core handles.
+	 */
+	private function addRecaptchaScript(PKPRequest $request): void
+	{
+		if (!Config::getVar('captcha', 'recaptcha') || !Config::getVar('captcha', 'captcha_on_login')) {
+			return;
+		}
+
+		TemplateManager::getManager($request)->addJavaScript(
+			'recaptcha',
+			'https://www.recaptcha.net/recaptcha/api.js?hl=' . Locale::getLocale(),
+			['contexts' => ['frontend-login-legacyLogin']]
+		);
 	}
 
 	/**
