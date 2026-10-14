@@ -97,6 +97,9 @@ class UserSchemaHelper
 		$newUser = $args[0];
 
 		$dbUser = Repo::user()->get($newUser->getId());
+		if (!$dbUser) {
+			return false;
+		}
 
 		foreach ($this->getPluginSpecificFields() as $pluginSpecificField) {
 			$dbUserFieldValue = $dbUser->getData($pluginSpecificField);
