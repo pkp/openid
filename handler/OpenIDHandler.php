@@ -156,6 +156,10 @@ class OpenIDHandler extends Handler
 
 		$session->put(OpenIDPlugin::ID_TOKEN_NAME, OpenIDPlugin::encryptOrDecrypt($this->plugin, $contextId, $token[OpenIDPlugin::ID_TOKEN_NAME]));
 
+		if (!empty($authRequest['source'])) {
+			return $request->redirectUrl($authRequest['source']);
+		}
+
 		if ($user->hasRole(
 			[
 				Role::ROLE_ID_SITE_ADMIN, 

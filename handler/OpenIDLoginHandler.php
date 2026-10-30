@@ -267,6 +267,7 @@ class OpenIDLoginHandler extends LoginHandler
 			'nonce' => $nonce,
 			'codeVerifier' => $codeVerifier,
 			'redirectUri' => $redirectUri,
+			'source' => self::getSafeSource($request),
 		];
 
 		$session->put(OpenIDPlugin::SESSION_AUTH_REQUEST, $pending);
@@ -281,6 +282,16 @@ class OpenIDLoginHandler extends LoginHandler
 			'code_challenge' => self::base64UrlEncode(hash('sha256', $codeVerifier, true)),
 			'code_challenge_method' => 'S256',
 		]);
+	}
+
+	/**
+	 * Local redirect target after login, validated like core LoginHandler::signIn.
+	 */
+	private static function getSafeSource(PKPRequest $request): ?string
+	{
+		$source = str_replace('@', '', (string) $request->getUserVar('source'));
+
+		return preg_match('#^/\w#', $source) === 1 ? $source : null;
 	}
 
 	private static function generateScope(string $providerName): string
