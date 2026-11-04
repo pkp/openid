@@ -323,6 +323,9 @@ class OpenIDPlugin extends GenericPlugin
 		$newUser = $args[0];
 
 		$dbUser = Repo::user()->get($newUser->getId());
+		if (!$dbUser) {
+			return false;
+		}
 
 		$pluginSpecificFields = $this->getPluginSpecificFields();
 
