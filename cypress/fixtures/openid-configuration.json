@@ -1,0 +1,11 @@
+{
+	"issuer": "http://127.0.0.1:8001",
+	"authorization_endpoint": "http://127.0.0.1:8001/authorize",
+	"token_endpoint": "http://127.0.0.1:8001/token",
+	"userinfo_endpoint": "http://127.0.0.1:8001/userinfo",
+	"jwks_uri": "http://127.0.0.1:8001/jwks",
+	"end_session_endpoint": "http://127.0.0.1:8001/logout",
+	"response_types_supported": ["code"],
+	"subject_types_supported": ["public"],
+	"id_token_signing_alg_values_supported": ["RS256"]
+}
