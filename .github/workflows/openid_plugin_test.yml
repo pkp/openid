@@ -12,7 +12,7 @@ on:
 jobs:
     full_ci:
         name: ${{ matrix.pkp-application }}(BRANCH=${{ matrix.pkp-branch }} ;PHP=${{ matrix.php-versions }}; DB=${{ matrix.dbs }})
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-24.04
         strategy:
             fail-fast: false
             matrix:
